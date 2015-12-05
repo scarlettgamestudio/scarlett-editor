@@ -1,7 +1,10 @@
 {
   "name": "scarlett-editor",
+  "author": "anlagehub",
   "version": "0.0.1",
   "dependencies": {
-    "angular": "^1.4.8"
+    "angular": "^1.4.8",
+    "angular-route": "1.4.x",
+    "angular-translate": "^2.8.1"
   }
 }

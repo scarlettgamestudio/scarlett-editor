@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html ng-app="scarlett">
+<head>
+    <!-- meta data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+
+    <!-- global settings -->
+    <title>{{ 'PRODUCT_TITLE' | translate }}</title>
+
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="css/libs/font-awesome.css"/>
+    <link rel="stylesheet" type="text/css" href="css/libs/nanoscroller.css"/>
+    <link rel="stylesheet" type="text/css" href="css/theme/theme.css"/>
+
+    <!-- javascript 3rd party modules -->
+    <script type="text/javascript" src="../node_modules/angular/angular.min.js"></script>
+    <script type="text/javascript" src="../node_modules/angular-route/angular-route.min.js"></script>
+    <script type="text/javascript" src="../node_modules/angular-translate/dist/angular-translate.min.js"></script>
+
+    <!-- core modules -->
+    <script type="text/javascript" src="core/app.js"></script>
+
+    <!-- translation files -->
+    <script type="text/javascript" src="translations/en.js"></script>
+
+    <!-- controllers -->
+    <script type="text/javascript" src="pages/login/loginCtrl.js"></script>
+
+</head>
+<body>
+    <div ng-view></div>
+</body>
+</html>
