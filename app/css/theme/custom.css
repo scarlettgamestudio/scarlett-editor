@@ -8,6 +8,15 @@
     overflow: hidden;
 }
 
+.headerInfo {
+    font-size: 0.45em;
+    color: #888;
+}
+
+.left-padding {
+    padding-left: 10px;
+}
+
 .sc-login-page a {
     color: #666;
     font-size: 0.9em;
