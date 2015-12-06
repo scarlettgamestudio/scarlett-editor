@@ -1,42 +1,50 @@
-<div class="container vertical-center" ng-controller="LoginCtrl">
-    <div class="main-box center-block sc-login-box">
+<div class="sc-login-page">
+    <div class="container sc-login-container vertical-center animated fadeIn" ng-controller="LoginCtrl">
+        <div class="row">
+            <div class="col-sm-6">
+                <h2><b><span class="text-scarlet">{{'PRODUCT_TITLE' | translate}}</span> {{'GAME_STUDIO' |
+                    translate}}</b></h2>
 
-        <h2><b>Welcome!</b></h2>
+                <p class="text-gray">Welcome! Please enter your credentials and have fun!</p>
+                <br/>
 
-        <p>Please enter your account details and have fun.</p>
+                <form name="loginForm" ng-submit="login(loginForm.$valid)">
 
-        <form name="loginForm" ng-submit="login(loginForm.$valid)">
-            <div class="input-group">
-                <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
-                <input ng-model="auth.username" name="username" type="text" class="form-control"
-                       placeholder="{{'PLACEHOLDER_LOGIN_IDENTITY' | translate}}" required>
-            </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control input-dark" id="username" name="username"
+                               ng-model="auth.username"
+                               autocomplete="on" placeholder="{{'PLACEHOLDER_LOGIN_IDENTITY' | translate}}" required>
+                    </div>
 
-            <div class="input-group">
-                <span class="input-group-addon"><i class="fa fa-key"></i></span>
-                <input ng-model="auth.password" type="password" class="form-control"
-                       placeholder="{{'PLACEHOLDER_LOGIN_PASSWORD' | translate}}" required>
-            </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control input-dark" id="password" name="password"
+                               ng-model="auth.password"
+                               autocomplete="on" placeholder="{{'PLACEHOLDER_LOGIN_PASSWORD' | translate}}" required>
+                    </div>
 
-            <div class="row">
-                <div class="col-xs-6">
                     <div class="checkbox-nice">
                         <input ng-model="auth.remember" type="checkbox" id="remember-me">
-                        <label for="remember-me">
+                        <label for="remember-me" class="text-gray">
                             {{ 'REMEMBER_ME' | translate }}
                         </label>
                     </div>
-                </div>
-                <a href="forgot-password.html" id="login-forget-link" class="col-xs-6">
-                    {{ 'FORGOT_PASSWORD' | translate }}
-                </a>
-            </div>
 
-            <div class="row">
-                <div class="col-xs-12">
-                    <button type="submit" class="btn btn-primary col-xs-12">{{ 'LOGIN' | translate }}</button>
-                </div>
+                    <br/>
+                    <button type="submit" class="btn btn-dark btn-block text-left">
+                        <i class="fa fa-sign-in"></i> &nbsp;{{ 'LOGIN' | translate }}
+                    </button>
+
+                    <br/><br/>
+
+                    <a ng-click="changeView('register')" class="important-href text-bold">
+                        <i class="fa fa-plus"></i> {{ 'CREATE_NEW_ACCOUNT' | translate }}
+                    </a> <br/>
+                    <a ng-href="forgot-password.html">
+                        {{ 'FORGOT_PASSWORD' | translate }}
+                    </a>
+                </form>
             </div>
-        </form>
+        </div>
+
     </div>
 </div>

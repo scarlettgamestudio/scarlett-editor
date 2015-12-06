@@ -1,3 +1,65 @@
+<div class="sc-login-page">
+    <div class="container sc-login-container vertical-center animated fadeIn" ng-controller="RegisterCtrl">
+        <div class="row">
+            <div class="col-sm-6">
+                <h2><b><span class="text-scarlet">{{'PRODUCT_TITLE' | translate}}</span>
+                    {{'GAME_STUDIO' | translate}}</b></h2>
+                <a ng-click="changeView('login')" class="important-href text-bold">
+                    <i class="fa fa-chevron-circle-left"></i> {{ 'RETURN_LOGIN' | translate }}
+                </a>
+                <br/><br/>
+
+
+                <p class="text-gray">Please fill in the fields bellow so we can know more about you <i class="fa fa-smile-o"></i></p>
+                <br/>
+
+                <form name="registerForm" ng-submit="register(registerForm.$valid)">
+
+                    <div class="form-group">
+                        <label class="text-gray">{{'PLACEHOLDER_LOGIN_USERNAME' | translate}}</label>
+                        <input type="text" class="form-control input-dark" id="username" name="username"
+                               ng-model="userData.username"
+                               autocomplete="off" placeholder="" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="text-gray">{{'PLACEHOLDER_LOGIN_PASSWORD' | translate}}</label>
+                        <input type="text" class="form-control input-dark" id="password" name="password"
+                               ng-model="userData.password"
+                               autocomplete="off" placeholder="" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="text-gray">{{'PLACEHOLDER_LOGIN_CONFIRM_PASSWORD' | translate}}</label>
+                        <input type="text" class="form-control input-dark" id="confirmPassword" name="confirmPassword"
+                               ng-model="userData.confirmPassword"
+                               autocomplete="off" placeholder="" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="text-gray">{{'PLACEHOLDER_LOGIN_EMAIL' | translate}}</label>
+                        <input type="email" class="form-control input-dark" id="email" name="email"
+                               ng-model="userData.email"
+                               autocomplete="off" placeholder="" required>
+                    </div>
+
+                    <br/>
+                    <button type="submit" class="btn btn-dark btn-block text-left">
+                        <i class="fa fa-key"></i> &nbsp;{{ 'REGISTER' | translate }}
+                    </button>
+
+                    <br/><br/>
+
+
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!--
 <div class="container vertical-center" ng-controller="LoginCtrl">
     <div class="main-box center-block sc-login-box">
 
@@ -31,4 +93,4 @@
             </div>
         </form>
     </div>
-</div>
+</div>-->

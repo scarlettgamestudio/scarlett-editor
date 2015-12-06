@@ -3,8 +3,10 @@
 
 var app = angular.module('scarlett', ['pascalprecht.translate', 'ngRoute'])
 
-.run(function () {
-
+.run(function ($rootScope, $location) {
+	$rootScope.changeView = function (viewName) {
+		$location.path(viewName);
+	};
 })
 
 .constant("config", {
@@ -29,6 +31,9 @@ var app = angular.module('scarlett', ['pascalprecht.translate', 'ngRoute'])
 		$routeProvider.
 		when('/login', {
 			templateUrl: 'pages/login/login.html'
+		}).
+		when('/register', {
+			templateUrl: 'pages/register/register.html'
 		}).
 		otherwise({
 			redirectTo: '/login'
