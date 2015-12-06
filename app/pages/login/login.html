@@ -1,3 +1,37 @@
-<div ng-controller="LoginCtrl">
+<div class="container vertical-center" ng-controller="LoginCtrl">
+    <div class="main-box center-block sc-login-box">
 
+        <h2><b>Welcome!</b></h2>
+
+        <p>Please enter your account details and have fun.</p>
+
+        <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+            <input type="text" class="form-control" placeholder="your email or username">
+        </div>
+        <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-key"></i></span>
+            <input type="password" class="form-control" placeholder="your password">
+        </div>
+
+        <div class="row">
+            <div class="col-xs-6">
+                <div class="checkbox-nice">
+                    <input type="checkbox" id="remember-me" checked="checked">
+                    <label for="remember-me">
+                        Remember me
+                    </label>
+                </div>
+            </div>
+            <a href="forgot-password.html" id="login-forget-link" class="col-xs-6">
+                Forgot password?
+            </a>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-12">
+                <button type="submit" class="btn btn-default col-xs-12">Login</button>
+            </div>
+        </div>
+    </div>
 </div>
