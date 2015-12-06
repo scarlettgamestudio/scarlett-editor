@@ -11,6 +11,13 @@ var app = angular.module('scarlett', ['pascalprecht.translate', 'ngRoute'])
 	apiAddress: "http://anlagehub.com/scarlett_ws/service.php"
 })
 
+.constant("api", {
+	ACTIONS: {
+		LOGIN: 0,
+		REGISTER: 1
+	}
+})
+
 .config(function ($translateProvider) {
 	// default language
 	$translateProvider.preferredLanguage('en');

@@ -5,31 +5,23 @@
 
         <p>Please enter your account details and have fun.</p>
 
-        <form name="loginForm" ng-submit="login(loginForm.$valid)">
+        <form name="registerForm" ng-submit="login(registerForm.$valid)">
             <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
-                <input ng-model="auth.username" name="username" type="text" class="form-control"
+                <input ng-model="userData.username" name="username" type="text" class="form-control"
                        placeholder="{{'PLACEHOLDER_LOGIN_IDENTITY' | translate}}" required>
             </div>
 
             <div class="input-group">
                 <span class="input-group-addon"><i class="fa fa-key"></i></span>
-                <input ng-model="auth.password" type="password" class="form-control"
+                <input ng-model="userData.password" type="password" class="form-control"
                        placeholder="{{'PLACEHOLDER_LOGIN_PASSWORD' | translate}}" required>
             </div>
 
-            <div class="row">
-                <div class="col-xs-6">
-                    <div class="checkbox-nice">
-                        <input ng-model="auth.remember" type="checkbox" id="remember-me">
-                        <label for="remember-me">
-                            {{ 'REMEMBER_ME' | translate }}
-                        </label>
-                    </div>
-                </div>
-                <a href="forgot-password.html" id="login-forget-link" class="col-xs-6">
-                    {{ 'FORGOT_PASSWORD' | translate }}
-                </a>
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-key"></i></span>
+                <input ng-model="userData.confirmPassword" type="password" class="form-control"
+                       placeholder="{{'PLACEHOLDER_LOGIN_CONFIRM_PASSWORD' | translate}}" required>
             </div>
 
             <div class="row">

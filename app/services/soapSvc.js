@@ -4,7 +4,7 @@
 
 app.factory("soapSvc", function ($q, config, logSvc) {
 	return {
-		post: function (action, data) {
+		invoke: function (action, data) {
 			var deferred = $q.defer();
 			var param = {action: action, data: data};
 			var soapParams = new SOAPClientParameters();
