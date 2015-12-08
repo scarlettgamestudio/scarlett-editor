@@ -18,28 +18,28 @@
                     <div class="form-group">
                         <label class="text-gray">{{'PLACEHOLDER_LOGIN_USERNAME' | translate}}</label>
                         <input type="text" class="form-control input-dark" id="username" name="username"
-                               ng-model="userData.username"
+                               ng-model="userData.username" ng-minlength="4" minlength="4"
                                autocomplete="off" placeholder="" required>
                     </div>
 
                     <div class="form-group">
                         <label class="text-gray">{{'PLACEHOLDER_LOGIN_PASSWORD' | translate}}</label>
-                        <input type="text" class="form-control input-dark" id="password" name="password"
-                               ng-model="userData.password"
+                        <input type="password" class="form-control input-dark" id="password" name="password"
+                               ng-model="userData.password" ng-minlength="4" minlength="4"
                                autocomplete="off" placeholder="" required>
                     </div>
 
                     <div class="form-group">
                         <label class="text-gray">{{'PLACEHOLDER_LOGIN_CONFIRM_PASSWORD' | translate}}</label>
-                        <input type="text" class="form-control input-dark" id="confirmPassword" name="confirmPassword"
-                               ng-model="userData.confirmPassword"
+                        <input type="password" class="form-control input-dark" id="confirmPassword" name="confirmPassword"
+                               ng-model="userData.confirmPassword" ng-minlength="4" minlength="4"
                                autocomplete="off" placeholder="" required>
                     </div>
 
                     <div class="form-group">
                         <label class="text-gray">{{'PLACEHOLDER_LOGIN_EMAIL' | translate}}</label>
                         <input type="email" class="form-control input-dark" id="email" name="email"
-                               ng-model="userData.email"
+                               ng-model="userData.email" ng-minlength="4" minlength="4"
                                autocomplete="off" placeholder="" required>
                     </div>
 

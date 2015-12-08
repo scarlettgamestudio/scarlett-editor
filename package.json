@@ -6,6 +6,10 @@
     "angular": "^1.4.8",
     "angular-route": "1.4.x",
     "angular-translate": "^2.8.1",
-    "bootstrap": "^3.3.6"
+    "bootstrap": "^3.3.6",
+    "http-server": "^0.8.5"
+  },
+  "scripts": {
+    "start": "http-server -a localhost -p 8000 -c-1"
   }
 }

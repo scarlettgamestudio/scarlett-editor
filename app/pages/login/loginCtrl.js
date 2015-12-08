@@ -17,7 +17,7 @@ app.controller('LoginCtrl',
 					function (response) {
 						logSvc.log(response);
 					}, function (error) {
-						logSvc.log(error);
+						logSvc.error(error);
 					});
 			}
 		};
