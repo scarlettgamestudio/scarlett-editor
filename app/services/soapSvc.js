@@ -10,7 +10,7 @@ app.factory("soapSvc", function ($q, config, logSvc) {
 			var soapParams = new SOAPClientParameters();
 			soapParams.add("request", JSON.stringify(param));
 
-			SOAPClient.invoke(config.apiAddress, "request", soapParams, true,
+			SOAPClient.invoke(config.API.ADDRESS, "request", soapParams, true,
 				function (response) {
 					if (typeof response !== "undefined" && response != false) {
 						try {

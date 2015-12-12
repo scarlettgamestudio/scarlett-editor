@@ -24,6 +24,34 @@
     cursor: pointer;
 }
 
+.on-error {
+    display: none;
+}
+
+.has-error .on-error {
+    display: block;
+}
+
+.sc-login-page .alert-danger {
+    border-color: #e84e40;
+    color: #e84e40;
+    padding: 8px;
+    border-radius: 2px;
+    margin-top: 10px;
+}
+
+.sc-login-page .form-control {
+    border-color: #313334;
+}
+
+.sc-login-page .has-error .form-control {
+    border-color: #e84e40;
+}
+
+.sc-login-page .has-error .help-block {
+    color: #e84e40;
+}
+
 .sc-login-page a.important-href {
     font-size: 1.05em;
 }
@@ -79,7 +107,6 @@
 
 .sc-login-page .form-control.input-dark {
     background: #313334;
-    border: 1px solid transparent;
     color: #fff;
     height: auto;
     padding-top: 10px;
@@ -101,6 +128,8 @@
     width: 400px;
     padding: 20px;
 }
+
+.
 
 .sc-login-container .row,
 .sc-login-container .input-group,

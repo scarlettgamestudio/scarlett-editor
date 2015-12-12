@@ -1,7 +1,13 @@
 // starter script
 'use strict';
 
-var app = angular.module('scarlett', ['pascalprecht.translate', 'ngRoute'])
+var dependencies = [
+	'pascalprecht.translate',
+	'ngRoute',
+	'validation.match'
+];
+
+var app = angular.module('scarlett', dependencies)
 
 .run(function ($rootScope, $location) {
 	$rootScope.changeView = function (viewName) {
@@ -10,13 +16,15 @@ var app = angular.module('scarlett', ['pascalprecht.translate', 'ngRoute'])
 })
 
 .constant("config", {
-	apiAddress: "http://anlagehub.com/scarlett_ws/service.php"
-})
-
-.constant("api", {
-	ACTIONS: {
-		LOGIN: 0,
-		REGISTER: 1
+	API: {
+		ADDRESS: "http://anlagehub.com/scarlett_ws/service.php",
+		ACTIONS: {
+			LOGIN: 0,
+			REGISTER: 1
+		},
+		RESULT: {
+			OK: 0
+		}
 	}
 })
 
@@ -24,18 +32,5 @@ var app = angular.module('scarlett', ['pascalprecht.translate', 'ngRoute'])
 	// default language
 	$translateProvider.preferredLanguage('en');
 	$translateProvider.useSanitizeValueStrategy('escape');
-})
+});
 
-.config(['$routeProvider',
-	function ($routeProvider) {
-		$routeProvider.
-		when('/login', {
-			templateUrl: 'pages/login/login.html'
-		}).
-		when('/register', {
-			templateUrl: 'pages/register/register.html'
-		}).
-		otherwise({
-			redirectTo: '/login'
-		});
-	}]);

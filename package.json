@@ -6,6 +6,7 @@
     "angular": "^1.4.8",
     "angular-route": "1.4.x",
     "angular-translate": "^2.8.1",
+    "angular-validation-match": "^1.5.2",
     "bootstrap": "^3.3.6",
     "electron-prebuilt": "^0.35.0",
     "http-server": "^0.8.5"

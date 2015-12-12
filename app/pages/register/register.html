@@ -9,38 +9,70 @@
                 </a>
                 <br/><br/>
 
-
-                <p class="text-gray">Please fill in the fields bellow so we can know more about you <i class="fa fa-smile-o"></i></p>
+                <p class="text-gray">Please fill in the fields bellow so we can know more about you <i
+                        class="fa fa-smile-o"></i></p>
                 <br/>
 
-                <form name="registerForm" ng-submit="register(registerForm.$valid)">
+                <form name="registerForm" ng-submit="register(registerForm.$valid)" novalidate>
 
-                    <div class="form-group">
+                    <div class="form-group"
+                         ng-class="{'has-error': registerForm.$submitted && registerForm.username.$invalid }">
                         <label class="text-gray">{{'PLACEHOLDER_LOGIN_USERNAME' | translate}}</label>
                         <input type="text" class="form-control input-dark" id="username" name="username"
-                               ng-model="userData.username" ng-minlength="4" minlength="4"
+                               ng-model="userData.username" ng-minlength="3" minlength="3"
                                autocomplete="off" placeholder="" required>
+                        <div class="on-error">
+                            <span class="help-block" ng-show="registerForm.username.$error.required">
+                                <i class="icon-remove-sign"></i> {{ 'REQUIRED_FIELD' | translate }}
+                            </span>
+                        </div>
                     </div>
 
-                    <div class="form-group">
+
+                    <div class="form-group"
+                         ng-class="{'has-error': registerForm.$submitted && registerForm.password.$invalid }">
                         <label class="text-gray">{{'PLACEHOLDER_LOGIN_PASSWORD' | translate}}</label>
                         <input type="password" class="form-control input-dark" id="password" name="password"
-                               ng-model="userData.password" ng-minlength="4" minlength="4"
+                               ng-model="userData.password" ng-minlength="4"
+                               match-password="confirmPassword"
                                autocomplete="off" placeholder="" required>
+
+                        <div class="on-error">
+                            <span class="help-block" ng-show="registerForm.password.$error.required">
+                                <i class="icon-remove-sign"></i> {{ 'REQUIRED_FIELD' | translate }}
+                            </span>
+                        </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group"
+                         ng-class="{'has-error': registerForm.$submitted && registerForm.confirmPassword.$invalid }">
                         <label class="text-gray">{{'PLACEHOLDER_LOGIN_CONFIRM_PASSWORD' | translate}}</label>
-                        <input type="password" class="form-control input-dark" id="confirmPassword" name="confirmPassword"
-                               ng-model="userData.confirmPassword" ng-minlength="4" minlength="4"
+                        <input type="password" class="form-control input-dark" id="confirmPassword"
+                               name="confirmPassword" match="userData.password" not-match="true"
+                               ng-model="userData.confirmPassword"
                                autocomplete="off" placeholder="" required>
+
+                        <div class="on-error">
+                            <span class="help-block" ng-show="registerForm.confirmPassword.$error.required">
+                                <i class="icon-remove-sign"></i> {{ 'REQUIRED_FIELD' | translate }}
+                            </span>
+                            <span class="help-block" ng-show="registerForm.confirmPassword.$error.match">
+                                <i class="icon-remove-sign"></i> {{ 'PASSWORDS_DONT_MATCH' | translate }}
+                            </span>
+                        </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group"
+                         ng-class="{'has-error': registerForm.$submitted && registerForm.email.$invalid }">
                         <label class="text-gray">{{'PLACEHOLDER_LOGIN_EMAIL' | translate}}</label>
                         <input type="email" class="form-control input-dark" id="email" name="email"
                                ng-model="userData.email" ng-minlength="4" minlength="4"
                                autocomplete="off" placeholder="" required>
+                        <div class="on-error">
+                            <span class="help-block" ng-show="registerForm.email.$error.required">
+                                <i class="icon-remove-sign"></i> {{ 'REQUIRED_FIELD' | translate }}
+                            </span>
+                        </div>
                     </div>
 
                     <br/>
@@ -49,7 +81,6 @@
                     </button>
 
                     <br/><br/>
-
 
 
                 </form>

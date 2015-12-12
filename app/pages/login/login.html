@@ -8,18 +8,30 @@
                 <p class="text-gray">Welcome! Please enter your credentials and have fun!</p>
                 <br/>
 
-                <form name="loginForm" ng-submit="login(loginForm.$valid)">
+                <form name="loginForm" ng-submit="login(loginForm.$valid)" novalidate>
 
-                    <div class="form-group">
+                    <div class="form-group"
+                         ng-class="{'has-error': loginForm.$submitted && loginForm.username.$invalid }">
                         <input type="text" class="form-control input-dark" id="username" name="username"
-                               ng-model="auth.identity"
+                               ng-model="auth.identity" ng-required="true"
                                autocomplete="on" placeholder="{{'PLACEHOLDER_LOGIN_IDENTITY' | translate}}" required>
+                        <div class="on-error">
+                            <span class="help-block" ng-show="loginForm.username.$error.required">
+                                <i class="icon-remove-sign"></i> {{ 'REQUIRED_FIELD' | translate }}
+                            </span>
+                        </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group"
+                         ng-class="{'has-error': loginForm.$submitted && loginForm.password.$invalid }">
                         <input type="password" class="form-control input-dark" id="password" name="password"
-                               ng-model="auth.password"
+                               ng-model="auth.password" ng-required="true"
                                autocomplete="on" placeholder="{{'PLACEHOLDER_LOGIN_PASSWORD' | translate}}" required>
+                        <div class="on-error">
+                            <span class="help-block" ng-show="loginForm.password.$error.required">
+                                <i class="icon-remove-sign"></i> {{ 'REQUIRED_FIELD' | translate }}
+                            </span>
+                        </div>
                     </div>
 
                     <div class="checkbox-nice">
@@ -30,9 +42,14 @@
                     </div>
 
                     <br/>
-                    <button type="submit" class="btn btn-dark btn-block text-left">
+                    <button type="submit" class="btn btn-dark btn-block text-left" ng-disabled="loginState == LOGIN_STATE.AUTHENTICATING">
                         <i class="fa fa-sign-in"></i> &nbsp;{{ 'LOGIN' | translate }}
                     </button>
+                    <div class="alert alert-danger" role="alert" ng-if="loginState == LOGIN_STATE.FAILED">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        <span class="sr-only">{{ 'ERROR' | translate }}:</span>
+                        {{ 'INVALID_CREDENTIALS' | translate }}
+                    </div>
 
                     <br/>
 
