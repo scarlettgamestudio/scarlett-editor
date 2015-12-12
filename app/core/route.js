@@ -11,6 +11,6 @@ app.config(['$routeProvider',
 			templateUrl: 'pages/register/register.html'
 		}).
 		otherwise({
-			redirectTo: '/login'
+			redirectTo: '/main'
 		});
 	}]);
