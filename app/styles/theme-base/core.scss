@@ -1,4 +1,4 @@
-@import 'colors';
+@import 'colours';
 @import 'metrics';
 
 .sc-login-page {
@@ -10,8 +10,13 @@
 
   overflow: hidden;
 
-  a {
+  .headerInfo {
+    font-size: 0.45em;
     color: $lightGrey;
+  }
+
+  a {
+    color: $mediumGrey;
     font-size: 0.9em;
     text-decoration: none;
     cursor: pointer;
@@ -22,7 +27,7 @@
   }
 
   a:hover {
-    color: #888;
+    color: $lightGrey;
   }
 
   .alert-danger {
@@ -131,4 +136,12 @@
 
   display: flex;
   align-items: center;
+}
+
+.text-grey {
+  color: $mediumGrey;
+}
+
+.text-scarlet {
+  color: $scarlet;
 }

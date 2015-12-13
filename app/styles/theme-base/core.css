@@ -5,6 +5,9 @@
   width: 100%;
   height: 100%;
   overflow: hidden; }
+  .sc-login-page .headerInfo {
+    font-size: 0.45em;
+    color: #888; }
   .sc-login-page a {
     color: #666;
     font-size: 0.9em;
@@ -86,5 +89,11 @@
   /* These two lines are counted as one :-)       */
   display: flex;
   align-items: center; }
+
+.text-grey {
+  color: #666; }
+
+.text-scarlet {
+  color: #e84e40; }
 
 /*# sourceMappingURL=core.css.map */
