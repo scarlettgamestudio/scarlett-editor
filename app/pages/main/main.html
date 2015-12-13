@@ -1,38 +1,34 @@
-<header class="navbar" ng-controller="MainCtrl">
-    <div class="container">
-        <div class="nav-no-collapse pull-right" id="header-nav">
-            <ul class="nav navbar-nav pull-right">
-                <li class="mobile-search">
-                    <a class="btn">
-                        <i class="fa fa-search"></i>
-                    </a>
-                    <div class="drowdown-search">
-                        <form role="search">
-                            <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Search...">
-                                <i class="fa fa-search nav-search-icon"></i>
-                            </div>
-                        </form>
-                    </div>
-                </li>
-                <li class="dropdown profile-dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                        <img src="img/samples/scarlet-159.png" alt="">
-                        <span class="hidden-xs">Scarlett Johansson</span> <b class="caret"></b>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a href="user-profile.html"><i class="fa fa-user"></i>Profile</a></li>
-                        <li><a href="#"><i class="fa fa-cog"></i>Settings</a></li>
-                        <li><a href="#"><i class="fa fa-envelope-o"></i>Messages</a></li>
-                        <li><a href="#"><i class="fa fa-power-off"></i>Logout</a></li>
-                    </ul>
-                </li>
-                <li class="hidden-xxs">
-                    <a class="btn">
-                        <i class="fa fa-power-off"></i>
-                    </a>
-                </li>
-            </ul>
+<div class="sc-theme-red" ng-controller="MainCtrl">
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- application brand area -->
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">{{ 'PRODUCT_TITLE' | translate }}</a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <!-- left menus -->
+                <ul class="nav navbar-nav">
+                    <!-- in here will go specific view menus -->
+
+                </ul>
+
+                <!-- right menus -->
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#">Link</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                           aria-expanded="false">Dropdown <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Action</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">Separated link</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-</header>
+    </nav>
+</div>

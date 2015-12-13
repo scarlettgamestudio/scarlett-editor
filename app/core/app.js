@@ -4,7 +4,8 @@
 var dependencies = [
 	'pascalprecht.translate',
 	'ngRoute',
-	'validation.match'
+	'validation.match',
+	'ui.bootstrap'
 ];
 
 var app = angular.module('scarlett', dependencies)
