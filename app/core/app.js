@@ -5,7 +5,8 @@ var dependencies = [
 	'pascalprecht.translate',
 	'ngRoute',
 	'validation.match',
-	'ui.bootstrap'
+	'ui.bootstrap',
+	'LocalStorageModule'
 ];
 
 var app = angular.module('scarlett', dependencies)
@@ -26,7 +27,18 @@ var app = angular.module('scarlett', dependencies)
 		RESULT: {
 			OK: 0
 		}
+	},
+	LOCAL_STORAGE: {
+		KEYS: {
+			USER_INFO: "uinfo",
+			USER_CREDENTIALS: "ucreds"
+		}
 	}
+})
+
+.config(function (localStorageServiceProvider) {
+	// set a unique prefix for our app:
+	localStorageServiceProvider.setPrefix('LS_BGH7X-000');
 })
 
 .config(function ($translateProvider) {

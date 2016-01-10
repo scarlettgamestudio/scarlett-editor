@@ -1,6 +1,6 @@
 app.controller('LoginCtrl',
-	['$rootScope', '$scope', 'logSvc', 'soapSvc', 'config',
-		function ($rootScope, $scope, logSvc, soapSvc, config) {
+	['$rootScope', '$scope', 'logSvc', 'userSvc', 'config',
+		function ($rootScope, $scope, logSvc, userSvc, config) {
 
 			$scope.LOGIN_STATE = {
 				NONE: 0,
@@ -17,30 +17,50 @@ app.controller('LoginCtrl',
 				remember: true
 			};
 
+			/* events */
+
+			(function() {
+				// initialization..
+				var savedCredentials = userSvc.getUserCredentials();
+				if (savedCredentials) {
+					$scope.auth = {
+						identity: savedCredentials.identity,
+						password: savedCredentials.password,
+						remember: true
+					};
+				}
+			})();
+
+			/* functions */
+
 			// scope functions
 			$scope.login = function (isValid) {
 				$scope.loginState = 0;
 				if (isValid) {
+					var identity = $scope.auth.identity;
+					var password = $scope.auth.password;
+
 					$scope.loginState = $scope.LOGIN_STATE.AUTHENTICATING;
-
-					soapSvc.invoke(config.API.ACTIONS.LOGIN, {
-						identity: $scope.auth.identity,
-						password: $scope.auth.password
-					}).then(
+					userSvc.login(identity, password).then(
 						function (response) {
-							if(response.result.code == config.API.RESULT.OK) {
-								// success!
-								$scope.loginState = $scope.LOGIN_STATE.AUTHENTICATED;
-
-								$rootScope.changeView('main');
-							} else {
-								// failed!
-								$scope.loginState = $scope.LOGIN_STATE.FAILED;
+							// success..
+							if ($scope.auth.remember) {
+								// the user chose to remember the account auth details so they must be saved within our
+								// local storage:
+								userSvc.saveUserCredentials(identity, password);
 							}
-						}, function (error) {
+
+							$scope.loginState = $scope.LOGIN_STATE.AUTHENTICATED;
+
+							// proceed to the main view:
+							$rootScope.changeView('main');
+						},
+						function (reason) {
+							// operation failed..
 							$scope.loginState = $scope.LOGIN_STATE.FAILED;
-							logSvc.error(error);
-						});
+							logSvc.error(reason);
+						}
+					);
 				}
 			};
 		}]
