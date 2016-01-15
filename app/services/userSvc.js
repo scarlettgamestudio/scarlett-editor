@@ -5,13 +5,12 @@
 app.factory("userSvc", function ($q, config, logSvc, soapSvc, localStorageService) {
 	var svc = {};
 	var userInfo = null;
-	var userCredentials = null;
 
 	// initialization:
 	(function () {
-		var _userCredentials = localStorageService.get(config.LOCAL_STORAGE.KEYS.USER_CREDENTIALS);
-		if (_userCredentials) {
-			userCredentials = _userCredentials;
+		var _userInfo = localStorageService.get(config.LOCAL_STORAGE.KEYS.USER_INFO);
+		if (_userInfo) {
+			userInfo = _userInfo;
 		}
 	})();
 
@@ -61,21 +60,33 @@ app.factory("userSvc", function ($q, config, logSvc, soapSvc, localStorageServic
 		return userInfo.token;
 	};
 
-	svc.saveUserCredentials = function(identity, password) {
-		// FIXME: encrypt this information
-		return localStorageService.set(config.LOCAL_STORAGE.KEYS.USER_CREDENTIALS, {identity: identity, password: password});
+	svc.storeUserSession = function() {
+		/*  this shall store the relevant user information regarding this session.
+		 notice that the stored session should have the access token for auto-login...
+		 */
+		if(userInfo) {
+			var _userInfo = JSON.parse(JSON.stringify(userInfo)); // clone the object so we can safely modify it.
+			_userInfo.token = ""; // clear the token before storing so it can't be used without a new login.
+
+			return localStorageService.set(config.LOCAL_STORAGE.KEYS.USER_INFO, _userInfo);
+		}
+
+		return false;
 	};
 
 	svc.isLoggedIn = function () {
-		return userInfo != null;
+		return userInfo != null && userInfo.token != null && userInfo.token != "";
 	};
 
 	svc.getUserInfo = function () {
 		return userInfo;
 	};
 
-	svc.getUserCredentials = function() {
-		return userCredentials;
+	svc.getToken = function() {
+		if(userInfo) {
+			return userInfo.token;
+		}
+		return null;
 	};
 
 	return svc;

@@ -21,11 +21,11 @@ app.controller('LoginCtrl',
 
 			(function() {
 				// initialization..
-				var savedCredentials = userSvc.getUserCredentials();
-				if (savedCredentials) {
+				var userInfo = userSvc.getUserInfo();
+				if (userInfo) {
 					$scope.auth = {
-						identity: savedCredentials.identity,
-						password: savedCredentials.password,
+						identity: userInfo.details.username,
+						password: "", // for now the load from storage will only work for the identity
 						remember: true
 					};
 				}
@@ -45,9 +45,9 @@ app.controller('LoginCtrl',
 						function (response) {
 							// success..
 							if ($scope.auth.remember) {
-								// the user chose to remember the account auth details so they must be saved within our
-								// local storage:
-								userSvc.saveUserCredentials(identity, password);
+								// for the application to be able to auto-login the user provided that login was made
+								// with success, the token needs to be saved so it can be re-used.
+								userSvc.storeUserSession();
 							}
 
 							$scope.loginState = $scope.LOGIN_STATE.AUTHENTICATED;

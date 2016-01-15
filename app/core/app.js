@@ -30,15 +30,14 @@ var app = angular.module('scarlett', dependencies)
 	},
 	LOCAL_STORAGE: {
 		KEYS: {
-			USER_INFO: "uinfo",
-			USER_CREDENTIALS: "ucreds"
+			USER_INFO: "uinfo"
 		}
 	}
 })
 
 .config(function (localStorageServiceProvider) {
 	// set a unique prefix for our app:
-	localStorageServiceProvider.setPrefix('LS_BGH7X-000');
+	localStorageServiceProvider.setPrefix('LS_BGH7X-001');
 })
 
 .config(function ($translateProvider) {
