@@ -33,7 +33,6 @@ app.controller('LoginCtrl',
 
 			/* functions */
 
-			// scope functions
 			$scope.login = function (isValid) {
 				$scope.loginState = 0;
 				if (isValid) {

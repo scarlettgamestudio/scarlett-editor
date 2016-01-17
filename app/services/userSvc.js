@@ -75,6 +75,7 @@ app.factory("userSvc", function ($q, config, logSvc, soapSvc, localStorageServic
 	};
 
 	svc.isLoggedIn = function () {
+		// FIXME: not good enough, should check for token validation too (locally)..
 		return userInfo != null && userInfo.token != null && userInfo.token != "";
 	};
 
