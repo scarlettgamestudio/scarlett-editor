@@ -1,0 +1,18 @@
+.navbar {
+  .profile-dropdown {
+    .dropdown-toggle {
+      padding-top: 8px;
+      padding-bottom: 7px;
+      line-height: 35px;
+    }
+    img {
+      border-radius: 50%;
+      background-clip: padding-box;
+      float: left;
+      height: 35px;
+      margin-right: 5px;
+      width: 35px;
+      border: 2px solid $snowWhite;
+    }
+  }
+}

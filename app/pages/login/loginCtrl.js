@@ -19,7 +19,7 @@ app.controller('LoginCtrl',
 
 			/* events */
 
-			(function() {
+			(function init() {
 				// initialization..
 				var userInfo = userSvc.getUserInfo();
 				if (userInfo) {

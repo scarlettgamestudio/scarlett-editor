@@ -1,5 +1,6 @@
 @import '../theme-base/colours';
 @import '../theme-base/metrics';
 
-
-
+.sc-theme-red {
+  @import 'header';
+}

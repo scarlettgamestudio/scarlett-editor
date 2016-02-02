@@ -1,5 +1,10 @@
 @import 'colours';
 @import 'metrics';
+@import 'header';
+
+body {
+  background-image: none;
+}
 
 .sc-login-page {
   background: $greyHound;
