@@ -1,6 +1,8 @@
 @import '../theme-base/colours';
 @import '../theme-base/metrics';
+@import './vars';
 
 .sc-theme-red {
+  @import 'components';
   @import 'header';
 }

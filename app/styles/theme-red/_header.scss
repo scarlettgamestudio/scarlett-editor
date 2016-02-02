@@ -1,10 +1,26 @@
 .navbar {
   color: $snowWhite;
-  background: $scarlet;
+  background: $primaryColor;
   border: none;
   border-radius: 0;
 
   a {
     color: $snowWhite;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  .profile-dropdown {
+    &:hover {
+      background: darken($primaryColor, 5%);
+    }
+  }
+
+  .dropdown-menu {
+    a {
+      color: $dirtyGrey;
+    }
   }
 }

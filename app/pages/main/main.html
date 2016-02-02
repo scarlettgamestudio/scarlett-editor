@@ -15,7 +15,7 @@
 
                 <!-- right menus -->
                 <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown profile-dropdown">
+                    <!--<li class="dropdown profile-dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown">
                             <img src="{{::userInfo.details.avatar_url}}" alt="">
                             <span class="hidden-xs">{{::userInfo.details.username}}</span> <b class="caret"></b>
@@ -26,7 +26,22 @@
                             <li><a href="#"><i class="fa fa-envelope-o"></i>Messages</a></li>
                             <li><a href="#"><i class="fa fa-power-off"></i>Logout</a></li>
                         </ul>
-                    </li>
+                    </li>-->
+
+
+                    <div uib-dropdown class="profile-dropdown">
+                          <a href id="simple-dropdown" uib-dropdown-toggle>
+                              <img src="{{::userInfo.details.avatar_url}}" alt="">
+                              <span class="hidden-xs">{{::userInfo.details.username}}</span> <b class="caret"></b>
+                          </a>
+                          <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
+                              <li><a><i class="fa fa-user"></i>{{ 'PROFILE' | translate}}</a></li>
+                              <li><a><i class="fa fa-cog"></i>{{ 'SETTINGS' | translate}}</a></li>
+                              <li><a><i class="fa fa-power-off"></i>{{ 'LOGOUT' | translate}}</a></li>
+                          </ul>
+                    </div>
+
+
                 </ul>
             </div>
         </div>

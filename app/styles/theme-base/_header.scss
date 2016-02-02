@@ -1,18 +1,48 @@
 .navbar {
   .profile-dropdown {
-    .dropdown-toggle {
-      padding-top: 8px;
+    line-height: 50px;
+    padding: 0px 10px;
+
+    .simple-dropdown {
       padding-bottom: 7px;
       line-height: 35px;
     }
+
     img {
       border-radius: 50%;
       background-clip: padding-box;
       float: left;
       height: 35px;
       margin-right: 5px;
+      margin-top: 8px;
       width: 35px;
       border: 2px solid $snowWhite;
     }
   }
+
+  a {
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: none !important;
+    }
+  }
+
+  .dropdown-menu {
+    color: $dirtyGrey;
+  }
 }
+
+.nav {
+  .open {
+    a {
+
+    }
+  }
+  .caret {
+    border-bottom-color: $snowWhite;
+    border-top-color: $snowWhite;
+  }
+}
+
+
