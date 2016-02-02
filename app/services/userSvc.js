@@ -21,7 +21,7 @@ app.factory("userSvc", function ($q, config, logSvc, soapSvc, localStorageServic
 	svc.login = function (identity, password) {
 		if(svc.isLoggedIn()) {
 			logSvc.warn("User is already logged in. Discarding login request..");
-			return $q.reject(false);
+			return $q.resolve(true);
 		}
 
 		var defer = $q.defer();
