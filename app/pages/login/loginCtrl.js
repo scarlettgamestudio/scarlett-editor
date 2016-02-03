@@ -21,7 +21,7 @@ app.controller('LoginCtrl',
 
 			(function init() {
 				// initialization..
-				var userInfo = userSvc.getUserInfo();
+				var userInfo = userSvc.getUserInfo(true);
 				if (userInfo) {
 					$scope.auth = {
 						identity: userInfo.details.username,
@@ -47,6 +47,10 @@ app.controller('LoginCtrl',
 								// for the application to be able to auto-login the user provided that login was made
 								// with success, the token needs to be saved so it can be re-used.
 								userSvc.storeUserSession();
+							} else {
+								// since the user didn't specify that the info should be saved, we assume that the data
+								// shall not be saved on local storage..
+								userSvc.removeStoredUserSession();
 							}
 
 							$scope.loginState = $scope.LOGIN_STATE.AUTHENTICATED;

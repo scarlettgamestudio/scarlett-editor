@@ -3,4 +3,5 @@
 /build
 /dist
 
+/.sass-cache
 npm-debug.log
