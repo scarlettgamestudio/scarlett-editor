@@ -1,4 +1,24 @@
 .navbar {
+  height: $navbarHeight;
+
+  .container-fluid {
+    padding-left: 0px;
+  }
+
+  .navbar-logo {
+    width: $toolbarWidth;
+    height: $navbarHeight;
+    float: left;
+    line-height: $navbarHeight;
+    text-align: center;
+    font-weight: bold;
+    font-size: 24px;
+  }
+
+  .navbar-title {
+    float: left;
+  }
+
   .profile-dropdown {
     line-height: 50px;
     padding: 0px 10px;
@@ -22,22 +42,24 @@
 
   a {
     cursor: pointer;
-
-    &:hover {
-      text-decoration: none !important;
-    }
   }
 
   .dropdown-menu {
     color: $dirtyGrey;
   }
+
+  .navbar-header {
+    @include unselectable();
+
+    font-weight: bold;
+  }
 }
 
 .nav {
-  .open {
-    a {
-
-    }
+  .open>a {
+    background-color: transparent !important;
+    text-decoration: none !important;
+    font-weight: bold;
   }
   .caret {
     border-bottom-color: $snowWhite;

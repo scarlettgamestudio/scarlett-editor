@@ -1,0 +1,48 @@
+.content-wrapper {
+  background-color: $greyHound;
+  color: $dimWhite;
+  position: absolute;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  top: $navbarHeight;
+  display: flex;
+
+  .toolbar {
+    width: $toolbarWidth;
+    background: darken($greyHound, 1%);
+    padding: 0;
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+
+      li {
+        position: relative;
+        display: block;
+        margin: 0;
+        float: none;
+        text-align: center;
+        font-size: 24px;
+        height: $toolbarWidth - 20;
+        line-height: $toolbarWidth - 20;
+        color: $lightGrey;
+
+        &.active {
+          background-color: $greyHound !important;
+          color: $dimWhite;
+        }
+
+        &:hover {
+          background-color: darken($greyHound, 3%);
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  .wrapper-container {
+
+  }
+}

@@ -1,0 +1,39 @@
+body {
+  background-image: none;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-bold {
+  font-weight: bold;
+}
+
+.left-padding {
+  padding-left: $defaultPadding;
+}
+
+.on-error {
+  display: none;
+}
+
+.has-error .on-error {
+  display: block;
+}
+
+.vertical-center {
+  min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
+  min-height: 100vh; /* These two lines are counted as one :-)       */
+
+  display: flex;
+  align-items: center;
+}
+
+.text-grey {
+  color: $mediumGrey;
+}
+
+.text-scarlet {
+  color: $scarlet;
+}

@@ -3,6 +3,7 @@
 app.config(function ($translateProvider) {
 	$translateProvider.translations('en', {
 		PRODUCT_TITLE: 'Scarlett',
+		PRODUCT_ABBR: 'SC',
 		GAME_STUDIO: 'Game Studio',
 		REMEMBER_ME: 'Remember me',
 		CREATE_NEW_ACCOUNT: 'Create new Account',
