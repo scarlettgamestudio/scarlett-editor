@@ -5,13 +5,13 @@
 
     <!-- content -->
     <div class="content-wrapper">
-        <div class="toolbar">
-            <ul>
-                <li class="active"><i class="fa fa-home"></i></li>
-                <li><i class="fa fa-edit"></i></li>
-            </ul>
-        </div>
-        <div class="wrapper-container"></div>
+
+        <!-- side nav-bar -->
+        <ng-include src="'pages/main/partials/sideNavBar.html'" class="side-nav-bar"></ng-include>
+
+        <!-- dynamic content holder -->
+        <ng-include src="activeViewSrc" class="wrapper-container"></ng-include>
+
     </div>
 
 </div>

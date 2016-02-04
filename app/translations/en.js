@@ -22,6 +22,10 @@ app.config(function ($translateProvider) {
 		REQUIRED_FIELD: 'This field is required',
 		PASSWORDS_DONT_MATCH: 'Passwords don\'t match',
 		INVALID_CREDENTIALS: 'Could not login, invalid credentials',
-		SETTINGS: 'Settings'
+		SETTINGS: 'Settings',
+
+
+		TOOLBAR_TOOLTIP_HUB: 'Hub',
+		TOOLBAR_TOOLTIP_PROJECTS: 'Projects'
 	});
 });

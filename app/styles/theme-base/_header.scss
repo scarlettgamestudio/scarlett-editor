@@ -3,6 +3,7 @@
 
   .container-fluid {
     padding-left: 0;
+    padding-right: 0;
   }
 
   .navbar-logo {
@@ -20,7 +21,7 @@
   }
 
   .profile-dropdown {
-    line-height: 50px;
+    line-height: map-get($measure-collection, navbar-height);
     padding: 0 10px;
 
     .simple-dropdown {
@@ -32,10 +33,10 @@
       border-radius: 50%;
       background-clip: padding-box;
       float: left;
-      height: 35px;
+      height: 30px;
       margin-right: 5px;
       margin-top: 8px;
-      width: 35px;
+      width: 30px;
       border: 2px solid map-get($default-colors, snow-white);
     }
   }
@@ -53,18 +54,23 @@
 
     font-weight: bold;
   }
+
+  .navbar-nav {
+    margin: 0;
+  }
+
+  .nav {
+    .open>a {
+      background-color: transparent !important;
+      text-decoration: none !important;
+    }
+    .caret {
+      border-bottom-color: map-get($default-colors, snow-white);
+      border-top-color: map-get($default-colors, snow-white);
+    }
+  }
+
 }
 
-.nav {
-  .open>a {
-    background-color: transparent !important;
-    text-decoration: none !important;
-    font-weight: bold;
-  }
-  .caret {
-    border-bottom-color: map-get($default-colors, snow-white);
-    border-top-color: map-get($default-colors, snow-white);
-  }
-}
 
 

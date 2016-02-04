@@ -32,7 +32,14 @@ var app = angular.module('scarlett', dependencies)
 		KEYS: {
 			USER_INFO: "uinfo"
 		}
-	}
+	},
+	CONTENT_VIEWS: {
+		CONFIGURATION: 0,
+		HOME: 1,
+		PROJECTS: 2,
+		PROJECT_EDIT: 3
+	},
+	DEFAULT_CONTENT_VIEW: 1
 })
 
 .config(function (localStorageServiceProvider) {

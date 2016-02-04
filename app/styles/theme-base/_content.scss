@@ -8,9 +8,9 @@
   top: map-get($measure-collection, navbar-height);
   display: flex;
 
-  .toolbar {
+  .side-nav-bar {
     width: map-get($measure-collection, toolbar-width);
-    background: darken(map-get($default-colors, grey-hound), 1%);
+    background: darken(map-get($default-colors, grey-hound), 2%);
     padding: 0;
 
     ul {
@@ -25,8 +25,8 @@
         float: none;
         text-align: center;
         font-size: 22px;
-        height: map-get($measure-collection, toolbar-width) - 20;
-        line-height: map-get($measure-collection, toolbar-width) - 20;
+        height: map-get($measure-collection, toolbar-width) - 15;
+        line-height: map-get($measure-collection, toolbar-width) - 15;
         color: map-get($default-colors, light-grey);
 
         &.active {

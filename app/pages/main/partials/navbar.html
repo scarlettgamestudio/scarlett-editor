@@ -6,7 +6,7 @@
             <div class="navbar-title"></div>
         </div>
 
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <div class="">
             <!-- left menus -->
             <ul class="nav navbar-nav">
                 <!-- in here will go specific view menus -->
@@ -15,32 +15,19 @@
 
             <!-- right menus -->
             <ul class="nav navbar-nav navbar-right">
-                <!--<li class="dropdown profile-dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown">
-                        <img src="{{::userInfo.details.avatar_url}}" alt="">
-                        <span class="hidden-xs">{{::userInfo.details.username}}</span> <b class="caret"></b>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-right">
-                        <li><a href="user-profile.html"><i class="fa fa-user"></i>Profile</a></li>
-                        <li><a href="#"><i class="fa fa-cog"></i>Settings</a></li>
-                        <li><a href="#"><i class="fa fa-envelope-o"></i>Messages</a></li>
-                        <li><a href="#"><i class="fa fa-power-off"></i>Logout</a></li>
-                    </ul>
-                </li>-->
 
-
+                <!-- profile dropdown -->
                 <div uib-dropdown class="profile-dropdown">
                     <a href id="simple-dropdown" uib-dropdown-toggle>
                         <img src="{{::userInfo.details.avatar_url}}" alt="">
                         <span class="hidden-xs">{{::userInfo.details.username}}</span> <b class="caret"></b>
                     </a>
                     <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
-                        <li><a><i class="fa fa-user"></i>{{ 'PROFILE' | translate}}</a></li>
-                        <li><a><i class="fa fa-cog"></i>{{ 'SETTINGS' | translate}}</a></li>
-                        <li><a ng-click="logout()"><i class="fa fa-power-off"></i>{{ 'LOGOUT' | translate}}</a></li>
+                        <li><a><i class="fa fa-user"></i><span translate-once="PROFILE"></span></a></li>
+                        <li><a><i class="fa fa-cog"></i><span translate-once="SETTINGS"></span></a></li>
+                        <li><a ng-click="logout()"><i class="fa fa-power-off"></i><span translate-once="LOGOUT"></span></a></li>
                     </ul>
                 </div>
-
 
             </ul>
         </div>

@@ -1,0 +1,17 @@
+<ul>
+
+    <!-- home btn -->
+    <li ng-class="{'active': activeView == views.HOME}"
+        ng-click="changeContentView(views.HOME)"
+        title="{{'TOOLBAR_TOOLTIP_HUB' | translate}}">
+        <i class="fa fa-dot-circle-o"></i>
+    </li>
+
+    <!-- projects btn -->
+    <li ng-class="{'active': activeView == views.PROJECTS}"
+        ng-click="changeContentView(views.PROJECTS)"
+        title="{{'TOOLBAR_TOOLTIP_PROJECTS' | translate}}">
+        <i class="fa fa-folder"></i>
+    </li>
+
+</ul>
