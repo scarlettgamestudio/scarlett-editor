@@ -1,6 +1,6 @@
-@import '../theme-base/colours';
-@import '../theme-base/metrics';
-@import './vars';
+@import '../theme-base/mappings';
+@import 'mappings';
+@import 'vars';
 
 .sc-theme-red {
   @import 'components';

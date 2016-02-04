@@ -11,7 +11,7 @@ body {
 }
 
 .left-padding {
-  padding-left: $defaultPadding;
+  padding-left: map-get($default-collection, padding);
 }
 
 .on-error {
@@ -31,9 +31,9 @@ body {
 }
 
 .text-grey {
-  color: $mediumGrey;
+  color: map-get($default-colors, medium-grey);
 }
 
 .text-scarlet {
-  color: $scarlet;
+  color: map-get($default-colors, scarlet);
 }

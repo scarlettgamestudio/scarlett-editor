@@ -1,7 +1,7 @@
 
 .sc-login-page {
-  background: $greyHound;
-  color: $snowWhite;
+  background: map-get($default-colors, grey-hound);
+  color: map-get($default-colors, snow-white);
 
   width: 100%;
   height: 100%;
@@ -10,11 +10,11 @@
 
   .headerInfo {
     font-size: 0.45em;
-    color: $lightGrey;
+    color: map-get($default-colors, light-grey);
   }
 
   a {
-    color: $mediumGrey;
+    color: map-get($default-colors, medium-grey);
     font-size: 0.9em;
     text-decoration: none;
     cursor: pointer;
@@ -25,27 +25,27 @@
   }
 
   a:hover {
-    color: $lightGrey;
+    color: map-get($default-colors, light-grey);
   }
 
   .alert-danger {
-    border-color: $scarlet;
-    color: $scarlet;
+    border-color: map-get($default-colors, scarlet);
+    color: map-get($default-colors, scarlet);
     padding: 8px;
     border-radius: 2px;
     margin-top: 10px;
   }
 
   .form-control {
-    border-color: $dimGrey;
+    border-color: map-get($default-colors, dim-grey);
   }
 
   .has-error .form-control {
-    border-color: $scarlet;
+    border-color: map-get($default-colors, scarlet);
   }
 
   .has-error .help-block {
-    color: $scarlet;
+    color: map-get($default-colors, scarlet);
   }
 
   .form-group {
@@ -53,12 +53,12 @@
   }
 
   .checkbox-nice label:before {
-    background: $dimGrey;
-    border-color: $dimGrey;
+    background: map-get($default-colors, dim-grey);
+    border-color: map-get($default-colors, dim-grey);
   }
 
   .checkbox-nice label:after {
-    border-color: $scarlet
+    border-color: map-get($default-colors, scarlet);
   }
 
   .row {
@@ -66,23 +66,23 @@
   }
 
   .btn-dark {
-    border: 1px solid $grey;
-    background-color: $greyHound;
-    color: $snowWhite;
-    padding-top: $defaultPadding;
-    padding-bottom: $defaultPadding;
+    border: 1px solid map-get($default-colors, grey);
+    background-color: map-get($default-colors, grey-hound);
+    color: map-get($default-colors, snow-white);
+    padding-top: map-get($default-collection, padding);
+    padding-bottom: map-get($default-collection, padding);
   }
 
   .btn-dark:hover {
-    background-color: $grey;
+    background-color: map-get($default-colors, grey);
   }
 
   .form-control.input-dark {
-    background: $dimGrey;
-    color: $snowWhite;
+    background: map-get($default-colors, dim-grey);
+    color: map-get($default-colors, snow-white);
     height: auto;
-    padding-top: $defaultPadding;
-    padding-bottom: $defaultPadding;
+    padding-top: map-get($default-collection, padding);
+    padding-bottom: map-get($default-collection, padding);
   }
 
   h2 {

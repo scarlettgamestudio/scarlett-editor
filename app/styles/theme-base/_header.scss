@@ -1,15 +1,15 @@
 .navbar {
-  height: $navbarHeight;
+  height: map-get($measure-collection, navbar-height);
 
   .container-fluid {
-    padding-left: 0px;
+    padding-left: 0;
   }
 
   .navbar-logo {
-    width: $toolbarWidth;
-    height: $navbarHeight;
+    width: map-get($measure-collection, toolbar-width);
+    height: map-get($measure-collection, navbar-height);
     float: left;
-    line-height: $navbarHeight;
+    line-height: map-get($measure-collection, navbar-height);
     text-align: center;
     font-weight: bold;
     font-size: 24px;
@@ -21,7 +21,7 @@
 
   .profile-dropdown {
     line-height: 50px;
-    padding: 0px 10px;
+    padding: 0 10px;
 
     .simple-dropdown {
       padding-bottom: 7px;
@@ -36,7 +36,7 @@
       margin-right: 5px;
       margin-top: 8px;
       width: 35px;
-      border: 2px solid $snowWhite;
+      border: 2px solid map-get($default-colors, snow-white);
     }
   }
 
@@ -45,7 +45,7 @@
   }
 
   .dropdown-menu {
-    color: $dirtyGrey;
+    color: map-get($default-colors, dirty-gray);
   }
 
   .navbar-header {
@@ -62,8 +62,8 @@
     font-weight: bold;
   }
   .caret {
-    border-bottom-color: $snowWhite;
-    border-top-color: $snowWhite;
+    border-bottom-color: map-get($default-colors, snow-white);
+    border-top-color: map-get($default-colors, snow-white);
   }
 }
 

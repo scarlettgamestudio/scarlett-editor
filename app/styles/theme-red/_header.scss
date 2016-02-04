@@ -1,11 +1,11 @@
 .navbar {
-  color: $snowWhite;
+  color: map-get($default-colors, snow-white);
   background: $primaryColor;
   border: none;
   border-radius: 0;
 
   a {
-    color: $snowWhite;
+    color: map-get($default-colors, snow-white);
 
     &:hover {
       text-decoration: none;
@@ -20,7 +20,7 @@
 
   .dropdown-menu {
     a {
-      color: $dirtyGrey;
+      color: map-get($default-colors, dirty-grey);
     }
   }
 }

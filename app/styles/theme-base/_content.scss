@@ -1,16 +1,16 @@
 .content-wrapper {
-  background-color: $greyHound;
-  color: $dimWhite;
+  background-color: map-get($default-colors, grey-hound);
+  color: map-get($default-colors, dim-white);
   position: absolute;
   right: 0;
   left: 0;
   bottom: 0;
-  top: $navbarHeight;
+  top: map-get($measure-collection, navbar-height);
   display: flex;
 
   .toolbar {
-    width: $toolbarWidth;
-    background: darken($greyHound, 1%);
+    width: map-get($measure-collection, toolbar-width);
+    background: darken(map-get($default-colors, grey-hound), 1%);
     padding: 0;
 
     ul {
@@ -24,18 +24,18 @@
         margin: 0;
         float: none;
         text-align: center;
-        font-size: 24px;
-        height: $toolbarWidth - 20;
-        line-height: $toolbarWidth - 20;
-        color: $lightGrey;
+        font-size: 22px;
+        height: map-get($measure-collection, toolbar-width) - 20;
+        line-height: map-get($measure-collection, toolbar-width) - 20;
+        color: map-get($default-colors, light-grey);
 
         &.active {
-          background-color: $greyHound !important;
-          color: $dimWhite;
+          background-color: map-get($default-colors, grey-hound) !important;
+          color: map-get($default-colors, dim-white);
         }
 
         &:hover {
-          background-color: darken($greyHound, 3%);
+          background-color: darken(map-get($default-colors, grey-hound), 3%);
           cursor: pointer;
         }
       }
