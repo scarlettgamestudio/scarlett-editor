@@ -17,15 +17,16 @@
             <ul class="nav navbar-nav navbar-right">
 
                 <!-- profile dropdown -->
-                <div uib-dropdown class="profile-dropdown">
-                    <a href id="simple-dropdown" uib-dropdown-toggle>
+                <div uib-dropdown class="profile-dropdown" uib-dropdown-toggle>
+                    <a href id="simple-dropdown">
                         <img src="{{::userInfo.details.avatar_url}}" alt="">
                         <span class="hidden-xs">{{::userInfo.details.username}}</span> <b class="caret"></b>
                     </a>
                     <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
                         <li><a><i class="fa fa-user"></i><span translate-once="PROFILE"></span></a></li>
                         <li><a><i class="fa fa-cog"></i><span translate-once="SETTINGS"></span></a></li>
-                        <li><a ng-click="logout()"><i class="fa fa-power-off"></i><span translate-once="LOGOUT"></span></a></li>
+                        <li><a ng-click="logout()"><i class="fa fa-power-off"></i><span translate-once="LOGOUT"></span></a>
+                        </li>
                     </ul>
                 </div>
 

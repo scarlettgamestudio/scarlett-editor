@@ -12,6 +12,12 @@
     }
   }
 
+  .nav {
+    .open {
+      background: darken($primaryColor, 5%);
+    }
+  }
+
   .profile-dropdown {
     &:hover {
       background: darken($primaryColor, 5%);

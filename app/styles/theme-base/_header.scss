@@ -23,6 +23,7 @@
   .profile-dropdown {
     line-height: map-get($measure-collection, navbar-height);
     padding: 0 10px;
+    cursor: pointer;
 
     .simple-dropdown {
       padding-bottom: 7px;
