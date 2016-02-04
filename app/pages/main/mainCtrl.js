@@ -5,10 +5,10 @@
 app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', '$rootScope',
 	function ($scope, logSvc, soapSvc, config, userSvc, $rootScope) {
 
-		$scope.changeContentView = function(view) {
+		$scope.changeContentView = function (view) {
 			var validChange = true;
 
-			switch(view) {
+			switch (view) {
 				case config.CONTENT_VIEWS.HOME:
 					$scope.activeViewSrc = "pages/main/views/home.html";
 					break;
@@ -20,7 +20,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 					break;
 			}
 
-			if(validChange) {
+			if (validChange) {
 				$scope.activeView = view;
 				$scope.safeDigest();
 			}
@@ -33,8 +33,8 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 			userSvc.logout();
 		};
 
-		$scope.safeDigest = function() {
-			return !$scope.$$phase && $scope.$digest();
+		$scope.safeDigest = function () {
+			!$scope.$$phase && $scope.$digest();
 		};
 
 		// initialization
