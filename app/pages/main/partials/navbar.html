@@ -6,31 +6,89 @@
             <div class="navbar-title"></div>
         </div>
 
-        <div class="">
-            <!-- left menus -->
-            <ul class="nav navbar-nav">
-                <!-- in here will go specific view menus -->
+        <!-- left menus -->
+        <ul class="nav navbar-nav">
+            <!-- in here will go specific view menus -->
 
-            </ul>
+            <div uib-dropdown class="navbar-dropdown" uib-dropdown-toggle>
+                <a>
+                    <span class="hidden-xs" translate-once="NAVBAR_FILE"></span> </b>
+                </a>
+                <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
+                    <li><a><i class="fa fa-plus-square"></i><span translate-once="NAVBAR_NEW_PROJECT"></span></a></li>
+                    <li><a><i class="fa fa-folder-open"></i><span translate-once="NAVBAR_OPEN_PROJECT"></span></a></li>
+                    <li><a><i class="fa fa-floppy-o"></i><span translate-once="NAVBAR_SAVE"></span></a></li>
+                    <li class="divider"></li>
+                    <li><a><i class="fa fa-power-off"></i><span translate-once="NAVBAR_QUIT"></span></a>
+                    </li>
+                </ul>
+            </div>
 
-            <!-- right menus -->
-            <ul class="nav navbar-nav navbar-right">
+            <div uib-dropdown class="navbar-dropdown" uib-dropdown-toggle>
+                <a>
+                    <span class="hidden-xs" translate-once="NAVBAR_EDIT"></span> </b>
+                </a>
+                <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
+                    <li><a><i class="fa fa-undo"></i><span translate-once="NAVBAR_UNDO"></span></a></li>
+                    <li><a><i class="fa fa-repeat"></i><span translate-once="NAVBAR_REDO"></span></a></li>
+                    <li class="divider"></li>
+                    <li><a><i class="fa fa-cut"></i><span translate-once="NAVBAR_CUT"></span></a></li>
+                    <li><a><i class="fa fa-copy"></i><span translate-once="NAVBAR_COPY"></span></a>
+                    <li><a><i class="fa fa-paste"></i><span translate-once="NAVBAR_PASTE"></span></a>
+                    </li>
+                </ul>
+            </div>
 
-                <!-- profile dropdown -->
-                <div uib-dropdown class="profile-dropdown" uib-dropdown-toggle>
-                    <a href id="simple-dropdown">
-                        <img src="{{::userInfo.details.avatar_url}}" alt="">
-                        <span class="hidden-xs">{{::userInfo.details.username}}</span> <b class="caret"></b>
-                    </a>
-                    <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
-                        <li><a><i class="fa fa-user"></i><span translate-once="PROFILE"></span></a></li>
-                        <li><a><i class="fa fa-cog"></i><span translate-once="SETTINGS"></span></a></li>
-                        <li><a ng-click="logout()"><i class="fa fa-power-off"></i><span translate-once="LOGOUT"></span></a>
-                        </li>
-                    </ul>
-                </div>
+            <div uib-dropdown class="navbar-dropdown" uib-dropdown-toggle>
+                <a>
+                    <span class="hidden-xs" translate-once="NAVBAR_HELP"></span> </b>
+                </a>
+                <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
+                    <li><a><i class="fa fa-book" aria-hidden="true"></i><span translate-once="NAVBAR_TUTORIALS"></span></a></li>
+                    <li><a><i class="fa fa-info-circle" aria-hidden="true"></i><span translate-once="NAVBAR_ABOUT"></span></a></li>
+                </ul>
+            </div>
 
-            </ul>
+        </ul>
+
+
+        <div class="navbar-center">
+            <div class="align-left">
+                <div class="sc-action-btn disabled"><i class="fa fa-undo" aria-hidden="true"></i></div>
+                <div class="sc-action-btn disabled"><i class="fa fa-repeat" aria-hidden="true"></i></div>
+            </div>
+            <div class="horizontal-space align-left"></div>
+            <div class="align-left">
+                <div class="sc-action-btn"><i class="fa fa-hand-pointer-o" aria-hidden="true"></i></div>
+                <div class="sc-action-btn"><i class="fa fa-arrows" aria-hidden="true"></i></div>
+                <div class="sc-action-btn"><i class="fa fa-refresh" aria-hidden="true"></i></div>
+                <div class="sc-action-btn"><i class="fa fa-expand" aria-hidden="true"></i></div>
+            </div>
+            <div class="horizontal-space align-left"></div>
+            <div class="align-left">
+                <div class="sc-action-btn"><i class="fa fa-play" aria-hidden="true"></i></div>
+                <div class="sc-action-btn disabled"><i class="fa fa-stop" aria-hidden="true"></i></div>
+            </div>
         </div>
+
+
+        <!-- right menus -->
+        <ul class="nav navbar-nav navbar-right">
+
+            <!-- profile dropdown -->
+            <div uib-dropdown class="profile-dropdown" uib-dropdown-toggle>
+                <a>
+                    <img src="{{::userInfo.details.avatar_url}}" alt="">
+                    <span class="hidden-xs">{{::userInfo.details.username}}</span> <b class="caret"></b>
+                </a>
+                <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
+                    <li><a><i class="fa fa-user"></i><span translate-once="PROFILE"></span></a></li>
+                    <li><a><i class="fa fa-cog"></i><span translate-once="SETTINGS"></span></a></li>
+                    <li><a ng-click="logout()"><i class="fa fa-sign-out"></i><span translate-once="LOGOUT"></span></a>
+                    </li>
+                </ul>
+            </div>
+
+        </ul>
     </div>
 </nav>

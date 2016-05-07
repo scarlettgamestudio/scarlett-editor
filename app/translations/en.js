@@ -24,8 +24,29 @@ app.config(function ($translateProvider) {
 		INVALID_CREDENTIALS: 'Could not login, invalid credentials',
 		SETTINGS: 'Settings',
 
+		EDITOR_GAME_VIEW: "Game View",
+		EDITOR_SCENE_HIERARCHY: "Scene Hierarchy",
+		EDITOR_PROJECT_EXPLORER: "Project Explorer",
+		EDITOR_INSPECTOR: "Inspector",
+		EDITOR_CONSOLE: "Console Logs",
 
 		TOOLBAR_TOOLTIP_HUB: 'Hub',
-		TOOLBAR_TOOLTIP_PROJECTS: 'Projects'
+		TOOLBAR_TOOLTIP_PROJECTS: 'Projects',
+
+		NAVBAR_FILE: 'File',
+		NAVBAR_NEW_PROJECT: "New Project",
+		NAVBAR_OPEN_PROJECT: "Open Project",
+		NAVBAR_SAVE: "Save",
+		NAVBAR_QUIT: "Quit",
+		NAVBAR_EDIT: "Edit",
+		NAVBAR_UNDO: "Undo",
+		NAVBAR_REDO: "Redo",
+		NAVBAR_CUT: "Cut",
+		NAVBAR_COPY: "Copy",
+		NAVBAR_PASTE: "Paste",
+		NAVBAR_HELP: "Help",
+		NAVBAR_TUTORIALS: "Tutorials",
+		NAVBAR_ABOUT: "About"
+
 	});
 });

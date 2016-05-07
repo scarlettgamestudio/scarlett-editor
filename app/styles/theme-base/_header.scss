@@ -1,5 +1,27 @@
 .navbar {
   height: map-get($measure-collection, navbar-height);
+  position: relative;
+  min-height: 0;
+  margin-bottom: 0;
+
+  .sc-action-btn {
+    padding: 4px 14px;
+    margin: 0;
+    margin-right: 1px;
+    float: left;
+    font-size: 1.15em;
+    cursor: pointer;
+
+    &:first-child {
+      border-top-left-radius: map-get($default-collection, border-radius);
+      border-bottom-left-radius: map-get($default-collection, border-radius);
+    }
+
+    &:last-child {
+      border-top-right-radius: map-get($default-collection, border-radius);
+      border-bottom-right-radius: map-get($default-collection, border-radius);
+    }
+  }
 
   .container-fluid {
     padding-left: 0;
@@ -20,6 +42,14 @@
     float: left;
   }
 
+  .navbar-center {
+    position: absolute;
+    margin-left: 50%;
+    margin-top: 8px;
+    transform: translateX(-50%);
+  }
+
+  .navbar-dropdown,
   .profile-dropdown {
     line-height: map-get($measure-collection, navbar-height);
     padding: 0 10px;
@@ -40,6 +70,10 @@
       width: 30px;
       border: 2px solid map-get($default-colors, snow-white);
     }
+  }
+
+  .navbar-dropdown {
+    float: left;
   }
 
   a {

@@ -1,0 +1,16 @@
+.sc-panel-holder {
+  .sc-panel {
+    margin: 5px;
+    font-size: 0.96em;
+
+    .header {
+      background-color: lighten(map_get($default-colors, grey-hound), 10%);
+      padding: 4px 8px;
+      color: map_get($default-colors, fade-grey);
+    }
+    .content {
+      padding: 4px 8px;
+      background-color: lighten(map_get($default-colors, grey-hound), 5%);
+    }
+  }
+}

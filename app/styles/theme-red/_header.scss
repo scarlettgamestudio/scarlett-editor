@@ -4,6 +4,25 @@
   border: none;
   border-radius: 0;
 
+  .sc-action-btn {
+    background: lighten($primaryColor, 12%);
+
+    &.selected,
+    &:hover {
+      background: lighten($primaryColor, 22%);
+    }
+
+    &.disabled {
+      opacity: 0.6;
+      cursor: not-allowed !important;
+
+      &.selected,
+      &:hover {
+        background: lighten($primaryColor, 12%);
+      }
+    }
+  }
+
   a {
     color: map-get($default-colors, snow-white);
 
@@ -18,6 +37,7 @@
     }
   }
 
+  .navbar-dropdown,
   .profile-dropdown {
     &:hover {
       background: darken($primaryColor, 5%);

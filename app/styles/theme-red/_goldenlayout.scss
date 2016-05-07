@@ -1,0 +1,13 @@
+.lm_header {
+  background-color: map-get($default-colors, grey-hound);
+}
+.lm_item.lm_row {
+  background-color: map-get($default-colors, grey-hound);
+}
+.li.lm_tab,
+.lm_header .lm_tab.lm_active{
+  box-shadow: none;
+}
+.lm_maximised .lm_header {
+  background-color: map-get($default-colors, grey-hound);
+}

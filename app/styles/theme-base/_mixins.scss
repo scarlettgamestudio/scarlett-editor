@@ -7,3 +7,9 @@
   -o-user-select: none;
   user-select: none;
 };
+
+@mixin box-shadow($left:0, $top:2px, $blur:2px, $color:#000, $inset:"") {
+  -webkit-box-shadow:$left $top $blur $color #{$inset};
+  -moz-box-shadow:$left $top $blur $color #{$inset};
+  box-shadow:$left $top $blur $color #{$inset};
+}

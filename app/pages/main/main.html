@@ -4,13 +4,28 @@
     <ng-include src="'pages/main/partials/navbar.html'"></ng-include>
 
     <!-- content -->
-    <div class="content-wrapper">
+    <div style="padding:2px;">
 
-        <!-- side nav-bar -->
-        <ng-include src="'pages/main/partials/sideNavBar.html'" class="side-nav-bar"></ng-include>
 
-        <!-- dynamic content holder -->
-        <ng-include src="activeViewSrc" class="wrapper-container"></ng-include>
+        <template type="text/html" id="sceneHierarchy">
+          hierarchy
+        </template>
+
+        <template type="text/html" id="projectExplorer">
+            explorer
+        </template>
+
+        <template type="text/html" id="gameView">
+            explorer
+        </template>
+
+        <template type="text/html" id="consoleView">
+            explorer
+        </template>
+
+        <template type="text/html" id="inspector">
+            explorer
+        </template>
 
     </div>
 
