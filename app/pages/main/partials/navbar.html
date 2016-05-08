@@ -15,7 +15,7 @@
                     <span class="hidden-xs" translate-once="NAVBAR_FILE"></span> </b>
                 </a>
                 <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
-                    <li><a><i class="fa fa-plus-square"></i><span translate-once="NAVBAR_NEW_PROJECT"></span></a></li>
+                    <li ng-click="openNewProjectModal()"><a><i class="fa fa-plus-square"></i><span translate-once="NAVBAR_NEW_PROJECT"></span></a></li>
                     <li><a><i class="fa fa-folder-open"></i><span translate-once="NAVBAR_OPEN_PROJECT"></span></a></li>
                     <li><a><i class="fa fa-floppy-o"></i><span translate-once="NAVBAR_SAVE"></span></a></li>
                     <li class="divider"></li>
@@ -36,6 +36,16 @@
                     <li><a><i class="fa fa-copy"></i><span translate-once="NAVBAR_COPY"></span></a>
                     <li><a><i class="fa fa-paste"></i><span translate-once="NAVBAR_PASTE"></span></a>
                     </li>
+                </ul>
+            </div>
+
+            <div uib-dropdown class="navbar-dropdown" uib-dropdown-toggle>
+                <a>
+                    <span class="hidden-xs" translate-once="NAVBAR_WINDOW"></span> </b>
+                </a>
+                <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
+                    <li><a><i class="fa fa-book" aria-hidden="true"></i><span translate-once="NAVBAR_TUTORIALS"></span></a></li>
+                    <li><a><i class="fa fa-info-circle" aria-hidden="true"></i><span translate-once="NAVBAR_ABOUT"></span></a></li>
                 </ul>
             </div>
 

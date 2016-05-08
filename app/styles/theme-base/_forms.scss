@@ -1,0 +1,63 @@
+.modal-label-input {
+  font-size: 1.05em;
+}
+
+.form-control:focus {
+  border-color: map_get($default-colors, scarlet);
+  box-shadow: none;
+}
+
+.sc-input {
+  height: auto;
+  padding-top: 8px;
+  padding-bottom: 8px;
+
+  &.input-night {
+    background: map-get($default-colors, dim-grey);
+    border-color: map-get($default-colors, dim-grey);
+    color: map-get($default-colors, snow-white);
+
+    &:focus {
+      border-color: lighten(map-get($default-colors, dim-grey), 10);
+    }
+  }
+}
+
+.form-group:last-child {
+  margin-bottom: 8px;
+}
+
+button {
+
+  &.btn {
+    padding: 6px 18px;
+    //background-color: lighten(map-get($default-colors, dim-grey), 10);
+    color: map-get($default-colors, snow-white) !important;
+
+    &.btn-scarlet {
+      border-color: darken(map-get($default-colors, scarlet), 8);
+      background-color: map-get($default-colors, scarlet);
+    }
+
+    &.btn-grey {
+      background-color: lighten(map-get($default-colors, dim-grey), 6);
+      border-bottom: none !important;
+
+      &:hover {
+        background-color: lighten(map-get($default-colors, dim-grey), 16);
+      }
+    }
+
+    &:hover, &:active, &:focus {
+      outline: none !important;
+    }
+  }
+}
+
+.btn-inline {
+  border: none;
+  background-color: lighten(map-get($default-colors, dim-grey), 6);
+  border-radius: 0 map-get($default-collection, border-radius) map-get($default-collection, border-radius) 0;
+  font-size: 1em;
+  color: map-get($default-colors, snow-white);
+}

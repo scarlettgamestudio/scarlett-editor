@@ -2,10 +2,20 @@
  * Created by John on 12/12/15.
  */
 
-app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', '$rootScope', '$translate',
-	function ($scope, logSvc, soapSvc, config, userSvc, $rootScope, $translate) {
+app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', '$rootScope', '$translate', '$uibModal', '$http', '$compile',
+	function ($scope, logSvc, soapSvc, config, userSvc, $rootScope, $translate, $uibModal, $http, $compile) {
 
-		var myLayout;
+		var myLayout = null;
+		var activeModal = null;
+
+		$scope.openNewProjectModal = function () {
+			activeModal = $uibModal.open({
+				animation: true,
+				templateUrl: "modals/newProject/newProjectModal.html",
+				controller: "NewProjectModalCtrl",
+				size: 200
+			});
+		};
 
 		$scope.logout = function () {
 			// call of user service logout, it will handle ui view changes as well:
@@ -25,6 +35,12 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 					hasHeaders: true,
 					showPopoutIcon: false
 				},
+				labels: {
+					close: $translate.instant("ACTION_CLOSE"),
+					maximise: $translate.instant("ACTION_MAXIMIZE"),
+					minimise: $translate.instant("ACTION_MINIMIZE"),
+					popout: $translate.instant("ACTION_POPOUT")
+				},
 				dimensions: {
 					borderWidth: 5,
 					headerHeight: 20
@@ -39,13 +55,19 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 								{
 									type: 'component',
 									componentName: 'template',
-									componentState: {templateId: 'sceneHierarchy'},
+									componentState: {
+										templateId: 'sceneHierarchy',
+										url: ''
+									},
 									title: $translate.instant("EDITOR_SCENE_HIERARCHY")
 								},
 								{
 									type: 'component',
 									componentName: 'template',
-									componentState: {templateId: 'projectExplorer'},
+									componentState: {
+										templateId: 'projectExplorer',
+										url: ''
+									},
 									title: $translate.instant("EDITOR_PROJECT_EXPLORER")
 								}
 							]
@@ -56,13 +78,19 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 								{
 									type: 'component',
 									componentName: 'template',
-									componentState: {templateId: 'gameView'},
-									title: $translate.instant("EDITOR_GAME_VIEW")
+									componentState: {
+										templateId: 'sceneView',
+										url: ''
+									},
+									title: $translate.instant("EDITOR_SCENE_VIEW")
 								},
 								{
 									type: 'component',
 									componentName: 'template',
-									componentState: {templateId: 'consoleView'},
+									componentState: {
+										templateId: 'consoleView',
+										url: ''
+									},
 									height: 25,
 									title: $translate.instant("EDITOR_CONSOLE")
 								}
@@ -71,15 +99,30 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 							type: 'component',
 							width: 20,
 							componentName: 'template',
-							componentState: {templateId: 'inspector'},
+							componentState: {
+								templateId: 'inspector',
+								url: 'templates/propertyEditor/propertyEditor.html'
+							},
 							title: $translate.instant("EDITOR_INSPECTOR")
 						}]
 				}]
 			});
 
 			myLayout.registerComponent('template', function (container, state) {
-				var templateHtml = $('#' + state.templateId).html();
-				container.getElement().html(templateHtml);
+				if(state.url && state.url.length > 0) {
+					$http.get(state.url, {cache: true}).success(function (html) {
+						html = $compile(html)($scope);
+						container.getElement().html(html);
+
+						if (state.templateId == "inspector") {
+							setTimeout(function () {
+								var transform = new GameObject();
+								angular.element(document.getElementById('scenePropertyEditor')).scope().addTarget(transform, true);
+							}, 100);
+
+						}
+					});
+				}
 			});
 
 			myLayout.on('initialised', function () {

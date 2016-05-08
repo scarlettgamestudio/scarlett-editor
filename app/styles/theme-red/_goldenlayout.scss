@@ -7,7 +7,12 @@
 .li.lm_tab,
 .lm_header .lm_tab.lm_active{
   box-shadow: none;
+  background-color: darken(map-get($default-colors, grey-hound), 2);
 }
 .lm_maximised .lm_header {
   background-color: map-get($default-colors, grey-hound);
+}
+.lm_content {
+  color:  map-get($default-colors, snow-white);
+  background-color: darken(map-get($default-colors, grey-hound), 2);
 }

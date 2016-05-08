@@ -11,7 +11,7 @@ var dependencies = [
 
 var app = angular.module('scarlett', dependencies)
 
-.run(function ($rootScope, $location) {
+.run(function ($rootScope, $location, $translate, $http, $compile) {
 	$rootScope.changeView = function (viewName) {
 		$location.path(viewName);
 	};

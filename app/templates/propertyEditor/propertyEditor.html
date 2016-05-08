@@ -1,0 +1,15 @@
+<div id="scenePropertyEditor" class="peContainer noselect" ng-controller="PropertyEditorCtrl">
+    <div class="pePanel" ng-repeat="target in model.targets">
+        <div class="peHeader" ng-click="toggleVisibility(target)">
+            <i class="fa fa-sliders" aria-hidden="true" ng-if="$index === 0"></i>
+            <i class="fa" ng-class="{'fa-caret-down' : target.open, 'fa-caret-right' : !target.open}" aria-hidden="true" ng-if="$index > 0"></i>
+            <span class="peHeaderText">{{target.targetTitle}}</span>
+        </div>
+        <div class="peEditorContainer" ng-show="target.open">
+            <div class="peEditor" ng-repeat="property in target.properties" ng-controller="PropertyEditorHandlerCtrl">
+                <div ng-include="getEditorUrl(property.type)"></div>
+            </div>
+        </div>
+        <hr>
+    </div>
+</div>

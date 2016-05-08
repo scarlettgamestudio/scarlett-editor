@@ -6,25 +6,26 @@
     <!-- content -->
     <div style="padding:2px;">
 
-
         <template type="text/html" id="sceneHierarchy">
-          hierarchy
+
         </template>
 
         <template type="text/html" id="projectExplorer">
-            explorer
+
         </template>
 
-        <template type="text/html" id="gameView">
-            explorer
+        <template type="text/html" id="sceneView">
+            <canvas id="sceneCanvas"></canvas>
         </template>
 
         <template type="text/html" id="consoleView">
-            explorer
+
         </template>
 
         <template type="text/html" id="inspector">
-            explorer
+            <div ng-include="'templates/propertyEditor/propertyEditor.html'">
+
+            </div>
         </template>
 
     </div>

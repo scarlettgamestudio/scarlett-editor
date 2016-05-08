@@ -14,3 +14,52 @@
     }
   }
 }
+
+#gameCanvas {
+  position: relative;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.modal {
+  text-align: center;
+
+  padding: 0!important;
+}
+
+.modal-content {
+  background: map_get($default-colors, grey-hound);
+  border-radius: map_get($default-collection, border-radius);
+  box-shadow: none;
+}
+
+.modal:before {
+  content: '';
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+  margin-right: -4px; /* Adjusts for spacing */
+}
+
+.modal-dialog {
+  display: inline-block;
+  text-align: left;
+  vertical-align: middle;
+  width: 480px;
+  color:  map-get($default-colors, fade-grey);
+}
+
+.modal-header {
+  padding: 10px 15px;
+  border-width: 2px;
+  border-color: map-get($default-colors, dim-grey);
+}
+
+.modal-footer {
+  padding: 10px 15px;
+  border-width: 2px;
+  border-color: map-get($default-colors, dim-grey);
+}
+

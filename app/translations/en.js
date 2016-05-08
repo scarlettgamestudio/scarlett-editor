@@ -25,10 +25,24 @@ app.config(function ($translateProvider) {
 		SETTINGS: 'Settings',
 
 		EDITOR_GAME_VIEW: "Game View",
+		EDITOR_SCENE_VIEW: "Scene View",
 		EDITOR_SCENE_HIERARCHY: "Scene Hierarchy",
 		EDITOR_PROJECT_EXPLORER: "Project Explorer",
 		EDITOR_INSPECTOR: "Inspector",
 		EDITOR_CONSOLE: "Console Logs",
+
+		MODAL_NEW_PROJECT: "Create New Project",
+
+		ACTION_MINIMIZE: "Minimize",
+		ACTION_MAXIMIZE: "Maximize",
+		ACTION_POPOUT: "Open in new Window",
+		ACTION_CLOSE: "Close",
+
+		LABEL_PROJECT_NAME: "Project Name",
+		LABEL_PROJECT_PATH: "Project Path",
+
+		BUTTON_CREATE: "Create",
+		BUTTON_CANCEL: "Cancel",
 
 		TOOLBAR_TOOLTIP_HUB: 'Hub',
 		TOOLBAR_TOOLTIP_PROJECTS: 'Projects',
@@ -46,7 +60,8 @@ app.config(function ($translateProvider) {
 		NAVBAR_PASTE: "Paste",
 		NAVBAR_HELP: "Help",
 		NAVBAR_TUTORIALS: "Tutorials",
-		NAVBAR_ABOUT: "About"
+		NAVBAR_ABOUT: "About",
+		NAVBAR_WINDOW: "Window"
 
 	});
 });
