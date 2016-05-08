@@ -9,6 +9,9 @@ app.config(function ($translateProvider) {
 		CREATE_NEW_ACCOUNT: 'Create new Account',
 		FORGOT_PASSWORD: 'Forgot your password?',
 		LOGIN: 'Login',
+		LOGIN_OFFLINE: 'Offline Mode',
+		LOGIN_SUBHEADER: 'Welcome! Please enter your credentials and have fun!',
+		HUB_SUBHEADER: 'Create or Load a Game Project',
 		ERROR: 'Error',
 		REGISTER: 'Register',
 		RETURN_LOGIN: 'Return to Login',
@@ -40,9 +43,11 @@ app.config(function ($translateProvider) {
 
 		LABEL_PROJECT_NAME: "Project Name",
 		LABEL_PROJECT_PATH: "Project Path",
+		LABEL_HUB: "Hub",
 
 		BUTTON_CREATE: "Create",
 		BUTTON_CANCEL: "Cancel",
+		BUTTON_OK: "OK",
 
 		TOOLBAR_TOOLTIP_HUB: 'Hub',
 		TOOLBAR_TOOLTIP_PROJECTS: 'Projects',
@@ -61,7 +66,8 @@ app.config(function ($translateProvider) {
 		NAVBAR_HELP: "Help",
 		NAVBAR_TUTORIALS: "Tutorials",
 		NAVBAR_ABOUT: "About",
-		NAVBAR_WINDOW: "Window"
+		NAVBAR_WINDOW: "Window",
+		NAVBAR_LOGIN: "Go to Login Page"
 
 	});
 });

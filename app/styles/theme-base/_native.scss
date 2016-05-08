@@ -6,3 +6,11 @@ h1, h2, h3, h4 {
   border-bottom: none;
   padding: 0;
 }
+
+hr {
+  width: 100%;
+  border-color: lighten(map-get($default-colors, grey-hound), 4);
+  margin-top: 20px;
+  margin-bottom: 20px;
+
+}

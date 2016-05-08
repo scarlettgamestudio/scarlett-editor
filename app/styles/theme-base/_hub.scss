@@ -1,0 +1,26 @@
+.projectDetails {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: map_get($default-collection, border-radius);
+
+  &:hover {
+    background-color: lighten(map-get($default-colors, dim-grey), 5);
+  }
+
+  .projectTitle {
+    font-size: 1.2em;
+    color: map-get($default-colors, light-grey);
+  }
+
+  .projectPath {
+    font-size: 0.9em;
+    color: map-get($default-colors, medium-grey);
+  }
+}
+
+
+.feedContainer {
+
+}

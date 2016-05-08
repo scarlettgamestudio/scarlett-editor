@@ -7,6 +7,8 @@ app.config(['$routeProvider',
 			cache: false
 		}).when('/register', {
 			templateUrl: 'pages/register/register.html'
+		}).when('/hub', {
+			templateUrl: 'pages/hub/hub.html'
 		}).otherwise({
 			redirectTo: '/login'
 		});

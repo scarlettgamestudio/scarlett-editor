@@ -15,7 +15,7 @@
   &.input-night {
     background: map-get($default-colors, dim-grey);
     border-color: map-get($default-colors, dim-grey);
-    color: map-get($default-colors, snow-white);
+    color: map-get($default-colors, bright-grey);
 
     &:focus {
       border-color: lighten(map-get($default-colors, dim-grey), 10);

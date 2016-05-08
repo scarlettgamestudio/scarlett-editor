@@ -28,11 +28,11 @@ app.factory("userSvc", ['$q', 'config', 'logSvc', 'soapSvc', 'localStorageServic
 		};
 
 		svc.logout = function() {
-			if (svc.clearUserInfo()) {
-				// it only makes sense to redirect automatically the user to the login page so for now this
-				// redirection will be applied without further action required.
-				$rootScope.changeView('login');
-			}
+			svc.clearUserInfo();
+
+			// it only makes sense to redirect automatically the user to the login page so for now this
+			// redirection will be applied without further action required.
+			$rootScope.changeView('login');
 		};
 
 		svc.login = function (identity, password) {

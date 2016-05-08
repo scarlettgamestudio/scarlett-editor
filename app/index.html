@@ -45,6 +45,7 @@
     <script type="text/javascript" src="scripts/utils.js"></script>
 
     <!-- core modules -->
+    <script type="text/javascript" src="core/remote.js"></script>
     <script type="text/javascript" src="core/app.js"></script>
     <script type="text/javascript" src="core/route.js"></script>
 
@@ -55,6 +56,9 @@
     <script type="text/javascript" src="services/logSvc.js"></script>
     <script type="text/javascript" src="services/soapSvc.js"></script>
     <script type="text/javascript" src="services/userSvc.js"></script>
+    <script type="text/javascript" src="services/dialogSvc.js"></script>
+    <script type="text/javascript" src="services/dataSvc.js"></script>
+    <script type="text/javascript" src="services/gameSvc.js"></script>
 
     <!-- directives -->
     <script type="text/javascript" src="directives/translateDrtv.js"></script>
@@ -66,10 +70,12 @@
     <script type="text/javascript" src="modals/newProject/newProjectModalCtrl.js"></script>
     <script type="text/javascript" src="templates/propertyEditor/propertyEditorCtrl.js"></script>
     <script type="text/javascript" src="templates/propertyEditor/propertyEditorHandlerCtrl.js"></script>
+    <script type="text/javascript" src="pages/hub/hubCtrl.js"></script>
+    <script type="text/javascript" src="modals/dialog/dialogModalCtrl.js"></script>
 
 </head>
 <body class="noselect">
 <!-- main container div -->
-<div ng-view></div>
+<div ng-view style="position:relative;z-index:10"></div>
 </body>
 </html>

@@ -12,9 +12,14 @@ var dependencies = [
 var app = angular.module('scarlett', dependencies)
 
 .run(function ($rootScope, $location, $translate, $http, $compile) {
+
+	// validate if the scarlett folder exists:
+	ScarlettInterface.setupApplicationFolder();
+
 	$rootScope.changeView = function (viewName) {
 		$location.path(viewName);
 	};
+
 })
 
 .constant("config", {
@@ -30,7 +35,8 @@ var app = angular.module('scarlett', dependencies)
 	},
 	LOCAL_STORAGE: {
 		KEYS: {
-			USER_INFO: "uinfo"
+			USER_INFO: "uinfo",
+			APP_DATA: "appdata"
 		}
 	},
 	CONTENT_VIEWS: {
@@ -52,4 +58,3 @@ var app = angular.module('scarlett', dependencies)
 	$translateProvider.preferredLanguage('en');
 	$translateProvider.useSanitizeValueStrategy('escape');
 });
-

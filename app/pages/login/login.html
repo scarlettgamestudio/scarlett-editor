@@ -5,14 +5,14 @@
                 <h2><b><span class="text-scarlet">{{'PRODUCT_TITLE' | translate}}</span> {{'GAME_STUDIO' |
                     translate}}</b> <span class="headerInfo">{{'LOGIN' | translate}}</span></h2>
 
-                <p class="text-grey">Welcome! Please enter your credentials and have fun!</p>
+                <p class="text-grey">{{'LOGIN_SUBHEADER' | translate}}</p>
                 <br/>
 
                 <form name="loginForm" ng-submit="login(loginForm.$valid)" novalidate>
 
                     <div class="form-group"
                          ng-class="{'has-error': loginForm.$submitted && loginForm.username.$invalid }">
-                        <input type="text" class="form-control input-dark" id="username" name="username"
+                        <input type="text" class="form-control sc-input input-night" id="username" name="username"
                                ng-model="auth.identity" ng-required="true"
                                autocomplete="on" placeholder="{{'PLACEHOLDER_LOGIN_IDENTITY' | translate}}" required>
                         <div class="on-error">
@@ -24,7 +24,7 @@
 
                     <div class="form-group"
                          ng-class="{'has-error': loginForm.$submitted && loginForm.password.$invalid }">
-                        <input type="password" class="form-control input-dark" id="password" name="password"
+                        <input type="password" class="form-control sc-input input-night" id="password" name="password"
                                ng-model="auth.password" ng-required="true"
                                autocomplete="on" placeholder="{{'PLACEHOLDER_LOGIN_PASSWORD' | translate}}" required>
                         <div class="on-error">
@@ -42,9 +42,19 @@
                     </div>
 
                     <br/>
-                    <button type="submit" class="btn btn-dark btn-block text-left" ng-disabled="loginState == LOGIN_STATE.AUTHENTICATING">
-                        <i class="fa fa-sign-in"></i> &nbsp;{{ 'LOGIN' | translate }}
-                    </button>
+                        <div class="col-md-6">
+                            <button ng-click="loginOffline()" type="button" class="btn btn-dark btn-block text-left" ng-disabled="loginState == LOGIN_STATE.AUTHENTICATING">
+                                <i class="fa fa-chain-broken" aria-hidden="true"></i> &nbsp;{{ 'LOGIN_OFFLINE' | translate }}
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-dark btn-block text-left" ng-disabled="loginState == LOGIN_STATE.AUTHENTICATING">
+                                <i class="fa fa-sign-in"></i> &nbsp;{{ 'LOGIN' | translate }}
+                            </button>
+                        </div>
+
+                    <br/><br/>
+
                     <div class="alert alert-danger" role="alert" ng-if="loginState == LOGIN_STATE.FAILED">
                         <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
                         <span class="sr-only">{{ 'ERROR' | translate }}:</span>

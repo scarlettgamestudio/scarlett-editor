@@ -1,4 +1,5 @@
 
+.sc-hub,
 .sc-login-page {
   background: map-get($default-colors, grey-hound);
   color: map-get($default-colors, snow-white);
@@ -90,6 +91,7 @@
     margin-bottom: 4px;
   }
 
+  .sc-hub-container,
   .sc-login-container {
     max-width: 960px;
     margin: 0 auto;

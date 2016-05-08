@@ -19,6 +19,7 @@
                     <li><a><i class="fa fa-folder-open"></i><span translate-once="NAVBAR_OPEN_PROJECT"></span></a></li>
                     <li><a><i class="fa fa-floppy-o"></i><span translate-once="NAVBAR_SAVE"></span></a></li>
                     <li class="divider"></li>
+                    <li ng-if="!model.onlineMode" ng-click="logout()"><a><i class="fa fa-sign-in" aria-hidden="true"></i><span translate-once="NAVBAR_LOGIN"></span></a>
                     <li><a><i class="fa fa-power-off"></i><span translate-once="NAVBAR_QUIT"></span></a>
                     </li>
                 </ul>
@@ -86,7 +87,7 @@
         <ul class="nav navbar-nav navbar-right">
 
             <!-- profile dropdown -->
-            <div uib-dropdown class="profile-dropdown" uib-dropdown-toggle>
+            <div ng-if="model.onlineMode" uib-dropdown class="profile-dropdown" uib-dropdown-toggle>
                 <a>
                     <img src="{{::userInfo.details.avatar_url}}" alt="">
                     <span class="hidden-xs">{{::userInfo.details.username}}</span> <b class="caret"></b>

@@ -8,6 +8,10 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 		var myLayout = null;
 		var activeModal = null;
 
+		$scope.model = {
+			onlineMode: userSvc.isLoggedIn()
+		};
+
 		$scope.openNewProjectModal = function () {
 			activeModal = $uibModal.open({
 				animation: true,
@@ -25,6 +29,12 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 		$scope.safeDigest = function () {
 			!$scope.$$phase && $scope.$digest();
 		};
+
+		$scope.$on("$destroy", function(){
+			if(isObjectAssigned(myLayout)) {
+				myLayout.destroy();
+			}
+		});
 
 		// initialization
 		(function init() {
