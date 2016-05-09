@@ -54,6 +54,16 @@ button {
   }
 }
 
+.btn-group {
+  .btn {
+    border-right-width: 0 !important;
+
+    &:last-child {
+      border-right-width: 1px !important;
+    }
+  }
+}
+
 .btn-inline {
   border: none;
   background-color: lighten(map-get($default-colors, dim-grey), 6);

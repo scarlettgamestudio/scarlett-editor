@@ -22,7 +22,7 @@ ScarlettInterface.createProject = function(path, data, callback) {
 		fs.mkdir(path);
 
 		data.forEach(function(entry) {
-			fs.writeFile(path + entry.filename, entry.content, function (err) {
+			fs.writeFile((path + entry.filename), entry.content, function (err) {
 				if (err) {
 					return console.log(err);
 				}

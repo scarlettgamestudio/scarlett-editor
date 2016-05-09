@@ -1,6 +1,6 @@
-app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'dialogSvc', 'dataSvc', 'gameSvc', '$rootScope',
-	function ($scope, logSvc, soapSvc, config, dialogSvc, dataSvc, gameSvc, $rootScope) {
-
+app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'dialogSvc', 'dataSvc', 'gameSvc', '$rootScope', '$uibModalInstance',
+	function ($scope, logSvc, soapSvc, config, dialogSvc, dataSvc, gameSvc, $rootScope, $uibModalInstance) {
+		
 		$scope.model = {
 			projectName: '',
 			projectPath: ''
@@ -13,6 +13,10 @@ app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 
 					$scope.$digest();
 				}
 			});
+		};
+
+		$scope.close = function() {
+			$uibModalInstance.dismiss('cancel');
 		};
 
 		$scope.createProject = function() {
@@ -37,13 +41,13 @@ app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 
 			];
 
 			var path = $scope.model.projectPath;
-			path += (path.endsWith('/') || path.endsWith('\\') ? '' : '/') + $scope.model.projectName + '/';
+			path = fillPathWithSeparator(path) +  $scope.model.projectName + '/';
 
 			// call the interface to create the project:
 			ScarlettInterface.createProject(path, projectData, function(result) {
 				if(result === true) {
 					// store the project information in the app data model
-					dataSvc.store("projects", {name: $scope.model.projectName, path: path});
+					dataSvc.push("projects", {name: $scope.model.projectName, path: path, lastUpdate: new Date().getTime()});
 					dataSvc.save();
 
 					// set the active project
@@ -52,6 +56,8 @@ app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 
 					// show the main view
 					$rootScope.changeView('main');
 					$rootScope.$apply();
+
+					$scope.close();
 
 				} else if (result === 1) {
 					dialogSvc.showDialog("Ups", "The file path '" + path + "' already exists", "alert");

@@ -1,5 +1,5 @@
-app.controller('HubCtrl', ['$rootScope', '$scope', 'logSvc', 'userSvc', 'config', '$uibModal', 'dataSvc',
-	function ($rootScope, $scope, logSvc, userSvc, config, $uibModal, dataSvc) {
+app.controller('HubCtrl', ['$rootScope', '$scope', 'logSvc', 'userSvc', 'config', '$uibModal', 'dataSvc', 'gameSvc', 'scarlettSvc',
+	function ($rootScope, $scope, logSvc, userSvc, config, $uibModal, dataSvc, gameSvc, scarlettSvc) {
 
 		var activeModal = null;
 
@@ -14,6 +14,10 @@ app.controller('HubCtrl', ['$rootScope', '$scope', 'logSvc', 'userSvc', 'config'
 				controller: "NewProjectModalCtrl",
 				size: 200
 			});
+		};
+
+		$scope.openProject = function (path) {
+			scarlettSvc.openProject(path);
 		};
 
 		$scope.logout = function () {

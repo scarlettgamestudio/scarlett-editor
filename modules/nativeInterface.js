@@ -14,6 +14,16 @@ NativeInterface.openFileBrowser = function(defaultPath, resultCallback) {
 	})
 };
 
+NativeInterface.readFile = function(path, callback) {
+	fs.readFile(path, 'utf8', function (err, data) {
+		if (err) {
+			callback(false);
+			return;
+		}
+		callback(data);
+	});
+};
+
 NativeInterface.pathExists = function(path) {
 	return fs.existsSync(path);
 };

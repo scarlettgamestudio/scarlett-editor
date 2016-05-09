@@ -30,9 +30,9 @@
                 <hr>
                 <div class="loadedProjectsContainer">
                     <!-- project list -->
-                    <div class="projectDetails" ng-repeat="project in model.projects">
-                        <div class="projectTitle"><i class="fa fa-gamepad" aria-hidden="true"></i> {{::project.name}}</div>
-                        <div class="projectPath">{{::project.path}}</div>
+                    <div class="projectDetails" ng-repeat="project in model.projects | orderBy: '-lastUpdate' | limitTo: 5" ng-click="openProject(project.path)" >
+                        <div class="projectTitle">{{::project.name}}</div>
+                        <div class="projectPath"><i class="fa fa-folder-open" aria-hidden="true"></i> {{::project.path}}</div>
                     </div>
 
                     <!-- no projects available -->

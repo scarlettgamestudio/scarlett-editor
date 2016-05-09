@@ -3,49 +3,72 @@
  */
 
 app.factory("dataSvc", function (config, logSvc, localStorageService) {
-	var svc = {};
-	var appData = {};
 
-	svc.store = function(key, data) {
-		if(!appData.hasOwnProperty(key)) {
-			appData[key] = [];
-		}
+    var MAX_ARRAY_LENGTH = 10;
 
-		appData[key].push(data);
-	};
+    var svc = {};
+    var appData = {};
 
-	svc.get = function (key) {
-		return appData[key];
-	};
+    svc.push = function (key, data) {
+        if (!appData.hasOwnProperty(key)) {
+            appData[key] = [];
+        } else if (!isArray(appData[key])) {
+            return false;
+        }
 
-	svc.delete = function(key) {
-		if(appData.hasOwnProperty(key)) {
-			delete appData[key];
-		}
-	};
+        appData[key].push(data);
 
-	svc.save = function() {
-		localStorageService.set(config.LOCAL_STORAGE.KEYS.APP_DATA, appData);
-	};
+        if (appData[key].length > MAX_ARRAY_LENGTH) {
+            appData = appData.shift();
+        }
 
-	svc.resetData = function (save) {
-		appData = {
-			projects: []
-		};
+        return true;
+    };
 
-		if(save) {
-			svc.save();
-		}
-	};
+    svc.findByProperty = function (key, property, value) {
+        if (appData.hasOwnProperty(key)) {
+            for(var i = 0; i < appData[key].length; i++) {
+                if(appData[key][i][property] === value) {
+                    return appData[key][i];
+                }
+            }
+        }
 
-	(function init() {
-		var _appData = localStorageService.get(config.LOCAL_STORAGE.KEYS.APP_DATA);
-		if (isObjectAssigned(_appData)) {
-			appData = _appData;
-		} else {
-			svc.resetData(true);
-		}
-	})();
+        return null;
+    };
 
-	return svc;
+    svc.get = function (key) {
+        return appData[key];
+    };
+
+    svc.delete = function (key) {
+        if (appData.hasOwnProperty(key)) {
+            delete appData[key];
+        }
+    };
+
+    svc.save = function () {
+        localStorageService.set(config.LOCAL_STORAGE.KEYS.APP_DATA, appData);
+    };
+
+    svc.resetData = function (save) {
+        appData = {
+            projects: []
+        };
+
+        if (save) {
+            svc.save();
+        }
+    };
+
+    (function init() {
+        var _appData = localStorageService.get(config.LOCAL_STORAGE.KEYS.APP_DATA);
+        if (isObjectAssigned(_appData)) {
+            appData = _appData;
+        } else {
+            svc.resetData(true);
+        }
+    })();
+
+    return svc;
 });
