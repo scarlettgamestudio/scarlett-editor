@@ -50,7 +50,7 @@ var app = angular.module('scarlett', dependencies)
 
 .config(function (localStorageServiceProvider) {
 	// set a unique prefix for our app:
-	localStorageServiceProvider.setPrefix('LSBGH7X-002');
+	localStorageServiceProvider.setPrefix('LSBGH7X-003');
 })
 
 .config(function ($translateProvider) {
