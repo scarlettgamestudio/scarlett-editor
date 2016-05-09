@@ -13,6 +13,6 @@
   background-color: map-get($default-colors, grey-hound);
 }
 .lm_content {
-  color:  map-get($default-colors, snow-white);
+  color:  map-get($default-colors, fade-grey);
   background-color: darken(map-get($default-colors, grey-hound), 2);
 }

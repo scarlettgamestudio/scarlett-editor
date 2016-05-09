@@ -76,7 +76,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 									componentName: 'template',
 									componentState: {
 										templateId: 'projectExplorer',
-										url: ''
+										url: 'templates/projectExplorer/projectExplorer.html'
 									},
 									title: $translate.instant("EDITOR_PROJECT_EXPLORER")
 								}

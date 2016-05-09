@@ -6,7 +6,8 @@ var dependencies = [
 	'ngRoute',
 	'validation.match',
 	'ui.bootstrap',
-	'LocalStorageModule'
+	'LocalStorageModule',
+	'ui.tree'
 ];
 
 var app = angular.module('scarlett', dependencies)
