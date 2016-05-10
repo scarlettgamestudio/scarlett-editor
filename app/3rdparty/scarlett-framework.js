@@ -9361,30 +9361,6 @@ if (!Array.isArray) {
 		return Object.prototype.toString.call(arg) === '[object Array]';
 	};
 }
-
-/**
- Compares an object's properties with another's, return true if the objects has the same values
- */
-Object.prototype.equals = function(obj) {
-
-	/*Make sure the object is of the same type as this*/
-	if(typeof obj != typeof this)
-		return false;
-
-	/*Iterate through the properties of this object looking for a discrepancy between this and obj*/
-	for(var property in this)
-	{
-
-		/*Return false if obj doesn't have the property or if its value doesn't match this' value*/
-		if(typeof obj[property] == "undefined")
-			return false;
-		if(obj[property] != this[property])
-			return false;
-	}
-
-	/*Object's properties are equivalent */
-	return true;
-};
 ;/**
  * Image Loader static class
  */

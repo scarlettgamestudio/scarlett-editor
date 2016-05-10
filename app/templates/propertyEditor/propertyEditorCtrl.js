@@ -206,7 +206,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'config',
 								var va = $scope.getPropertyValue(aContainer, aContainer.properties[j]);
 								var vb = $scope.getPropertyValue(bContainer, bContainer.properties[j]);
 
-								if(typeof va === "object" && typeof vb === "object") {
+								if(isFunction(va.equals) && isFunction(vb.equals)) {
 									// both values have the 'equals' function defined, let's use it!
 									aContainer.properties[j].hasDifferentAssignments = !va.equals(vb);
 								} else {

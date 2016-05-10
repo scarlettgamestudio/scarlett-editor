@@ -27,6 +27,8 @@ app.config(function ($translateProvider) {
 		INVALID_CREDENTIALS: 'Could not login, invalid credentials',
 		SETTINGS: 'Settings',
 
+		COMMON_MULTIPLE: 'Multiple',
+
 		EDITOR_GAME_VIEW: "Game View",
 		EDITOR_SCENE_VIEW: "Scene View",
 		EDITOR_SCENE_HIERARCHY: "Scene Hierarchy",

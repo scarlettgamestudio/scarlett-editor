@@ -5,7 +5,11 @@
         <div class="peHeader" ng-click="toggleVisibility(container)">
             <i class="fa fa-sliders" aria-hidden="true" ng-if="$index === 0"></i>
             <i class="fa" ng-class="{'fa-caret-down' : container.open, 'fa-caret-right' : !container.open}" aria-hidden="true" ng-if="$index > 0"></i>
-            <span class="peHeaderText">{{container.displayName}}</span>
+            <span class="peHeaderText">
+                <span ng-if="model.multipleTargets && $index === 0">{{'COMMON_MULTIPLE' | translate}}</span>
+                {{container.displayName}}
+                <span ng-if="model.multipleTargets && $index === 0">({{model.targets.length}})</span>
+            </span>
         </div>
 
         <!-- properties of the target -->
