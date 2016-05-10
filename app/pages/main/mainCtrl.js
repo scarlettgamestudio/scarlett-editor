@@ -125,9 +125,11 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 						container.getElement().html(html);
 
 						if (state.templateId == "inspector") {
+							// TESTS:
 							setTimeout(function () {
-								var transform = new GameObject();
-								angular.element(document.getElementById('scenePropertyEditor')).scope().addTarget(transform, true);
+								var objA = new GameObject();
+								var objB = new GameObject({name:'ImL33T'});
+								angular.element(document.getElementById('scenePropertyEditor')).scope().setTargets([objA, objB], true);
 							}, 100);
 
 						}
