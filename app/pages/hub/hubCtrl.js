@@ -16,6 +16,10 @@ app.controller('HubCtrl', ['$rootScope', '$scope', 'logSvc', 'userSvc', 'config'
 			});
 		};
 
+		$scope.promptLoadProject = function() {
+			scarlettSvc.promptLoadProject();
+		};
+
 		$scope.openProject = function (path) {
 			scarlettSvc.openProject(path);
 		};

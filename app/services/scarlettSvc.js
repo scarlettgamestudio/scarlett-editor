@@ -3,52 +3,71 @@
  */
 
 app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, gameSvc) {
-    var svc = {};
+	var svc = {};
 
-    svc.loadProjectFile = function (path) {
-        var defer = $q.defer();
-        var gamefilePath = fillPathWithSeparator(path) + "project.sc";
+	svc.promptLoadProject = function () {
+		var params = {
+			filters: [{name: 'Scarlett Project', extensions: ['sc']}]
+		};
 
-        NativeInterface.readFile(gamefilePath, function (result) {
-            if (result === false) {
-                // the file failed to load..
-                defer.reject(error);
-            } else {
-                try {
-                    // TODO: not just parse to game project, convert to a game project object
-                    var gameProject = JSON.parse(result);
+		NativeInterface.openFileBrowser(ScarlettInterface.getApplicationFolderPath(), params, function (result) {
+			if (result !== false && result.endsWith(".sc")) {
+				svc.openProject(result);
+			}
+		});
+	};
 
-                    defer.resolve(result);
+	svc.loadProjectFile = function (path) {
+		var defer = $q.defer();
+		var gamefilePath = path.endsWith(".sc") ? path : fillPathWithSeparator(path) + "project.sc";
 
-                } catch (error) {
-                    // the project failed while parsing..
-                    defer.reject(error);
-                }
-            }
-        });
+		NativeInterface.readFile(gamefilePath, function (result) {
+			if (result === false) {
+				// the file failed to load..
+				defer.reject(error);
+			} else {
+				try {
+					// TODO: not just parse to game project, convert to a game project object
+					var gameProject = JSON.parse(result);
 
-        return defer.promise;
-    };
+					defer.resolve(gameProject);
 
-    svc.openProject = function (path) {
-        svc.loadProjectFile(path).then(
-            function (gameProject) {
-                gameSvc.setActiveProject(gameProject);
+				} catch (error) {
+					// the project failed while parsing..
+					defer.reject(error);
+				}
+			}
+		});
 
-                // update the lastUpdated property
-                var savedData = dataSvc.findByProperty("projects", "path", path);
-                if(savedData) {
-                    savedData.lastUpdate = new Date().getTime();
-                    dataSvc.save();
-                }
+		return defer.promise;
+	};
 
-                // show the main view
-                $rootScope.changeView('main');
+	svc.openProject = function (path) {
+		svc.loadProjectFile(path).then(
+			function (gameProject) {
+				gameSvc.setActiveProject(gameProject);
 
-            }, function (error) {
-                // TODO: warn the user and remove the project from the datasvc
-            })
-    };
+				// update the lastUpdated property
+				var savedData = dataSvc.findByProperty("projects", "path", path);
+				if (savedData) {
+					savedData.lastUpdate = new Date().getTime();
+				} else {
+					dataSvc.push("projects", {
+						name: gameProject.name,
+						path: path,
+						lastUpdate: new Date().getTime()
+					});
+				}
 
-    return svc;
+				dataSvc.save();
+
+				// show the main view
+				$rootScope.changeView('main');
+
+			}, function (error) {
+				// TODO: warn the user and remove the project from the datasvc
+			})
+	};
+
+	return svc;
 });

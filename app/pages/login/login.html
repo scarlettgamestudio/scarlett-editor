@@ -42,16 +42,28 @@
                     </div>
 
                     <br/>
-                        <div class="col-md-6">
-                            <button ng-click="loginOffline()" type="button" class="btn btn-dark btn-block text-left" ng-disabled="loginState == LOGIN_STATE.AUTHENTICATING">
-                                <i class="fa fa-chain-broken" aria-hidden="true"></i> &nbsp;{{ 'LOGIN_OFFLINE' | translate }}
-                            </button>
-                        </div>
-                        <div class="col-md-6">
-                            <button type="submit" class="btn btn-dark btn-block text-left" ng-disabled="loginState == LOGIN_STATE.AUTHENTICATING">
-                                <i class="fa fa-sign-in"></i> &nbsp;{{ 'LOGIN' | translate }}
-                            </button>
-                        </div>
+
+                    <div class="btn-group btn-group-justified">
+                        <label class="btn btn-dark text-left" ng-click="loginOffline()" ng-disabled="loginState == LOGIN_STATE.AUTHENTICATING">
+                            <i class="fa fa-chain-broken" aria-hidden="true"></i> &nbsp;{{ 'LOGIN_OFFLINE' | translate}}
+                        </label>
+                        <label for="submit-form" class="btn btn-dark text-left" ng-click="loginForm.submit()"
+                               ng-disabled="loginState == LOGIN_STATE.AUTHENTICATING">
+                            <i class="fa fa-sign-in"></i> &nbsp;{{ 'LOGIN' | translate }}
+                        </label>
+                    </div>
+                    <button id="submit-form" type="submit" style="display:none"></button>
+
+                    <!--<div class="col-md-6">
+                         <button ng-click="loginOffline()" type="button" class="btn btn-dark btn-block text-left" ng-disabled="loginState == LOGIN_STATE.AUTHENTICATING">
+                             <i class="fa fa-chain-broken" aria-hidden="true"></i> &nbsp;{{ 'LOGIN_OFFLINE' | translate }}
+                         </button>
+                     </div>
+                     <div class="col-md-6">
+                         <button type="submit"  class="btn btn-dark btn-block text-left" ng-disabled="loginState == LOGIN_STATE.AUTHENTICATING">
+                             <i class="fa fa-sign-in"></i> &nbsp;{{ 'LOGIN' | translate }}
+                         </button>
+                     </div>-->
 
                     <br/><br/>
 

@@ -12,7 +12,7 @@ app.factory("dataSvc", function (config, logSvc, localStorageService) {
     svc.push = function (key, data) {
         if (!appData.hasOwnProperty(key)) {
             appData[key] = [];
-        } else if (!isArray(appData[key])) {
+        } else if (!Array.isArray(appData[key])) {
             return false;
         }
 
