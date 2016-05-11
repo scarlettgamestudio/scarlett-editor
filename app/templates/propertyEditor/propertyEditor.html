@@ -6,9 +6,8 @@
             <i class="fa fa-sliders" aria-hidden="true" ng-if="$index === 0"></i>
             <i class="fa" ng-class="{'fa-caret-down' : container.open, 'fa-caret-right' : !container.open}" aria-hidden="true" ng-if="$index > 0"></i>
             <span class="peHeaderText">
-                <span ng-if="model.multipleTargets && $index === 0">{{'COMMON_MULTIPLE' | translate}}</span>
                 {{container.displayName}}
-                <span ng-if="model.multipleTargets && $index === 0">({{model.targets.length}})</span>
+                <span ng-if="model.multipleTargets && $index === 0">- ({{model.targets.length}}) {{'COMMON_SELECTED' | translate}}</span>
             </span>
         </div>
 
@@ -22,5 +21,11 @@
         <!-- separator -->
         <hr>
 
+    </div>
+
+    <div class="pePanel" ng-if="containsMultipleDefinitions()">
+        <div class="peLabel">
+            <div class="peMultipleDefinitionsLabel"></div>  <span>Multiple Definitions</span>
+        </div>
     </div>
 </div>

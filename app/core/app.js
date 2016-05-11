@@ -12,7 +12,7 @@ var dependencies = [
 
 var app = angular.module('scarlett', dependencies)
 
-.run(function ($rootScope, $location, $translate, $http, $compile) {
+.run(function ($rootScope, $location) {
 
 	// validate if the scarlett folder exists:
 	ScarlettInterface.setupApplicationFolder();
@@ -26,6 +26,10 @@ var app = angular.module('scarlett', dependencies)
 		console.log(type);
 	});
 
+	window.onbeforeunload = function () {
+		// clear all handlers from the native emitter has they will be invalid after page close
+		NativeEmitter.clear();
+	}
 })
 
 .constant("config", {
@@ -51,7 +55,10 @@ var app = angular.module('scarlett', dependencies)
 		PROJECTS: 2,
 		PROJECT_EDIT: 3
 	},
-	DEFAULT_CONTENT_VIEW: 1
+	DEFAULT_CONTENT_VIEW: 1,
+	IGNORED_FILE_EXTENSIONS: [
+		".sc"
+	]
 })
 
 .config(function (localStorageServiceProvider) {

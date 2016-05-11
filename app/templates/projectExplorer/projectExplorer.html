@@ -3,7 +3,7 @@
     <script type="text/ng-template" id="nodes_renderer.html">
         <div>
             <i class="angular-ui-tree-selector fa" ng-if="node.nodes && node.nodes.length > 0" data-nodrag ng-class="{'fa-caret-down' : !collapsed, 'fa-caret-right' : collapsed}" ng-click="toggle(this)"></i>
-            <span ui-tree-handle>{{node.title}}</span>
+            <span ui-tree-handle>{{node.title + ":" + node.type}}</span>
         </div>
         <ol ui-tree-nodes="" ng-model="node.nodes" ng-class="{hidden: collapsed}">
             <li ng-repeat="node in node.nodes" ui-tree-node ng-include="'nodes_renderer.html'">

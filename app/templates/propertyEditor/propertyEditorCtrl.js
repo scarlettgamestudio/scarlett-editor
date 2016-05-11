@@ -260,6 +260,22 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc',
             return unifiedContainers
         }
 
+        $scope.containsMultipleDefinitions = function() {
+            if(!$scope.model.multipleTargets) {
+                return false;
+            }
+
+            for(var i = 0; i <  $scope.model.propertyContainers.length; i++) {
+                for(var j = 0; j < $scope.model.propertyContainers[i].properties.length; j++) {
+                    if($scope.model.propertyContainers[i].properties[j].hasDifferentAssignments === true) {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        };
+
         /**
          * Synchronizes a value to the original object container
          * @param container
@@ -376,4 +392,3 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc',
         })();
     }]
 );
-

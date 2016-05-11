@@ -28,6 +28,7 @@ app.config(function ($translateProvider) {
 		SETTINGS: 'Settings',
 
 		COMMON_MULTIPLE: 'Multiple',
+		COMMON_SELECTED: 'Selected',
 
 		EDITOR_GAME_VIEW: "Game View",
 		EDITOR_SCENE_VIEW: "Scene View",

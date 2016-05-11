@@ -1,5 +1,5 @@
-app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'dialogSvc', 'dataSvc', 'gameSvc', '$rootScope', '$uibModalInstance',
-	function ($scope, logSvc, soapSvc, config, dialogSvc, dataSvc, gameSvc, $rootScope, $uibModalInstance) {
+app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'dialogSvc', 'dataSvc', 'gameSvc', '$rootScope', '$uibModalInstance', 'scarlettSvc',
+	function ($scope, logSvc, soapSvc, config, dialogSvc, dataSvc, gameSvc, $rootScope, $uibModalInstance, scarlettSvc) {
 		
 		$scope.model = {
 			projectName: '',
@@ -31,7 +31,7 @@ app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 
 			}
 
 			// create the game project object
-			var gameProject = new GameProject($scope.model.projectName);
+			var gameProject = scarlettSvc.generateProject($scope.model.projectName);
 
 			var projectData = [
 				{
@@ -41,7 +41,7 @@ app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 
 			];
 
 			var path = $scope.model.projectPath;
-			path = fillPathWithSeparator(path) +  $scope.model.projectName + '/';
+			path = fillPathWithSeparator(path) + $scope.model.projectName + '/';
 
 			// call the interface to create the project:
 			ScarlettInterface.createProject(path, projectData, function(result) {

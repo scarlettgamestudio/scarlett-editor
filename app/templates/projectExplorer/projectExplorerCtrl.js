@@ -1,8 +1,10 @@
 app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config',
 	function ($scope, logSvc, config) {
+		
 		$scope.model = {
 
 		};
+		
 		$scope.toggle = function (scope) {
 			scope.toggle();
 		};
@@ -10,6 +12,7 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config',
 		$scope.data = [{
 			'id': 1,
 			'title': 'node1',
+			'type': 'aa',
 			'nodes': [
 				{
 					'id': 11,

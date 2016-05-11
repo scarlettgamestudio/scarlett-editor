@@ -11,6 +11,7 @@ const pjson = require('./package.json');
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
+let web;
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
@@ -33,6 +34,9 @@ app.on('ready', function () {
 	// Open the DevTools.
 	//mainWindow.webContents.openDevTools();
 
+	// assign the web content:
+	web = mainWindow.webContents;
+
 	// Emitted when the window is closed.
 	mainWindow.on('closed', function () {
 		// Dereference the window object, usually you would store windows
@@ -45,5 +49,10 @@ app.on('ready', function () {
 	mainWindow.on('focus', function() {
 		emitter.emit("systemWindowEvent", "focus");
 	});
+
+	// Emitter when the window is closing
+	mainWindow.on('close', function() {
+		// page was closed, do the required clean-up here
+	})
 });
 

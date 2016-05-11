@@ -10,6 +10,40 @@
       margin-bottom: 6px;
     }
 
+    .peLabel {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+      font-size: 0.90em;
+      margin: 8px 10px;
+      padding: 2px 2px;
+      border-radius: map-get($default-collection, border-radius);
+      color: map-get($default-colors, medium-grey);
+
+      span {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: normal;
+      }
+
+      .peMultipleDefinitionsLabel {
+        float: left;
+        width: 18px;
+        height: 18px;
+        margin-right: 4px;
+        border-radius: map-get($default-collection, border-radius);
+        border: 1px solid darken(map-get($default-colors, grey-hound), 3);
+
+        background: repeating-linear-gradient(
+                        45deg,
+                        lighten(map-get($default-colors, grey-hound), 2),
+                        lighten(map-get($default-colors, grey-hound), 2) 4px,
+                        map-get($default-colors, grey-hound) 4px,
+                        map-get($default-colors, grey-hound) 8px
+        );
+      }
+    }
+
     .peHeader {
       font-size: 0.96em;
       padding: 6px 10px;
@@ -22,7 +56,9 @@
       }
 
       .peHeaderText {
-
+        span {
+          color: map-get($default-colors, medium-grey);
+        }
       }
     }
     .peEditorContainer {
@@ -42,7 +78,7 @@
           text-overflow: ellipsis;
           padding: 4px 0;
         }
-        
+
         .peEditorValues {
           float: left;
           width: 75%;
@@ -53,8 +89,15 @@
           font-size: 0.96em;
 
           &.inconclusive {
-            background: #544E45;
-            border-color: #544E45;
+            //background: #544E45;
+            //border-color: #544E45;
+            background: repeating-linear-gradient(
+                            45deg,
+                            lighten(map-get($default-colors, grey-hound), 2),
+                            lighten(map-get($default-colors, grey-hound), 2) 6px,
+                            map-get($default-colors, grey-hound) 6px,
+                            map-get($default-colors, grey-hound) 12px
+            );
           }
         }
 
