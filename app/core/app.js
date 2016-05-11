@@ -21,6 +21,11 @@ var app = angular.module('scarlett', dependencies)
 		$location.path(viewName);
 	};
 
+	// system window events subscription
+	NativeEmitter.subscribe("systemWindowEvent", function(type) {
+		console.log(type);
+	});
+
 })
 
 .constant("config", {

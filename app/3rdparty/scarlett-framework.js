@@ -9277,9 +9277,15 @@ var Common = require('../core/Common');
  * @constructor
  */
 var AttributeDictionary = function () {};
-
 AttributeDictionary._rules = {};
 
+/**
+ *
+ * @param context
+ * @param propertyName
+ * @param rule
+ * @returns {boolean}
+ */
 AttributeDictionary.addRule = function (context, propertyName, rule) {
 	if(isObjectAssigned(context)) {
 		var contextName = getType(context);
@@ -9296,6 +9302,12 @@ AttributeDictionary.addRule = function (context, propertyName, rule) {
 	return false;
 };
 
+/**
+ * 
+ * @param typeName
+ * @param propertyName
+ * @returns {*}
+ */
 AttributeDictionary.getRule = function (typeName, propertyName) {
 	if (AttributeDictionary._rules[typeName]) {
 		return AttributeDictionary._rules[typeName][propertyName];
@@ -9327,6 +9339,57 @@ var SCARLETT = SC = {
 		LATE_RENDER: 15
 	}
 };;/**
+ * Event Manager
+ * @constructor
+ */
+var EventManager = function () {};
+
+EventManager._handlers = {};
+
+/**
+ *
+ * @param topic
+ * @param callback
+ * @param context (optional)
+ */
+EventManager.subscribe = function(topic, callback, context) {
+    if(!EventManager._handlers.hasOwnProperty(topic)) {
+        EventManager._handlers[topic] = [];
+    }
+
+    EventManager._handlers[topic].push({
+        callback: callback,
+        context: context
+    });
+};
+
+/**
+ *
+ * @param topic
+ */
+EventManager.emit = function(topic) {
+    // get the remaining arguments (if exist)
+    var args = [];
+    if(arguments.length > 1) {
+        for(var i = 1; i < arguments.length; i++) {
+            args.push(arguments[i]);
+        }
+    }
+
+    if(EventManager._handlers.hasOwnProperty(topic)) {
+        EventManager._handlers[topic].forEach(function(handler) {
+            // call the function by sending the arguments and applying the given context (might not be available)
+            handler.callback.apply(handler.context, args);
+        });
+    }
+};
+
+/**
+ * Clears all subscriptions
+ */
+EventManager.clear = function() {
+    EventManager._handlers = {};
+};;/**
  * Inserts an element at a desirable position
  * @param index
  * @param item
@@ -9351,7 +9414,17 @@ if (!String.prototype.endsWith) {
 		var lastIndex = subjectString.indexOf(searchString, position);
 		return lastIndex !== -1 && lastIndex === position;
 	};
-};/**
+}
+
+/**
+ * Running the following code before any other code will create Array.isArray() if it's not natively available.
+ */
+if (!Array.isArray) {
+	Array.isArray = function(arg) {
+		return Object.prototype.toString.call(arg) === '[object Array]';
+	};
+}
+;/**
  * Image Loader static class
  */
 var ImageLoader = function() {};
@@ -9425,9 +9498,14 @@ var debug = new Logger("Debug");;/**
  * @constructor
  */
 var SetterDictionary = function () {};
-
 SetterDictionary._rules = {};
 
+/**
+ *
+ * @param context
+ * @param rule
+ * @returns {boolean}
+ */
 SetterDictionary.addRule = function (context, rule) {
 	if(isObjectAssigned(context)) {
 		context = context.toLowerCase();
@@ -9438,6 +9516,11 @@ SetterDictionary.addRule = function (context, rule) {
 	return false;
 };
 
+/**
+ *
+ * @param typeName
+ * @returns {*}
+ */
 SetterDictionary.getRule = function (typeName) {
 	if (SetterDictionary._rules[typeName]) {
 		return SetterDictionary._rules[typeName];
@@ -9582,7 +9665,8 @@ function isEqual(a, b) {
 	}
 
 	return a === b;
-};function RigidBody (params) {
+}
+;function RigidBody (params) {
 	params = params || {};
 
 	// private properties
@@ -10685,6 +10769,10 @@ Rectangle.prototype.toJSON = function() {
     };
 };
 
+Rectangle.prototype.equals = function(obj) {
+    return (obj.x === this.x && obj.y === this.y && obj.width === this.width && obj.height === this.height);
+};
+
 Rectangle.prototype.unload = function () {
 
 };;/**
@@ -10713,7 +10801,11 @@ Vector2.prototype.toJSON = function() {
 	return {
 		x: this.x,
 		y: this.y
-	};
+	}; 
+};
+
+Vector2.prototype.equals = function(obj) {
+	return (obj.x === this.x && obj.y === this.y);
 };
 
 Vector2.prototype.unload = function () {
@@ -10748,6 +10840,10 @@ Vector3.prototype.toJSON = function() {
 	};
 };
 
+Vector3.prototype.equals = function(obj) {
+	return (obj.x === this.x && obj.y === this.y && obj.z === this.z);
+};
+
 Vector3.prototype.unload = function () {
 
 };;/**
@@ -10780,6 +10876,10 @@ Vector4.prototype.toJSON = function() {
 		z: this.z,
 		w: this.w
 	};
+};
+
+Vector4.prototype.equals = function(obj) {
+	return (obj.x === this.x && obj.y === this.y && obj.z === this.z && obj.w === this.w);
 };
 
 Vector4.prototype.unload = function () {

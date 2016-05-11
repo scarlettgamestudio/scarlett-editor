@@ -33,7 +33,7 @@ app.config(function ($translateProvider) {
 		EDITOR_SCENE_VIEW: "Scene View",
 		EDITOR_SCENE_HIERARCHY: "Scene Hierarchy",
 		EDITOR_PROJECT_EXPLORER: "Project Explorer",
-		EDITOR_INSPECTOR: "Inspector",
+		EDITOR_INSPECTOR: "Property Editor",
 		EDITOR_CONSOLE: "Console Logs",
 
 		MODAL_NEW_PROJECT: "Create New Project",

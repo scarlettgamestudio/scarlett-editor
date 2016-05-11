@@ -1,5 +1,5 @@
-app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'config',
-    function ($scope, logSvc, config) {
+app.controller('PropertyEditorCtrl', ['$scope', 'logSvc',
+    function ($scope, logSvc) {
 
         function resetModel() {
             $scope.model = {
@@ -10,6 +10,11 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'config',
             };
         }
 
+        /**
+         * Finds and returns an array of properties that contain the rule ownContainer set to true
+         * @param object
+         * @returns {Array}
+         */
         function getObjectOwnContainerProperties(object) {
             var properties = [];
 
@@ -28,7 +33,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'config',
 
                         // show this property in its own container?
                         if (customRule.hasOwnProperty("ownContainer") && customRule.ownContainer === true) {
-                            // yeap, add it
+                            // yes, add it
                             properties.push(entry);
                         }
                     }
@@ -81,7 +86,6 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'config',
                             } else if (!propertyModel.setter || !propertyModel.getter) {
                                 // the setter/getter are not specified and this is a private variable
                                 // so we either find them manually or invalidate the property:
-
                                 capitalName = capitalize(entry.slice(1));
 
                                 // does it have getter/setter?
@@ -256,6 +260,13 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'config',
             return unifiedContainers
         }
 
+        /**
+         * Synchronizes a value to the original object container
+         * @param container
+         * @param property
+         * @param subPropertyName
+         * @param value
+         */
         $scope.syncValue = function (container, property, subPropertyName, value) {
             if (property.bindOnce || !isObjectAssigned(value) || (subPropertyName && !isObjectAssigned(value[subPropertyName]))) {
                 return;
@@ -276,9 +287,9 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'config',
 
                 if (property.setter) {
                     var rule = SetterDictionary.getRule(type);
-                    // this setter has a definition applied?
+                    // this setter has a definition (rule) applied?
                     if (rule) {
-                        // yes, it means the setter will be made using the user applied order
+                        // yes, it means the setter will be made using the user defined order
                         var args = [];
                         rule.forEach(function (entry) {
                             if (isObjectAssigned(value[entry])) {
@@ -295,7 +306,6 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'config',
                 }
             }
 
-
             if ($scope.model.multipleTargets) {
                 // this has a multiple target selection so all targets must be synced:
                 $scope.model.targets.forEach(function (target) {
@@ -309,13 +319,15 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'config',
             }
 
             // set the following variables to false since we just set the same value for all targets:
-            property.hasDifferentAssignments = false;
-
             if (subPropertyName) {
                 var index = property.differentProperties.indexOf(subPropertyName);
                 if (index >= 0) {
                     property.differentProperties.splice(index, 1);
                 }
+            }
+
+            if(property.differentProperties.length == 0) {
+                property.hasDifferentAssignments = false;
             }
         };
 
