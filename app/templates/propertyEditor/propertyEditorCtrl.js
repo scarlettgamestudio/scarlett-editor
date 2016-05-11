@@ -62,10 +62,12 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'config',
 							name: entry,
 							displayName: customRule.displayName || splitCamelCase(capitalName),
 							type: getType(object[entry]),
+							systemType: typeof object[entry],
 							bindOnce: false,
 							setter: customRule.setter,
 							getter: customRule.getter,
-							hasDifferentAssignments: false  // when true, it means the other selected targets have different values assigned
+							hasDifferentAssignments: false,  // when true, it means the other selected targets have different values assigned
+							differentProperties: [] 		 // this array contains the property sub-property differences (for multi-selection)
 						};
 
 						if (customRule.hasOwnProperty("bindOnce")) {
@@ -181,6 +183,28 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'config',
 			return null;
 		}
 
+		function getDifferentObjectProperties(objectA, objectB, property) {
+			var differences = [];
+
+			// this can only work if both objects are of the same kind and are both complex objects
+			if(typeof objectA[property] !== "object" || (getType(objectA[property]) !== getType(objectB[property]))) {
+				return differences;
+			}
+
+			// again, since these are both the same object type, they should have the same property names
+			var propertyNames = Object.getOwnPropertyNames(objectA[property]);
+			propertyNames.forEach(function(propertyName) {
+				// TODO: validate if there is a getter for each [private] property (if necessary)
+				if(propertyName.length > 0 && propertyName.substring(0, 1) !== "_") {
+					if(!isEqual(objectA[property][propertyName], objectB[property][propertyName])) {
+						differences.push(propertyName);
+					}
+				}
+			});
+
+			return differences;
+		}
+
 		function getUnifiedPropertyContainers(targets) {
 			// first get the common containers:
 			var unifiedContainers = getCommonContainers(targets);
@@ -213,6 +237,17 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'config',
 									aContainer.properties[j].hasDifferentAssignments = va != vb;
 								}
 							}
+
+							// now let's find the properties that have different values
+							var propertyDifferences = getDifferentObjectProperties(aContainer.target, bContainer.target, aContainer.properties[j].name);
+
+							// since more than two objects can be selected, we can't just push the differences to the property
+							// 'differentProperties' array, we need to check if it wasn't already added.
+							propertyDifferences.forEach(function(propertyName) {
+								if(aContainer.properties[j].differentProperties.indexOf(propertyName) < 0) {
+									aContainer.properties[j].differentProperties.push(propertyName);
+								}
+							});
 						}
 					}
 				}
@@ -221,31 +256,38 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'config',
 			return unifiedContainers
 		}
 
-		$scope.syncValue = function (container, property, value) {
+		$scope.syncValue = function (container, property, subPropertyName, value) {
 			if (property.bindOnce) {
 				return;
 			}
 
 			function syncToContainerAction (targetContainer) {
 				var type = property.type.toLowerCase();
-				if (property.setter) {
-					var rule = SetterDictionary.getRule(type);
-					// this setter has a definition applied?
-					if (rule) {
-						// yes, it means the setter will be made using the user applied order
-						var args = [];
-						rule.forEach(function(entry) {
-							if(isObjectAssigned(value[entry])){
-								args.push(value[entry]);
-							}
-						});
 
-						property.setter.apply(targetContainer.target, args);
-					} else {
-						// TODO: log this to user
-					}
+				// is this a multiple target selection and the sub properties aren't all equal?
+				if($scope.model.multipleTargets && subPropertyName && property.differentProperties.length > 0) {
+					// TODO: perform the following set considering respective setter/getter (is it viable?)
+					targetContainer.target[property.name][subPropertyName] = value[subPropertyName];
 				} else {
-					targetContainer.target[property.name] = value;
+					if (property.setter) {
+						var rule = SetterDictionary.getRule(type);
+						// this setter has a definition applied?
+						if (rule) {
+							// yes, it means the setter will be made using the user applied order
+							var args = [];
+							rule.forEach(function(entry) {
+								if(isObjectAssigned(value[entry])){
+									args.push(value[entry]);
+								}
+							});
+
+							property.setter.apply(targetContainer.target, args);
+						} else {
+							// TODO: log this to user
+						}
+					} else {
+						targetContainer.target[property.name] = value;
+					}
 				}
 			}
 
@@ -263,10 +305,21 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'config',
 
 			// set the following variables to false since we just set the same value for all targets:
 			property.hasDifferentAssignments = false;
+
+			if(subPropertyName) {
+				var index = property.differentProperties.indexOf(subPropertyName);
+				if(index >= 0) {
+					property.differentProperties.splice(index, 1);
+				}
+			}
 		};
 
 		$scope.getPropertyValue = function(container, property) {
 			return (property.getter ? property.getter() : container.target[property.name])
+		};
+
+		$scope.setTarget = function (target, forceRefresh) {
+			$scope.setTargets([target], forceRefresh);
 		};
 
 		$scope.setTargets = function (targets, forceRefresh) {

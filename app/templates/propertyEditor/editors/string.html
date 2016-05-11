@@ -1,6 +1,9 @@
 <div class="peEditorDisplayName">
-    {{property.displayName}}
+    {{::property.displayName}}
 </div>
 <div class="peEditorValues">
-    <input type="text" class="form-control sc-input input-night" ng-model="model.value" ng-change="onValueChange()" placeholder="---">
+    <input
+            type="text" class="form-control sc-input input-night"
+            ng-class="{'inconclusive' : hasMultipleDefinitions()}"
+            ng-model="model.value" ng-change="onValueChange()">
 </div>

@@ -9351,17 +9351,7 @@ if (!String.prototype.endsWith) {
 		var lastIndex = subjectString.indexOf(searchString, position);
 		return lastIndex !== -1 && lastIndex === position;
 	};
-}
-
-/**
- * Running the following code before any other code will create Array.isArray() if it's not natively available.
- */
-if (!Array.isArray) {
-	Array.isArray = function(arg) {
-		return Object.prototype.toString.call(arg) === '[object Array]';
-	};
-}
-;/**
+};/**
  * Image Loader static class
  */
 var ImageLoader = function() {};
@@ -9579,6 +9569,19 @@ function splitCamelCase(string) {
 function getType(object) {
 	if(object===null) return "[object Null]"; // special case
 	return object.constructor.name || Object.prototype.toString.call(object);
+}
+
+/**
+ * The following function compares both given objects applying the 'equal' function if it exist in the first
+ * @param a
+ * @param b
+ */
+function isEqual(a, b) {
+	if(isFunction(a.equals)) {
+		return a.equals(b);
+	}
+
+	return a === b;
 };function RigidBody (params) {
 	params = params || {};
 
@@ -10710,11 +10713,7 @@ Vector2.prototype.toJSON = function() {
 	return {
 		x: this.x,
 		y: this.y
-	}; 
-};
-
-Vector2.prototype.equals = function(obj) {
-	return (obj.x === this.x && obj.y === this.y);
+	};
 };
 
 Vector2.prototype.unload = function () {
