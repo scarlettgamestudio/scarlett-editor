@@ -129,7 +129,8 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 							setTimeout(function () {
 								var objA = new GameObject();
 								var objB = new GameObject({name:'ImL33T'});
-								objB.transform.setPosition(10, 0);
+								objB.transform.setPosition(10, 1);
+								objB.transform.setRotation(5);
 								angular.element(document.getElementById('scenePropertyEditor')).scope().setTargets([objA, objB], true);
 							}, 100);
 
