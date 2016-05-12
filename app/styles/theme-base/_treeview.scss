@@ -7,6 +7,9 @@
 .angular-ui-tree-handle {
   font-weight: normal;
   cursor: default;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .angular-ui-tree-selector {

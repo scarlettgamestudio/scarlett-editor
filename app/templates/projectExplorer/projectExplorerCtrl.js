@@ -1,62 +1,53 @@
-app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config',
-	function ($scope, logSvc, config) {
-		
+app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc',
+	function ($scope, logSvc, config, scarlettSvc) {
+
 		$scope.model = {
+			tree: [],
+			uid: 0
+		};
+
+		function generateNode(id, title, type, attributes) {
+			return {
+				'id': id,
+				'title': title,
+				'type': type,
+				'attributes': attributes || {},
+				'nodes': []
+			}
+		}
+
+		function mapTreeModel (directory, deep) {
+			var nodeModel = generateNode(++$scope.model.uid, directory.path, "directory");
+
+			if(deep) {
+				directory.subdirectories.forEach(function(subdirectory) {
+					nodeModel.nodes.push(mapTreeModel(subdirectory, deep));
+				});
+			}
+
+			directory.files.forEach(function(fileInfo) {
+				var filename = getFilenameFromPath(fileInfo.relativePath);
+				var extension = getFileExtension(filename);
+
+				nodeModel.nodes.push(generateNode(++$scope.model.uid, filename, "file", {"extension": extension}));
+			});
+
+			return nodeModel;
+		}
+
+		$scope.refresh = function() {
+			$scope.model.uid = 0;
+			$scope.model.tree = [mapTreeModel(scarlettSvc.activeProjectFileMap, true)];
 
 		};
-		
+
 		$scope.toggle = function (scope) {
 			scope.toggle();
 		};
 
-		$scope.data = [{
-			'id': 1,
-			'title': 'node1',
-			'type': 'aa',
-			'nodes': [
-				{
-					'id': 11,
-					'title': 'node1.1',
-					'nodes': [
-						{
-							'id': 111,
-							'title': 'node1.1.1',
-							'nodes': []
-						}
-					]
-				},
-				{
-					'id': 12,
-					'title': 'node1.2',
-					'nodes': []
-				}
-			]
-		}, {
-			'id': 2,
-			'title': 'node2',
-			'nodrop': true, // An arbitrary property to check in custom template for nodrop-enabled
-			'nodes': [
-				{
-					'id': 21,
-					'title': 'node2.1',
-					'nodes': []
-				},
-				{
-					'id': 22,
-					'title': 'node2.2',
-					'nodes': []
-				}
-			]
-		}, {
-			'id': 3,
-			'title': 'node3',
-			'nodes': [
-				{
-					'id': 31,
-					'title': 'node3.1',
-					'nodes': []
-				}
-			]
-		}];
+		(function init() {
+			$scope.refresh();
+		})();
 	}
+
 ]);
