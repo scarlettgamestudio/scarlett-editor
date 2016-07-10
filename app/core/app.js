@@ -7,7 +7,7 @@ var dependencies = [
 	'validation.match',
 	'ui.bootstrap',
 	'LocalStorageModule',
-	'ui.tree'
+	'cz-tree'
 ];
 
 var app = angular.module('scarlett', dependencies)
@@ -29,6 +29,15 @@ var app = angular.module('scarlett', dependencies)
 	window.onbeforeunload = function () {
 		// clear all handlers from the native emitter has they will be invalid after page close
 		NativeEmitter.clear();
+	}
+})
+
+.constant("constants", {
+	EVENTS: {
+		CONTAINER_RESIZE: "onContainerResize"
+	},
+	CONTAINERS: {
+		SCENE_VIEW: "sceneView"
 	}
 })
 

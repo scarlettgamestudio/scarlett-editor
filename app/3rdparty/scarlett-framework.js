@@ -9288,7 +9288,7 @@ AttributeDictionary._rules = {};
  */
 AttributeDictionary.addRule = function (context, propertyName, rule) {
 	if(isObjectAssigned(context)) {
-		var contextName = getType(context);
+		var contextName = context.toLowerCase();
 
 		if(!isObjectAssigned(AttributeDictionary._rules[contextName])) {
 			AttributeDictionary._rules[contextName] = {}
@@ -9309,6 +9309,7 @@ AttributeDictionary.addRule = function (context, propertyName, rule) {
  * @returns {*}
  */
 AttributeDictionary.getRule = function (typeName, propertyName) {
+	typeName = typeName.toLowerCase();
 	if (AttributeDictionary._rules[typeName]) {
 		return AttributeDictionary._rules[typeName][propertyName];
 	}
@@ -9497,7 +9498,7 @@ var debug = new Logger("Debug");;/**
  * Attribute dictionary for property definitions
  * @constructor
  */
-var SetterDictionary = function () {};
+var SetterDictionary  = function () {};
 SetterDictionary._rules = {};
 
 /**
@@ -9522,6 +9523,7 @@ SetterDictionary.addRule = function (context, rule) {
  * @returns {*}
  */
 SetterDictionary.getRule = function (typeName) {
+	typeName = typeName.toLowerCase();
 	if (SetterDictionary._rules[typeName]) {
 		return SetterDictionary._rules[typeName];
 	}
@@ -10088,16 +10090,15 @@ GameManager.renderContext = null;
 GameManager.activeScene = null;;/**
  * GameObject class
  */
+AttributeDictionary.addRule("gameObject", "parent", {visible:false});
+AttributeDictionary.addRule("gameObject", "transform", {ownContainer:true});
+
 function GameObject(params) {
 	params = params || {};
 
 	// public properties:
 	this.name = params.name || "GameObject";
-
-	AttributeDictionary.addRule(this, "parent", {visible:false});
 	this.parent = params.parent || null;
-
-	AttributeDictionary.addRule(this, "transform", {ownContainer: true});
 	this.transform = new Transform({
 		gameObject: this
 	});
@@ -10106,6 +10107,10 @@ function GameObject(params) {
 	this._uid = generateUID();
 	this._components = [];
 }
+
+GameObject.prototype.getUID = function() {
+	return this._uid;
+};
 
 GameObject.prototype.propagatePropertyUpdate = function (property, value) {
 	for (var i = 0; i < this._components.length; ++i) {
@@ -10169,7 +10174,7 @@ function GameScene(params) {
 	this._game = params.game || null;
 	this._camera = new Camera2D(0, 0, this._game.getVirtualResolution().width, this._game.getVirtualResolution().height); // the default scene camera
 	this._backgroundColor = params.backgroundColor || Color.CornflowerBlue;
-	this._entities = [];
+	this._gameObjects = [];
 }
 
 GameScene.prototype.getPhysicsWorld = function () {
@@ -10196,8 +10201,8 @@ GameScene.prototype.getBackgroundColor = function () {
 	return this._backgroundColor;
 };
 
-GameScene.prototype.addEntity = function (entity) {
-	this._entities.push(entity);
+GameScene.prototype.addGameObject = function (entity) {
+	this._gameObjects.push(entity);
 };
 
 GameScene.prototype.removeEntity = function (entity) {
@@ -10249,14 +10254,14 @@ function PrimitiveBatch(game) {
 	this._rectangleColorData = [];
 	this._rectangleCount = 0;
 	this._transformMatrix = mat4.create();
-	this._rectangleData = [
+	this._rectangleData = new Float32Array([
 		0.0,  0.0,
 		1.0,  0.0,
 		0.0,  1.0,
 		0.0,  1.0,
 		1.0,  0.0,
 		1.0,  1.0
-	];
+	]);
 }
 
 PrimitiveBatch.prototype.unload = function () {
@@ -10289,7 +10294,7 @@ PrimitiveBatch.prototype.flush = function() {
 	if(this._rectangleCount > 0) {
 		// position buffer
 		gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._rectangleData), gl.STATIC_DRAW);
+		gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
 
 		gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
 		gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
@@ -10303,7 +10308,8 @@ PrimitiveBatch.prototype.flush = function() {
 			mat4.scale(this._transformMatrix, this._transformMatrix, [this._rectangleVertexData[i].width, this._rectangleVertexData[i].height, 0]);
 
 			gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix);
-			gl.uniform4f(this._primitiveShader.uniforms.uColor._location, this._rectangleColorData[i].r, this._rectangleColorData[i].g, this._rectangleColorData[i].b, this._rectangleColorData[i].a);
+			gl.uniform4f(this._primitiveShader.uniforms.uColor._location,
+						 this._rectangleColorData[i].r, this._rectangleColorData[i].g, this._rectangleColorData[i].b, this._rectangleColorData[i].a);
 
 			gl.drawArrays(gl.TRIANGLES, 0, 6);
 		}
@@ -10341,14 +10347,14 @@ function PrimitiveRender(game) {
     this._primitiveShader = new PrimitiveShader();
     this._vertexBuffer = this._gl.createBuffer();
     this._transformMatrix = mat4.create();
-    this._rectangleData = [
+    this._rectangleData = new Float32Array([
         0.0,  0.0,
         1.0,  0.0,
         0.0,  1.0,
         0.0,  1.0,
         1.0,  0.0,
         1.0,  1.0
-    ];
+    ]);
 }
 
 PrimitiveRender.prototype.unload = function () {
@@ -10358,6 +10364,7 @@ PrimitiveRender.prototype.unload = function () {
 };
 
 PrimitiveRender.prototype.drawPoint = function (vector, size, color) {
+    // TODO: refactor this method
     var gl = this._gl;
 
     var vertices = [
@@ -10393,7 +10400,7 @@ PrimitiveRender.prototype.drawRectangle = function (rectangle, color) {
 
     // position buffer
     gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._rectangleData), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
 
     gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
     gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
@@ -10469,22 +10476,22 @@ function SpriteBatch(game) {
 	this._textureShader = new TextureShader();
 	this._lastTexUID = -1;
 	this._sprites = [];
-	this._rectangleData = [
+	this._rectangleData = new Float32Array([
 		0.0,  0.0,
 		1.0,  0.0,
 		0.0,  1.0,
 		0.0,  1.0,
 		1.0,  0.0,
 		1.0,  1.0
-	];
-	this._textureData = [
+	]);
+	this._textureData = new Float32Array([
 		0.0,  0.0,
 		1.0,  0.0,
 		0.0,  1.0,
 		0.0,  1.0,
 		1.0,  0.0,
 		1.0,  1.0
-	];
+	]);
 }
 
 SpriteBatch.prototype.clear = function() {
@@ -10507,14 +10514,14 @@ SpriteBatch.prototype.flush = function() {
 
 	// position buffer attribute
 	gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._rectangleData), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
 
 	gl.enableVertexAttribArray(this._textureShader.attributes.aVertexPosition);
 	gl.vertexAttribPointer(this._textureShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
 
 	// texture attribute
 	gl.bindBuffer(gl.ARRAY_BUFFER, this._texBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this._textureData), gl.STATIC_DRAW);
+	gl.bufferData(gl.ARRAY_BUFFER, this._textureData, gl.STATIC_DRAW);
 	gl.enableVertexAttribArray(this._textureShader.attributes.aTextureCoord);
 	gl.vertexAttribPointer(this._textureShader.attributes.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
 
@@ -10646,11 +10653,12 @@ Texture2D.prototype.unload = function () {
 };;/**
  * Transform class
  */
+AttributeDictionary.addRule("transform", "gameObject", {ownContainer: true});
+
 function Transform(params) {
 	params = params || {};
 
 	// public properties:
-	AttributeDictionary.addRule(this, "gameObject", {visible: false});
 	this.gameObject = params.gameObject || null;
 
 	// private properties:
@@ -11158,6 +11166,59 @@ function TextureShader() {
 }
 
 inheritsFrom(TextureShader, Shader);;/**
+ * IO Path utility class
+ */
+var Path = function () {
+};
+
+/**
+ * Ensures this is a valid string directory (eg. ends with slash)
+ * @param path
+ * @returns {string}
+ */
+Path.wrapDirectoryPath = function (path) {
+	return path + (path.endsWith('/') || path.endsWith('\\') ? '' : '/');
+};
+
+/**
+ * Strips only the directory path (excludes file names)
+ * @param path
+ */
+Path.getDirectory = function (path) {
+	var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+	return path.substring(0, (index >= 0 ? index : path.length));
+};
+
+/**
+ * Returns the directory name from a given path
+ * @param path
+ * @returns {string}
+ */
+Path.getDirectoryName = function (path) {
+	if (path.endsWith("/") || path.endsWith("\\")) {
+		path = path.substring(0, path.length - 1);
+	}
+
+	var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+	return path.substring(index + 1, path.length);
+};
+
+/**
+ * Gets a filename from a given path
+ * @param path
+ */
+Path.getFilename = function (path) {
+	var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+	return path.substring((index >= 0 && index < path.length - 1 ? index + 1 : 0), path.length);
+};
+
+/**
+ * Gets a file extension from a given path
+ * @param path
+ */
+Path.getFileExtension = function (path) {
+	return path.substring(path.lastIndexOf('.'), path.length);
+};;/**
  * WebGL Context class
  */
 function WebGLContext(params) {

@@ -2,7 +2,7 @@
  * Created by John
  */
 
-app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, gameSvc) {
+app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, gameSvc, dialogSvc) {
 	var svc = {};
 
 	svc.activeProject = null;
@@ -13,9 +13,9 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, ga
 		var files = [];
 
 		directory.files.forEach(function(fileInfo) {
-			var filename = getFilenameFromPath(fileInfo.relativePath);
-			var extension = getFileExtension(filename);
-			
+			var filename = Path.getFilename(fileInfo.relativePath);
+			var extension = Path.getFileExtension(filename);
+
 			// don't include private/hidden files
 			if(filename[0] !== "." && config.IGNORED_FILE_EXTENSIONS.indexOf(extension) < 0) {
 				files.push(fileInfo.relativePath);
@@ -47,6 +47,9 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, ga
 		NativeInterface.openFileBrowser(ScarlettInterface.getApplicationFolderPath(), params, function (result) {
 			if (result !== false && result.endsWith(".sc")) {
 				svc.openProject(result);
+			} else {
+				// TODO: show dialog:
+				//dialogSvc.showDialog("","","");
 			}
 		});
 	};
@@ -92,7 +95,7 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, ga
 
 		if(project) {
 			NativeInterface.writeFile(
-				ensureDirectorySlash(svc.activeProjectPath) + "project.sc",
+				Path.wrapDirectoryPath(svc.activeProjectPath) + "project.sc",
 				JSON.stringify(project, null, 4)
 			);
 		}
@@ -110,7 +113,7 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, ga
 				try {
 					var gameProject = JSON.parse(result);
 
-					svc.setupProject(gameProject, getDirectoryFromPath(path));
+					svc.setupProject(gameProject, Path.getDirectory(path));
 
 					defer.resolve(gameProject);
 
@@ -127,7 +130,7 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, ga
 	svc.openProject = function (path) {
 		svc.loadProjectFile(path).then(
 			function (gameProject) {
-				gameSvc.setActiveProject(gameProject);
+				svc.activeProject = gameProject;
 
 				// update the lastUpdated property
 				var savedData = dataSvc.findByProperty("projects", "path", path);

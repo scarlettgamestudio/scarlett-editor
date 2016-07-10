@@ -1,9 +1,9 @@
 <div ng-controller="ProjectExplorerCtrl">
 
-    <script type="text/ng-template" id="nodes_renderer.html">
-        <div>
-            <i class="angular-ui-tree-selector fa" ng-if="node.type === 'directory'" data-nodrag ng-class="{'fa-caret-down' : !collapsed, 'fa-caret-right' : collapsed}" ng-click="toggle(this)"></i>
-            <span ui-tree-handle>{{node.title}}</span>
+    <!--<script type="text/ng-template" id="nodes_renderer.html">
+        <div class="angular-ui-tree-element" ng-click="select()">
+            <i class="angular-ui-tree-selector fa" ng-if="node.type === 'directory'" ng-class="{'fa-folder-open' : !collapsed, 'fa-folder' : collapsed}" ng-click="toggle(this)"></i>
+            <span ui-tree-handle><i class="fa fa-file-o" aria-hidden="true" ng-if="node.type === 'file'"></i> {{node.title}} - {{isSelected()}}</span>
         </div>
         <ol ui-tree-nodes="" ng-model="node.nodes" ng-class="{hidden: collapsed}">
             <li ng-repeat="node in node.nodes" ui-tree-node ng-include="'nodes_renderer.html'">
@@ -11,10 +11,35 @@
         </ol>
     </script>
 
-    <div ui-tree>
+    <div ui-tree="model.treeOptions" data-drag-delay="250">
         <ol ui-tree-nodes="" ng-model="model.tree" id="tree-root">
-            <li ng-repeat="node in model.tree" ui-tree-node ng-include="'nodes_renderer.html'"></li>
+            <li ng-repeat="node in model.tree" data-drag-enable="false" ui-tree-node ng-include="'nodes_renderer.html'"></li>
         </ol>
+    </div>-->
+
+    <!-- tree node template -->
+    <script type="text/ng-template" id="nodeTemplate.html">
+
+        <!-- node header -->
+        <div ng-class="{'selected' : isSelected()}">
+            <div cz-tree-node-header>
+                <span class="fa clickable" ng-click="toggleCollapse()" ng-if="node.type === 'directory'" ng-class="{'fa-folder-open' : !collapsed, 'fa-folder' : collapsed}"></span>
+                <span><i class="fa" ng-class="getFileIcon(node.name)" aria-hidden="true" ng-if="node.type === 'file'"></i> {{node.name}}</span>
+            </div>
+        </div>
+
+        <!-- sub nodes -->
+        <div cz-tree-nodes ng-class="{'hidden': collapsed}">
+            <div ng-repeat="node in node.nodes" cz-tree-node="" ng-include="'nodeTemplate.html'"></div>
+        </div>
+
+    </script>
+
+    <div>
+        <!-- tree root node -->
+        <div cz-tree>
+            <div ng-repeat="node in model.tree" cz-tree-node="" ng-include="'nodeTemplate.html'"></div>
+        </div>
     </div>
 
 </div>

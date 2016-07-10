@@ -2,8 +2,8 @@
  * Created by John on 12/12/15.
  */
 
-app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', '$rootScope', '$translate', '$uibModal', '$http', '$compile',
-	function ($scope, logSvc, soapSvc, config, userSvc, $rootScope, $translate, $uibModal, $http, $compile) {
+app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', '$rootScope', '$translate', '$uibModal', '$http', '$compile', 'scarlettSvc', 'constants',
+	function ($scope, logSvc, soapSvc, config, userSvc, $rootScope, $translate, $uibModal, $http, $compile, scarlettSvc, constants) {
 
 		var myLayout = null;
 		var activeModal = null;
@@ -38,6 +38,14 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 
 		// initialization
 		(function init() {
+
+			// there is an active project assigned?
+			if(!isObjectAssigned(scarlettSvc.activeProject)) {
+				// no ? we can't be in this view without an active project..
+				$rootScope.changeView("hub");
+				return;
+			}
+
 			$scope.userInfo = userSvc.getUserInfo();
 
 			myLayout = new GoldenLayout({
@@ -90,9 +98,12 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 									componentName: 'template',
 									componentState: {
 										templateId: 'sceneView',
-										url: ''
+										url: 'templates/sceneView/sceneView.html'
 									},
-									title: $translate.instant("EDITOR_SCENE_VIEW")
+									title: $translate.instant("EDITOR_SCENE_VIEW"),
+									resize: function() {
+										console.log("resized!!");
+									}
 								},
 								{
 									type: 'component',
@@ -121,13 +132,20 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 			myLayout.registerComponent('template', function (container, state) {
 				if(state.url && state.url.length > 0) {
 					$http.get(state.url, {cache: true}).success(function (html) {
+						// compile the html so we have all angular goodies:
 						html = $compile(html)($scope);
 						container.getElement().html(html);
 
+						// assign events here:
+						container.on("resize", function() {
+							$scope.$broadcast(constants.EVENTS.CONTAINER_RESIZE, state.templateId);
+						});
+
 						if (state.templateId == "inspector") {
-							// TESTS:
+
+							// TODO: remove this:
 							setTimeout(function () {
-								var objA = new GameObject();
+								var objA = new GameObject({name:'ImL33T3'});
 								var objB = new GameObject({name:'ImL33T'});
 								objB.transform.setPosition(10, 1);
 								objB.transform.setRotation(5);
@@ -140,10 +158,11 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 			});
 
 			myLayout.on('initialised', function () {
-				//angular.bootstrap( document.body, [ 'scarlett' ]);
+
 			});
 
 			myLayout.init();
+
 		})();
 	}]
 );

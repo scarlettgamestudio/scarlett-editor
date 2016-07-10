@@ -1,4 +1,46 @@
+.cz-tree {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* Non-prefixed version, currently not supported by any browser */
+  overflow: auto;
+}
 
+.cz-tree-nodes {
+
+}
+
+.cz-tree-node {
+  position: relative;
+  cursor: default;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cz-tree-node .selected {
+  background: map_get($default-colors, dim-grey);
+}
+
+.cz-tree-title {
+  padding-top: 2px;
+  padding-left: 15px;
+}
+
+.cz-tree-node-select {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: #f90;
+}
+
+.hidden {
+  display: none;
+}
+
+/*
 .angular-ui-tree {
   padding: 10px;
   font-size: $sub-font-size;
@@ -15,3 +57,10 @@
 .angular-ui-tree-selector {
   cursor: pointer;
 }
+
+.angular-ui-tree-element {
+  cursor: default;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}*/
