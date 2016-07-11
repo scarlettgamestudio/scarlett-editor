@@ -7,7 +7,8 @@ var dependencies = [
 	'validation.match',
 	'ui.bootstrap',
 	'LocalStorageModule',
-	'cz-tree'
+	'cz-tree',
+	'ui.bootstrap.contextMenu'
 ];
 
 var app = angular.module('scarlett', dependencies)

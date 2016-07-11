@@ -75,7 +75,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 									componentName: 'template',
 									componentState: {
 										templateId: 'sceneHierarchy',
-										url: ''
+										url: 'templates/sceneHierarchy/sceneHierarchy.html'
 									},
 									title: $translate.instant("EDITOR_SCENE_HIERARCHY")
 								},

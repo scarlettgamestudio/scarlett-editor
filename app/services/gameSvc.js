@@ -8,6 +8,25 @@ app.factory("gameSvc", function () {
 	// this map holds all the games associated by a generated unique id (key)
 	svc._gameMap = {};
 
+	// the active game scene, all operations on the scene should be made with this consideration
+	svc._activeGameScene = null;
+
+	/**
+	 * sets the active game scene
+ 	 * @param scene
+	 */
+	svc.setActiveGameScene = function(scene) {
+		this._activeGameScene = scene;
+	};
+
+	/**
+	 * gets the active game scene
+	 * @returns {*|null}
+	 */
+	svc.getActiveGameScene = function() {
+		return this._activeGameScene;
+	};
+
 	/**
 	 * Creates and associates a local game slot
 	 */

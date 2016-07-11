@@ -1522,21 +1522,7 @@ blockquote.pull-right:before {
 .breadcrumb > li:first-child {
     margin-left: 0; }
 
-/* DROPDOWN OPEN EFFECT */
-.open > .dropdown-menu {
-    -webkit-transform: scale(1, 1);
-    transform: scale(1, 1);
-    opacity: 1;
-    visibility: visible; }
 
-.dropdown-menu {
-    opacity: 0;
-    transform-origin: top;
-    animation-fill-mode: forwards;
-    transform: scale(1, 0);
-    transition: all 0.14s linear;
-    display: block;
-    visibility: hidden; }
 
 .datepicker.dropdown-menu, .daterangepicker.dropdown-menu, .bootstrap-timepicker-widget.dropdown-menu {
     opacity: 1;

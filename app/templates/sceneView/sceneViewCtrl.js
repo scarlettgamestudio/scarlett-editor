@@ -4,24 +4,36 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
 		$scope.model = {
 			gameUID: null,
 			canvasID: null,
-			scene: null
+			scene: null,
+			lastWidth: null,
+			lastHeight: null,
+			extensions: {
+				debug: null
+			}
 		};
 
 		$scope.getCanvasID = function () {
 			return $scope.model.canvasID;
 		};
 
-		$scope.updateGameBoundries = function(width, height) {
+		$scope.updateGameBoundries = function (width, height) {
 			var game = gameSvc.getGame($scope.model.gameUID);
 
-			if(game) {
+			$scope.lastWidth = width;
+			$scope.lastHeight = height;
+
+			if (game) {
 				// usually the width and height will be the same as the canvas container
 				game.setVirtualResolution(width, height);
 			}
 		};
 
+		$scope.onCanvasClick = function (evt) {
+			gameSvc.setActiveGameScene($scope.model.scene);
+		};
+
 		$scope.$on('$destroy', function () {
-			// TODO: validate if this work:
+			// TODO: validate if this work
 			gameSvc.removeGame($scope.model.gameUID);
 		});
 
@@ -40,6 +52,19 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
 			}
 
 			game.changeScene($scope.model.scene);
+			gameSvc.setActiveGameScene($scope.model.scene);
+
+			var debugExt = new DebugExt({game: game});
+			debugExt.setGridColor(Color.fromRGB(49, 51, 52));
+
+			game.addRenderExtension("debug", debugExt);
+
+			$scope.model.extensions.debug = debugExt;
+
+			// to be safe, if the last width/height was set, let's use them :)
+			if($scope.lastWidth != null && $scope.lastHeight != null) {
+				$scope.updateGameBoundries($scope.lastWidth, $scope.lastHeight);
+			}
 		}
 
 		$scope.model.gameUID = gameSvc.createGame();

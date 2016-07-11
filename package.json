@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "angular": "^1.4.8",
+    "angular-bootstrap-contextmenu": "^0.9.7",
     "angular-local-storage": "^0.2.2",
     "angular-route": "1.4.x",
     "angular-translate": "^2.8.1",
