@@ -51,7 +51,7 @@ app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 
 					dataSvc.save();
 
 					// set the active project
-					gameSvc.setActiveProject(gameProject);
+					scarlettSvc.setActiveProject(gameProject);
 
 					// show the main view
 					$rootScope.changeView('main');

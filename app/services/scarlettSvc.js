@@ -103,7 +103,7 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, ga
 
 	svc.loadProjectFile = function (path) {
 		var defer = $q.defer();
-		var gamefilePath = path.endsWith(".sc") ? path : fillPathWithSeparator(path) + "project.sc";
+		var gamefilePath = path.endsWith(".sc") ? path : Path.wrapDirectoryPath(path) + "project.sc";
 
 		NativeInterface.readFile(gamefilePath, function (result) {
 			if (result === false) {
@@ -125,6 +125,14 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, ga
 		});
 
 		return defer.promise;
+	};
+
+	svc.getActiveProject = function() {
+		return svc.activeProject;
+	};
+
+	svc.setActiveProject = function(project) {
+		svc.activeProject = project;
 	};
 
 	svc.openProject = function (path) {
