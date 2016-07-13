@@ -1,5 +1,5 @@
-app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scarlettSvc', 'gameSvc',
-	function ($scope, $timeout, logSvc, config, scarlettSvc, gameSvc) {
+app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scarlettSvc', 'gameSvc', 'sceneSvc',
+	function ($scope, $timeout, logSvc, config, scarlettSvc, gameSvc, sceneSvc) {
 
 		$scope.model = {
 			gameUID: null,
@@ -29,7 +29,8 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
 		};
 
 		$scope.onCanvasClick = function (evt) {
-			gameSvc.setActiveGameScene($scope.model.scene);
+			// every time the canvas is clicked set this as the active scene
+			sceneSvc.setActiveGameScene($scope.model.scene);
 		};
 
 		$scope.$on('$destroy', function () {
@@ -52,7 +53,7 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
 			}
 
 			game.changeScene($scope.model.scene);
-			gameSvc.setActiveGameScene($scope.model.scene);
+			sceneSvc.setActiveGameScene($scope.model.scene);
 
 			var debugExt = new DebugExt({game: game});
 			debugExt.setGridColor(Color.fromRGB(49, 51, 52));

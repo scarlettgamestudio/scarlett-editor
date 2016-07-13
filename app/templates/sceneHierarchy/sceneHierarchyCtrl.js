@@ -1,5 +1,5 @@
-app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', '$translate',
-	function ($scope, logSvc, config, scarlettSvc, $translate) {
+app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', '$translate', 'gameSvc',
+	function ($scope, logSvc, config, scarlettSvc, $translate, gameSvc) {
 
 		var CONTEXT_ITEMS = {
 			ADD_GAME_OBJECT: "Add Game Object.."
@@ -13,9 +13,14 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
 		};
 
 		$scope.contextMenuOptions = [
-			['<i class="fa fa-plus-square"></i>' + $translate.instant("CTX_MENU_ADD_GAME_OBJECT"), function ($itemScope) {
+			['<i class="fa fa-plus-square"></i>' + $translate.instant("CTX_MENU_ADD_GAME_OBJECT"), [
+				[$translate.instant("CTX_EMPTY"), function ($itemScope) {
 
-			}],
+				}],
+				[$translate.instant("CTX_SPRITE"), function ($itemScope) {
+
+				}]
+			]],
 			null,
 			['<i class="fa fa-paste"></i>' + $translate.instant("CTX_PASTE"), function ($itemScope) {
 
