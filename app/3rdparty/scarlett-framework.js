@@ -10128,7 +10128,6 @@ GameManager.renderContext = null;
 GameManager.activeScene = null;;/**
  * GameObject class
  */
-AttributeDictionary.addRule("gameObject", "parent", {visible:false});
 AttributeDictionary.addRule("gameObject", "transform", {ownContainer:true});
 
 function GameObject(params) {
@@ -10136,15 +10135,20 @@ function GameObject(params) {
 
 	// public properties:
 	this.name = params.name || "GameObject";
-	this.parent = params.parent || null;
 	this.transform = new Transform({
 		gameObject: this
 	});
 
 	// private properties:
+	this._parent = params.parent || null;
 	this._uid = generateUID();
+	this._children = [];
 	this._components = [];
 }
+
+GameObject.prototype.getType = function() {
+	return "basic";
+};
 
 GameObject.prototype.getUID = function() {
 	return this._uid;
@@ -10158,12 +10162,33 @@ GameObject.prototype.propagatePropertyUpdate = function (property, value) {
 	}
 };
 
+GameObject.prototype.getParent = function() {
+	return this._parent;
+};
+
+GameObject.prototype.setParent = function(gameObject) {
+	// TODO: check if already had parent, if so, remove first from there..
+	this._parent = gameObject;
+};
+
+GameObject.prototype.getChildren = function() {
+	return this._children;
+};
+
+GameObject.prototype.addChild = function(gameObject) {
+	this._children.push(gameObject);
+};
+
 GameObject.prototype.addComponent = function (component) {
 	if (isFunction(component.setGameObject)) {
 		component.setGameObject(this);
 	}
 
 	this._components.push(component);
+};
+
+GameObject.prototype.render = function(delta, spriteBatch) {
+	// nothing to do here..
 };
 
 GameObject.prototype.getComponents = function () {
@@ -10204,6 +10229,10 @@ GameProject.prototype.toJSON = function() {
 function GameScene(params) {
 	params = params || {};
 
+	if(!params.game) {
+		throw "cannot create a game scene without the game parameter";
+	}
+
 	// public properties:
 
 	this.name = params.name || "GameScene";
@@ -10213,6 +10242,7 @@ function GameScene(params) {
 	this._camera = new Camera2D(0, 0, this._game.getVirtualResolution().width, this._game.getVirtualResolution().height); // the default scene camera
 	this._backgroundColor = params.backgroundColor || Color.CornflowerBlue;
 	this._gameObjects = [];
+	this._spriteBatch = new SpriteBatch(params.game);
 }
 
 GameScene.prototype.getPhysicsWorld = function () {
@@ -10243,6 +10273,10 @@ GameScene.prototype.addGameObject = function (entity) {
 	this._gameObjects.push(entity);
 };
 
+GameScene.prototype.getGameObjects = function() {
+	return this._gameObjects;
+};
+
 GameScene.prototype.removeEntity = function (entity) {
 	// TODO: implement
 };
@@ -10260,7 +10294,13 @@ GameScene.prototype.sceneLateUpdate = function (delta) {
 };
 
 GameScene.prototype.sceneRender = function (delta) {
-	// TODO: implement
+	// let's render all game objects on scene:
+	for(var i = 0; i < this._gameObjects.length; i++) {
+		this._gameObjects[i].render(delta, this._spriteBatch);
+	}
+
+	// all draw data was stored, now let's actually render stuff into the screen!
+	this._spriteBatch.flush();
 };
 
 GameScene.prototype.toJSON = function () {
@@ -10499,8 +10539,16 @@ function Sprite(params) {
 
 inheritsFrom(Sprite, GameObject);
 
+Sprite.prototype.getType = function() {
+	return "sprite";
+};
+
 Sprite.prototype.getTexture = function() {
 	return this._texture;
+};
+
+Sprite.prototype.render = function(delta, spriteBatch) {
+	spriteBatch.storeSprite(this);
 };
 
 // functions:
@@ -10536,7 +10584,7 @@ function SpriteBatch(game) {
 	this._transformMatrix = mat4.create();
 	this._textureShader = new TextureShader();
 	this._lastTexUID = -1;
-	this._sprites = [];
+	this._drawData = [];
 	this._rectangleData = new Float32Array([
 		0.0,  0.0,
 		1.0,  0.0,
@@ -10556,15 +10604,33 @@ function SpriteBatch(game) {
 }
 
 SpriteBatch.prototype.clear = function() {
-	this._sprites = [];
+	this._drawData = [];
 };
 
 SpriteBatch.prototype.storeSprite = function (sprite) {
-	this._sprites.push(sprite);
+	this._drawData.push({
+		texture: sprite.getTexture(),
+		x: sprite.transform.getPosition().x,
+		y: sprite.transform.getPosition().y,
+		scaleX: sprite.transform.getScale().x,
+		scaleY: sprite.transform.getScale().y,
+		rotation: sprite.transform.getRotation()
+	});
+};
+
+SpriteBatch.prototype.store = function(texture, x, y, scaleX, scaleY, rotation) {
+	this._drawData.push({
+		texture: texture,
+		x: x,
+		y: y,
+		scaleX: scaleX,
+		scaleY: scaleY,
+		rotation: rotation
+	});
 };
 
 SpriteBatch.prototype.flush = function() {
-	if(this._sprites.length == 0) {
+	if(this._drawData.length == 0) {
 		return;
 	}
 
@@ -10589,24 +10655,24 @@ SpriteBatch.prototype.flush = function() {
 	// set uniforms
 	gl.uniformMatrix4fv(this._textureShader.uniforms.uMatrix._location, false, cameraMatrix);
 
-	for(var i = 0; i < this._sprites.length; i++) {
-		var texture = this._sprites[i].getTexture();
+	for(var i = 0; i < this._drawData.length; i++) {
+		var texture = this._drawData[i].texture;
 		if(texture && texture.isReady()) {
 
+			// for performance sake, consider if the texture is the same so we don't need to bind again
+			// TODO: maybe it's a good idea to group the textures somehow (depth should be considered)
 			if(this._lastTexUID != texture.getUID()) {
 				texture.bind();
 				this._lastTexUID = texture.getUID();
 			}
 
-			var spritePosition = this._sprites[i].transform.getPosition();
-			var spriteScale = this._sprites[i].transform.getScale();
-			var width = texture.getImageData().width * spriteScale.x;
-			var height = texture.getImageData().height * spriteScale.y;
+			var width = texture.getImageData().width * this._drawData[i].scaleX;
+			var height = texture.getImageData().height * this._drawData[i].scaleY;
 
 			mat4.identity(this._transformMatrix);
-			mat4.translate(this._transformMatrix, this._transformMatrix, [spritePosition.x, spritePosition.y, 0]);
+			mat4.translate(this._transformMatrix, this._transformMatrix, [this._drawData[i].x, this._drawData[i].y, 0]);
 			mat4.translate(this._transformMatrix, this._transformMatrix, [width/2, height/2, 0]);
-			mat4.rotate(this._transformMatrix, this._transformMatrix, this._sprites[i].transform.getRotation(), [0.0, 0.0, 1.0]);
+			mat4.rotate(this._transformMatrix, this._transformMatrix, this._drawData[i].rotation, [0.0, 0.0, 1.0]);
 			mat4.translate(this._transformMatrix, this._transformMatrix, [-width/2, -height/2, 0]);
 			mat4.scale(this._transformMatrix, this._transformMatrix, [width, height, 0]);
 			

@@ -34,8 +34,13 @@ var app = angular.module('scarlett', dependencies)
 })
 
 .constant("constants", {
+	GAME_OBJECT_TYPES: {
+		BASIC: "basic",
+		SPRITE: "sprite"
+	},
 	EVENTS: {
-		CONTAINER_RESIZE: "onContainerResize"
+		CONTAINER_RESIZE: "onContainerResize",
+		GAME_OBJECT_ADDED: "onGameObjectAdded"
 	},
 	CONTAINERS: {
 		SCENE_VIEW: "sceneView"

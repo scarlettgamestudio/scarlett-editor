@@ -46,7 +46,7 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
 			// is there a valid project scene available?
 			if (!scarlettSvc.activeProject.editor.lastScene) {
 				// nope, let's create a new one:
-				$scope.model.scene = new GameScene({
+				$scope.model.scene = new EditorGameScene({
 					game: game,
 					backgroundColor: Color.fromRGB(39, 41, 42)
 				});

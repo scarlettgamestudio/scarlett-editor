@@ -1,41 +1,106 @@
-app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', '$translate', 'gameSvc',
-	function ($scope, logSvc, config, scarlettSvc, $translate, gameSvc) {
+app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', '$translate', 'gameSvc', 'constants', 'sceneSvc',
+    function ($scope, logSvc, config, scarlettSvc, $translate, gameSvc, constants, sceneSvc) {
 
-		var CONTEXT_ITEMS = {
-			ADD_GAME_OBJECT: "Add Game Object.."
-		};
+        $scope.model = {
+            tree: []	// visual object hierarchy tree
+        };
 
-		$scope.model = {
-			contextMenuSelected: null,
-			contextMenuItems: [
-				{ name: CONTEXT_ITEMS.ADD_GAME_OBJECT }
-			]
-		};
+        $scope.contextMenuOptions = [
+            ['<i class="fa fa-plus-square"></i>' + $translate.instant("CTX_ADD_GAME_OBJECT"), [
+                [$translate.instant("CTX_EMPTY"), function ($itemScope) {
+                    // create empty game object and add it to the scene:
+                    var gameObject = gameSvc.createGameObject(null);
+                    sceneSvc.addGameObjectToScene(gameObject);
+                }],
+                [$translate.instant("CTX_SPRITE"), function ($itemScope) {
+                    var gameObject = gameSvc.createSpriteObject(null);
+                    sceneSvc.addGameObjectToScene(gameObject);
+                }],
+            ]],
+            null,
+            ['<i class="fa fa-paste"></i>' + $translate.instant("CTX_PASTE"), function ($itemScope) {
 
-		$scope.contextMenuOptions = [
-			['<i class="fa fa-plus-square"></i>' + $translate.instant("CTX_MENU_ADD_GAME_OBJECT"), [
-				[$translate.instant("CTX_EMPTY"), function ($itemScope) {
+            }],
+            null,
+            [$translate.instant("CTX_REFRESH"), function ($itemScope) {
+                $scope.refresh();
+            }]
+        ];
 
-				}],
-				[$translate.instant("CTX_SPRITE"), function ($itemScope) {
+        $scope.getGameObjectByUID = function (uid) {
+            var recursive = function (uid, nodes) {
+                for (var i = 0; i < nodes.length; i++) {
+                    if (nodes[i].getUID() === uid) {
+                        return nodes[i];
+                    }
 
-				}]
-			]],
-			null,
-			['<i class="fa fa-paste"></i>' + $translate.instant("CTX_PASTE"), function ($itemScope) {
+                    if (nodes[i].nodes) {
+                        var found = recursive(uid, nodes[i].nodes);
 
-			}]
-		];
+                        if (found) {
+                            return found;
+                        }
+                    }
+                }
+            };
 
-		$scope.refresh = function () {
+            return recursive($scope.model.tree, uid);
+        };
 
-		};
+        /**
+         * Game Object added to scene event bind
+         */
+        $scope.$on(constants.EVENTS.GAME_OBJECT_ADDED, (function (e, gameObject, parent) {
+            var nodeParent = null;
+            var node = generateNode(gameObject.name, gameObject.getType(), gameObject);
 
-		(function init() {
+            if (parent != null) {
+                nodeParent = $scope.getGameObjectByUID(parent.getUID());
+            }
+
+            if (nodeParent) {
+                parent.nodes.push(node);
+            } else {
+                $scope.model.tree.push(node);
+            }
+
+        }).bind(this));
+
+        $scope.refresh = function () {
+            if(!sceneSvc.getActiveGameScene()) {
+                return;
+            }
+
+            $scope.model.tree = mapTreeModel(sceneSvc.getActiveGameScene().getGameObjects());
+        };
+
+        function mapTreeModel(gameObjects) {
+            var nodes = [];
+
+            for (var i = 0; i < gameObjects.length; i++) {
+                var node = generateNode(gameObjects[i].name, gameObjects[i].getType(), gameObjects[i]);
+                node.nodes = mapTreeModel(gameObjects[i].getChildren());
+
+                nodes.push(node);
+            }
+
+            return nodes;
+        }
+
+        function generateNode(name, type, gameObject) {
+            return {
+                name: name,
+                type: type,
+                gameObject: gameObject,
+                nodes: []
+            }
+        }
+
+        (function init() {
 
 
-			$scope.refresh();
-		})();
-	}
+            $scope.refresh();
+        })();
+    }
 
 ]);

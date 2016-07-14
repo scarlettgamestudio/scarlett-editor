@@ -3,48 +3,8 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 
 		$scope.model = {
 			tree: [],
-			treeOptions: null,
 			uid: 0
 		};
-
-		function generateNode(id, name, type, attributes) {
-			return {
-				id: id,
-				name: name,
-				type: type,
-				attributes: attributes || {},
-				nodes: []
-			}
-		}
-
-		function mapTreeModel(directory, deep, n) {
-			var directoryTitle = (n === 0 ? scarlettSvc.activeProject.name : Path.getDirectoryName(directory.path));
-			var nodeModel = generateNode(++$scope.model.uid, directoryTitle, "directory", {path: directory.path});
-
-			if (deep) {
-				directory.subdirectories.forEach(function (subdirectory) {
-					nodeModel.nodes.push(mapTreeModel(subdirectory, deep));
-				});
-			}
-
-			directory.files.forEach(function (fileInfo) {
-				var filename = Path.getFilename(fileInfo.relativePath);
-				var extension = Path.getFileExtension(filename);
-
-				//FIXME: this validation should be placed somewhere else:
-				if (filename.indexOf("_") == 0 || filename.indexOf(".") == 0) {
-
-				} else {
-					nodeModel.nodes.push(generateNode(++$scope.model.uid, filename, "file", {
-						extension: extension,
-						path: fileInfo.fullPath
-					}));
-				}
-
-			});
-
-			return nodeModel;
-		}
 
 		$scope.getFileIcon = function (filename) {
 			var extension = Path.getFileExtension(filename).toLowerCase();
@@ -122,17 +82,46 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 			$scope.model.tree = [mapTreeModel(scarlettSvc.activeProjectFileMap, true, 0)];
 		};
 
-		(function init() {
-			$scope.model.treeOptions = {
-				accept: function (sourceNodeScope, destNodesScope, destIndex) {
-					return true;
-				},
-				beforeDrag: function (node) {
-					// don't allow the root folder to be dragged:
-					return node.depth() !== 1;
-				}
-			};
+		function generateNode(id, name, type, attributes) {
+			return {
+				id: id,
+				name: name,
+				type: type,
+				attributes: attributes || {},
+				nodes: []
+			}
+		}
 
+		function mapTreeModel(directory, deep, n) {
+			var directoryTitle = (n === 0 ? scarlettSvc.activeProject.name : Path.getDirectoryName(directory.path));
+			var nodeModel = generateNode(++$scope.model.uid, directoryTitle, "directory", {path: directory.path});
+
+			if (deep) {
+				directory.subdirectories.forEach(function (subdirectory) {
+					nodeModel.nodes.push(mapTreeModel(subdirectory, deep));
+				});
+			}
+
+			directory.files.forEach(function (fileInfo) {
+				var filename = Path.getFilename(fileInfo.relativePath);
+				var extension = Path.getFileExtension(filename);
+
+				//FIXME: this validation should be placed somewhere else:
+				if (filename.indexOf("_") == 0 || filename.indexOf(".") == 0) {
+
+				} else {
+					nodeModel.nodes.push(generateNode(++$scope.model.uid, filename, "file", {
+						extension: extension,
+						path: fileInfo.fullPath
+					}));
+				}
+
+			});
+
+			return nodeModel;
+		}
+
+		(function init() {
 			$scope.refresh();
 		})();
 	}

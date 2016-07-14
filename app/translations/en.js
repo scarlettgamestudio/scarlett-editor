@@ -55,12 +55,13 @@ app.config(function ($translateProvider) {
 		TOOLBAR_TOOLTIP_HUB: 'Hub',
 		TOOLBAR_TOOLTIP_PROJECTS: 'Projects',
 
-		CTX_MENU_ADD_GAME_OBJECT: "Add Game Object",
+		CTX_ADD_GAME_OBJECT: "Add Game Object",
 		CTX_SPRITE: "Sprite",
 		CTX_EMPTY: "Basic",
 		CTX_COPY: "Copy",
 		CTX_CUT: "Cut",
 		CTX_PASTE: "Paste",
+		CTX_REFRESH: "Refresh",
 
 		NAVBAR_FILE: 'File',
 		NAVBAR_NEW_PROJECT: "New Project",
