@@ -61,6 +61,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                         }
 
                         var capitalName = capitalize(entry);
+                        var customEditor = customRule["editor"];
                         var valid = true;
 
                         var propertyModel = {
@@ -69,6 +70,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                             type: getType(object[entry]),
                             systemType: typeof object[entry],
                             bindOnce: false,
+                            editor: customEditor,
                             setter: customRule.setter,
                             getter: customRule.getter,
                             hasDifferentAssignments: false,  // when true, it means the other selected targets have different values assigned
@@ -92,8 +94,10 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                                 if (!object["set" + capitalName] || !object['get' + capitalName]) {
                                     valid = false;
                                 } else {
-                                    // slice the name to remove the "_"
-                                    propertyModel.displayName = splitCamelCase(capitalName);
+                                    if (typeof customRule.displayName === "undefined") {
+                                        propertyModel.displayName = splitCamelCase(capitalName);
+                                    }
+
                                     propertyModel.getter = object['get' + capitalName].bind(object);
                                     propertyModel.setter = object['set' + capitalName].bind(object);
                                 }
@@ -265,14 +269,14 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
 
         }).bind(this));
 
-        $scope.containsMultipleDefinitions = function() {
-            if(!$scope.model.multipleTargets) {
+        $scope.containsMultipleDefinitions = function () {
+            if (!$scope.model.multipleTargets) {
                 return false;
             }
 
-            for(var i = 0; i <  $scope.model.propertyContainers.length; i++) {
-                for(var j = 0; j < $scope.model.propertyContainers[i].properties.length; j++) {
-                    if($scope.model.propertyContainers[i].properties[j].hasDifferentAssignments === true) {
+            for (var i = 0; i < $scope.model.propertyContainers.length; i++) {
+                for (var j = 0; j < $scope.model.propertyContainers[i].properties.length; j++) {
+                    if ($scope.model.propertyContainers[i].properties[j].hasDifferentAssignments === true) {
                         return true;
                     }
                 }
@@ -319,9 +323,12 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                         });
 
                         property.setter.apply(targetContainer.target, args);
+
                     } else {
-                        // TODO: log this to user
+                        // this doesn't have any rules so we are supposing it's a single value setter:
+                        property.setter.apply(targetContainer.target, [targetValue]);
                     }
+
                 } else {
                     targetContainer.target[property.name] = value;
                 }
@@ -347,7 +354,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 }
             }
 
-            if(property.differentProperties.length == 0) {
+            if (property.differentProperties.length == 0) {
                 property.hasDifferentAssignments = false;
             }
         };

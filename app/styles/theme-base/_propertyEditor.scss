@@ -1,6 +1,15 @@
 .peContainer {
   cursor: default;
 
+  .btn-property {
+    height: auto !important;
+    padding: 3px;
+
+    i {
+      color: map-get($default-colors, dim-grey) !important;
+    }
+  }
+
   .pePanel {
 
     hr {

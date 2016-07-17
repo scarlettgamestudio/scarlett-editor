@@ -14,6 +14,7 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
                 }],
                 [$translate.instant("CTX_SPRITE"), function ($itemScope) {
                     var gameObject = gameSvc.createSpriteObject(null);
+                    gameObject.setTextureSrc("C:\\Users\\Pc\\Pictures\\avatars\\image.jpg");
                     sceneSvc.addGameObjectToScene(gameObject);
                 }],
             ]],

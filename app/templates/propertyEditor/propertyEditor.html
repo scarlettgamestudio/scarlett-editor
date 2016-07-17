@@ -14,7 +14,7 @@
         <!-- properties of the target -->
         <div class="peEditorContainer" ng-show="container.open">
             <div class="peEditor" ng-repeat="property in container.properties" ng-controller="PropertyEditorHandlerCtrl">
-                <div ng-include="getEditorUrl(property.type)"></div>
+                <div ng-include="getEditorUrl(property.editor || property.type)"></div>
             </div>
         </div>
 

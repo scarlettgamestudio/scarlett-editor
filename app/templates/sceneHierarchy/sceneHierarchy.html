@@ -5,7 +5,10 @@
         <!-- node header -->
         <div ng-class="{'selected' : isSelected()}">
             <div cz-tree-node-header>
-                <span><i class="fa" ng-class="" aria-hidden="true"></i> {{node.gameObject.name}}</span>
+                <span>
+                    <i ng-if="node.nodes.length > 0" class="fa clickable" ng-class="{'fa-angle-down' : !collapsed, 'fa-angle-right' : collapsed}" ng-click="toggleCollapse()" aria-hidden="true"></i>
+                    {{node.gameObject.name}}
+                </span>
             </div>
         </div>
 

@@ -9428,7 +9428,8 @@ if (!Array.isArray) {
 ;/**
  * Image Loader static class
  */
-var ImageLoader = function() {};
+var ImageLoader = function () {
+};
 
 /**
  *
@@ -9442,31 +9443,40 @@ ImageLoader.loaded = {};
  * @param callback
  * @returns {*}
  */
-ImageLoader.loadImage = function(path, callback) {
+ImageLoader.loadImage = function (path, callback) {
     var image;
 
     // is the image on cache?
-    if(ImageLoader.loaded.hasOwnProperty(path)) {
+    if (ImageLoader.loaded.hasOwnProperty(path)) {
         // the image is already cached. let's use it!
-        image = loaded[path];
+        image = ImageLoader.loaded[path];
+
+        if (isFunction(callback)) {
+            callback(new CallbackResponse({
+                success: true,
+                data: image
+            }));
+        }
     } else {
         // the image is not in cache, we must load it:
         image = new Image();
         image.src = path;
-        image.onload = function() {
+        image.onload = function () {
             ImageLoader.loaded[path] = image;
 
-            if(isFunction(callback)) {
+            if (isFunction(callback)) {
                 callback(new CallbackResponse({
                     success: true,
                     data: image
                 }));
             }
         };
-        image.onerror = function() {
-            callback(new CallbackResponse({
-                success: false
-            }));
+        image.onerror = function () {
+            if (isFunction(callback)) {
+                callback(new CallbackResponse({
+                    success: false
+                }));
+            }
         };
     }
 
@@ -9538,7 +9548,7 @@ SetterDictionary.getRule = function (typeName) {
  * @returns {boolean}
  */
 function isObjectAssigned(obj) {
-	return (typeof obj !== "undefined" && obj !== null);
+    return (typeof obj !== "undefined" && obj !== null);
 }
 
 /**
@@ -9547,7 +9557,7 @@ function isObjectAssigned(obj) {
  * @returns {boolean}
  */
 function isString(obj) {
-	return typeof obj === "string";
+    return typeof obj === "string";
 }
 
 /**
@@ -9556,7 +9566,7 @@ function isString(obj) {
  * @returns {boolean}
  */
 function isNumber(obj) {
-	return typeof obj === "number";
+    return typeof obj === "number";
 }
 
 /**
@@ -9565,7 +9575,7 @@ function isNumber(obj) {
  * @returns {boolean}
  */
 function isGame(obj) {
-	return obj instanceof Game;
+    return obj instanceof Game;
 }
 
 /**
@@ -9574,7 +9584,7 @@ function isGame(obj) {
  * @returns {boolean}
  */
 function isGameScene(obj) {
-	return obj instanceof GameScene;
+    return obj instanceof GameScene;
 }
 
 /**
@@ -9583,7 +9593,7 @@ function isGameScene(obj) {
  * @returns {boolean}
  */
 function isTexture2D(obj) {
-	return obj instanceof Texture2D;
+    return obj instanceof Texture2D;
 }
 
 /**
@@ -9592,7 +9602,7 @@ function isTexture2D(obj) {
  * @returns {boolean}
  */
 function isFunction(obj) {
-	return typeof obj === "function";
+    return typeof obj === "function";
 }
 
 /**
@@ -9601,7 +9611,7 @@ function isFunction(obj) {
  * @returns {boolean}
  */
 function isSprite(obj) {
-	return obj instanceof Sprite;
+    return obj instanceof Sprite;
 }
 
 /**
@@ -9610,7 +9620,7 @@ function isSprite(obj) {
  * @param parent
  */
 function inheritsFrom(child, parent) {
-	child.prototype = Object.create(parent.prototype);
+    child.prototype = Object.create(parent.prototype);
 }
 
 /**
@@ -9620,7 +9630,7 @@ function inheritsFrom(child, parent) {
  */
 var _SS_UID = 0;
 function generateUID() {
-	return ++_SS_UID;
+    return ++_SS_UID;
 }
 
 /**
@@ -9629,12 +9639,12 @@ function generateUID() {
  * @returns {*}
  */
 function capitalize(string) {
-	if (string.length >= 2) {
-		return string.charAt(0).toUpperCase() + string.slice(1);
-	} else if(string.length == 1) {
-		return string.charAt(0).toUpperCase();
-	}
-	return string;
+    if (string.length >= 2) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    } else if (string.length == 1) {
+        return string.charAt(0).toUpperCase();
+    }
+    return string;
 }
 
 /**
@@ -9643,7 +9653,7 @@ function capitalize(string) {
  * @returns {string}
  */
 function splitCamelCase(string) {
-	return string.replace(/([a-z](?=[A-Z]))/g, '$1 ');
+    return string.replace(/([a-z](?=[A-Z]))/g, '$1 ');
 }
 
 /**
@@ -9652,8 +9662,9 @@ function splitCamelCase(string) {
  * @returns {*}
  */
 function getType(object) {
-	if(object===null) return "[object Null]"; // special case
-	return object.constructor.name || Object.prototype.toString.call(object);
+    if (object === null) return "[object Null]"; // special case
+    if (object.getType) return object.getType();
+    return object.constructor.name || Object.prototype.toString.call(object);
 }
 
 /**
@@ -9662,11 +9673,11 @@ function getType(object) {
  * @param b
  */
 function isEqual(a, b) {
-	if(isFunction(a.equals)) {
-		return a.equals(b);
-	}
+    if (isFunction(a.equals)) {
+        return a.equals(b);
+    }
 
-	return a === b;
+    return a === b;
 }
 ;function RigidBody (params) {
 	params = params || {};
@@ -9969,7 +9980,7 @@ Game.prototype._onAnimationFrame = function (timestamp) {
 	if (isGameScene(this._gameScene)) {
 		// handle the active game scene interactions here:
 
-		try {
+		//try {
 			// the user defined the game scene update function?
 			if (isFunction(this._gameScene.update)) {
 				// call user defined update function:
@@ -10010,9 +10021,9 @@ Game.prototype._onAnimationFrame = function (timestamp) {
 				this._gameScene.lateRender(delta);
 			}
 
-		} catch (ex) {
-			this._logger.error(ex);
-		}
+		//} catch (ex) {
+		//	this._logger.error(ex);
+		//}
 
 		this._executionPhase = SC.EXECUTION_PHASES.WAITING;
 	}
@@ -10128,85 +10139,85 @@ GameManager.renderContext = null;
 GameManager.activeScene = null;;/**
  * GameObject class
  */
-AttributeDictionary.addRule("gameObject", "transform", {ownContainer:true});
+AttributeDictionary.addRule("gameobject", "transform", {ownContainer: true});
 
 function GameObject(params) {
-	params = params || {};
+    params = params || {};
 
-	// public properties:
-	this.name = params.name || "GameObject";
-	this.transform = new Transform({
-		gameObject: this
-	});
+    // public properties:
+    this.name = params.name || "GameObject";
+    this.transform = new Transform({
+        gameObject: this
+    });
 
-	// private properties:
-	this._parent = params.parent || null;
-	this._uid = generateUID();
-	this._children = [];
-	this._components = [];
+    // private properties:
+    this._parent = params.parent || null;
+    this._uid = generateUID();
+    this._children = [];
+    this._components = [];
 }
 
-GameObject.prototype.getType = function() {
-	return "basic";
+GameObject.prototype.getType = function () {
+    return "gameobject";
 };
 
-GameObject.prototype.getUID = function() {
-	return this._uid;
+GameObject.prototype.getUID = function () {
+    return this._uid;
 };
 
 GameObject.prototype.propagatePropertyUpdate = function (property, value) {
-	for (var i = 0; i < this._components.length; ++i) {
-		if (this._components[i]["onGameObject" + property + "Updated"]) {
-			this._components[i]["onGameObject" + property + "Updated"](value);
-		}
-	}
+    for (var i = 0; i < this._components.length; ++i) {
+        if (this._components[i]["onGameObject" + property + "Updated"]) {
+            this._components[i]["onGameObject" + property + "Updated"](value);
+        }
+    }
 };
 
-GameObject.prototype.getParent = function() {
-	return this._parent;
+GameObject.prototype.getParent = function () {
+    return this._parent;
 };
 
-GameObject.prototype.setParent = function(gameObject) {
-	// TODO: check if already had parent, if so, remove first from there..
-	this._parent = gameObject;
+GameObject.prototype.setParent = function (gameObject) {
+    // TODO: check if already had parent, if so, remove first from there..
+    this._parent = gameObject;
 };
 
-GameObject.prototype.getChildren = function() {
-	return this._children;
+GameObject.prototype.getChildren = function () {
+    return this._children;
 };
 
-GameObject.prototype.addChild = function(gameObject) {
-	this._children.push(gameObject);
+GameObject.prototype.addChild = function (gameObject) {
+    this._children.push(gameObject);
 };
 
 GameObject.prototype.addComponent = function (component) {
-	if (isFunction(component.setGameObject)) {
-		component.setGameObject(this);
-	}
+    if (isFunction(component.setGameObject)) {
+        component.setGameObject(this);
+    }
 
-	this._components.push(component);
+    this._components.push(component);
 };
 
-GameObject.prototype.render = function(delta, spriteBatch) {
-	// nothing to do here..
+GameObject.prototype.render = function (delta, spriteBatch) {
+    // nothing to do here..
 };
 
 GameObject.prototype.getComponents = function () {
-	return this._components;
+    return this._components;
 };
 
 // functions:
 GameObject.prototype.toJSON = function () {
-	// TODO: implement
-	return "";
+    // TODO: implement
+    return "";
 };
 
 GameObject.prototype.unload = function () {
-	for (var i = 0; i < this._components.length; ++i) {
-		if (isFunction(this._components[i].unload)) {
-			this._components[i].unload();
-		}
-	}
+    for (var i = 0; i < this._components.length; ++i) {
+        if (isFunction(this._components[i].unload)) {
+            this._components[i].unload();
+        }
+    }
 };
 
 ;/**
@@ -10524,44 +10535,68 @@ PrimitiveRender.prototype.drawLine = function (vectorA, vectorB, thickness, colo
 };;/**
  * Sprite class
  */
+AttributeDictionary.addRule("sprite", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
+AttributeDictionary.addRule("sprite", "transform", {ownContainer:true});
+
 function Sprite(params) {
-	params = params || {};
-	params.name = params.name || "Sprite";
+    params = params || {};
+    params.name = params.name || "Sprite";
 
-	GameObject.call(this, params);
+    GameObject.call(this, params);
 
-	// public properties:
+    // public properties:
 
-	// private properties:
-	this._texture = params.texture;
+
+    // private properties:
+    this._texture = params.texture;
+    this._textureSrc = "";
 
 }
 
 inheritsFrom(Sprite, GameObject);
 
-Sprite.prototype.getType = function() {
-	return "sprite";
+Sprite.prototype.setTextureSrc = function (path) {
+    this._textureSrc = path;
+
+    Texture2D.fromPath(path).then(
+        (function(texture) {
+             this.setTexture(texture);
+        }).bind(this), function(error) {
+            // TODO: log this..
+        }
+    );
 };
 
-Sprite.prototype.getTexture = function() {
-	return this._texture;
+Sprite.prototype.getTextureSrc = function () {
+    return this._textureSrc;
 };
 
-Sprite.prototype.render = function(delta, spriteBatch) {
-	spriteBatch.storeSprite(this);
+Sprite.prototype.getType = function () {
+    return "sprite";
+};
+
+Sprite.prototype.getTexture = function () {
+    return this._texture;
+};
+
+Sprite.prototype.setTexture = function (texture) {
+    this._texture = texture;
+};
+
+Sprite.prototype.render = function (delta, spriteBatch) {
+    spriteBatch.storeSprite(this);
 };
 
 // functions:
-Sprite.prototype.toJSON = function() {
-	// TODO: implement
-	return "";
+Sprite.prototype.toJSON = function () {
+   // TODO: do this
 };
 
 Sprite.prototype.unload = function () {
 
 };
 
-Sprite.prototype.changeSource = function(src) {
+Sprite.prototype.changeSource = function (src) {
 
 };
 
@@ -10694,85 +10729,86 @@ SpriteBatch.prototype.unload = function () {
 };;/**
  * Texture2D class
  */
-function Texture2D(source, callback) {
-	if (!isObjectAssigned(source)) {
-		throw error("Cannot create Texture2D without a valid source filename");
-	}
+function Texture2D(source) {
+    if (!isObjectAssigned(source)) {
+        throw error("Cannot create Texture2D without a valid source filename");
+    }
 
-	// public properties:
+    // public properties:
 
 
-	// private properties:
-	this._source = source;
-	this._hasLoaded = false;
-	this._texture = null;
-	this._gl = GameManager.renderContext.getContext();
-	this._uid = generateUID();
+    // private properties:
+    this._uid = generateUID();
+    this._source = source;
+    this._texture = null;
+    this._gl = gl = GameManager.renderContext.getContext();
 
-	var self = this;
-	this._imageData = ImageLoader.loadImage(source, function (response) {
-		if (response.isSuccessful()) {
-			var gl = self._gl;
+    // Prepare the webgl texture:
+    this._texture = gl.createTexture();
 
-			self._texture = gl.createTexture();
+    // binding
+    gl.bindTexture(gl.TEXTURE_2D, this._texture);
 
-			gl.bindTexture(gl.TEXTURE_2D, self._texture);
+    // Set the parameters so we can render any size image.
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
-			// Set the parameters so we can render any size image.
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    // Upload the image into the texture.
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._source);
 
-			// Upload the image into the texture.
-			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, response.data);
-
-			self._hasLoaded = true;
-
-			if(isFunction(callback)) {
-				callback(true);
-			}
-
-		} else {
-			// FIXME: give details about the error
-			debug.warn("Texture2D with source " + self._source + " failed to load.");
-			if(isFunction(callback)) {
-				callback(false);
-			}
-		}
-	});
+    this._hasLoaded = true;
 }
 
+Texture2D.fromPath = function (path) {
+    var promise = new Promise((function (resolve, reject) {
+        ImageLoader.loadImage(path, function (e) {
+            if (e.success) {
+                var texture = new Texture2D(e.data);
+                resolve(texture);
+
+            } else {
+                reject();
+
+                // TODO: log this
+            }
+        });
+    }).bind(this));
+
+    return promise;
+};
+
 Texture2D.prototype.getUID = function () {
-	return this._uid;
+    return this._uid;
 };
 
 Texture2D.prototype.bind = function () {
-	this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
+    this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
 };
 
 Texture2D.prototype.setImageData = function (imageData) {
-	this._imageData = imageData;
+    this._source = imageData;
 };
 
 Texture2D.prototype.getWidth = function () {
-	return this._imageData.width;
+    return this._source.width;
 };
 
 Texture2D.prototype.getHeight = function () {
-	return this._imageData.height;
+    return this._source.height;
 };
 
 Texture2D.prototype.getImageData = function () {
-	return this._imageData;
+    return this._source;
 };
 
 Texture2D.prototype.getTexture = function () {
-	return this._texture;
+    return this._texture;
 };
 
 Texture2D.prototype.isReady = function () {
-	return this._hasLoaded;
+    return this._hasLoaded;
 };
 
 Texture2D.prototype.unload = function () {
