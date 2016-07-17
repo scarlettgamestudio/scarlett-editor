@@ -1,5 +1,5 @@
-app.controller('PropertyEditorCtrl', ['$scope', 'logSvc',
-    function ($scope, logSvc) {
+app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
+    function ($scope, logSvc, constants) {
 
         function resetModel() {
             $scope.model = {
@@ -259,6 +259,11 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc',
 
             return unifiedContainers
         }
+
+        $scope.$on(constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, (function (e, selected) {
+            $scope.setTargets(selected, true);
+
+        }).bind(this));
 
         $scope.containsMultipleDefinitions = function() {
             if(!$scope.model.multipleTargets) {

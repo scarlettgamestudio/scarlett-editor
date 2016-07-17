@@ -50,11 +50,15 @@ app.factory("sceneSvc", function ($rootScope, constants) {
 	};
 
 	/**
-	 * add an array of objects to the already selected list (if any)
+	 * set the selected game objects
 	 * @param objects
 	 */
-	svc.addSelectedObjects = function(objects) {
-		svc._selectedObjects = svc._selectedObjects.concat(objects);
+	svc.setSelectedObjects = function(objects) {
+		// update the selected objects object:
+		svc._selectedObjects = objects;
+
+		// broadcast the event so other components know
+		$rootScope.$broadcast(constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, objects);
 	};
 
 	/**

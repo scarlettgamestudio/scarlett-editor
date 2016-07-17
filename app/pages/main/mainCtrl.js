@@ -144,13 +144,13 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 						if (state.templateId == "inspector") {
 
 							// TODO: remove this:
-							setTimeout(function () {
+							/*setTimeout(function () {
 								var objA = new GameObject({name:'ImL33T3'});
 								var objB = new GameObject({name:'ImL33T'});
 								objB.transform.setPosition(10, 1);
 								objB.transform.setRotation(5);
-								angular.element(document.getElementById('scenePropertyEditor')).scope().setTargets([objA, objB], true);
-							}, 100);
+
+							}, 100);*/
 
 						}
 					});

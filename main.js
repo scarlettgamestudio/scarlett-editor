@@ -26,7 +26,13 @@ app.on('window-all-closed', function () {
 // initialization and is ready to create browser windows.
 app.on('ready', function () {
 	// Create the browser window.
-	mainWindow = new BrowserWindow({width: 1280, height: 800, toolbar: false});
+	mainWindow = new BrowserWindow({
+		width: 1280,
+		height: 800,
+		icon: __dirname + '/icon.ico',
+		toolbar: false,
+		title: pjson.title
+	});
 
 	// remove the menu (also removes debug console)
 	//mainWindow.setMenu(null);

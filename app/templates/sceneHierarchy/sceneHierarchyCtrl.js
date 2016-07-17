@@ -27,15 +27,15 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             }]
         ];
 
-        $scope.getGameObjectByUID = function (uid) {
-            var recursive = function (uid, nodes) {
+        $scope.getNodeByGameObjectUID = function (uid) {
+            var recursive = function (nodes, uid) {
                 for (var i = 0; i < nodes.length; i++) {
-                    if (nodes[i].getUID() === uid) {
+                    if (nodes[i].gameObject.getUID() == uid) {
                         return nodes[i];
                     }
 
                     if (nodes[i].nodes) {
-                        var found = recursive(uid, nodes[i].nodes);
+                        var found = recursive(nodes[i].nodes, uid);
 
                         if (found) {
                             return found;
@@ -55,11 +55,11 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             var node = generateNode(gameObject.name, gameObject.getType(), gameObject);
 
             if (parent != null) {
-                nodeParent = $scope.getGameObjectByUID(parent.getUID());
+                nodeParent = $scope.getNodeByGameObjectUID(parent.getUID());
             }
 
             if (nodeParent) {
-                parent.nodes.push(node);
+                nodeParent.nodes.push(node);
             } else {
                 $scope.model.tree.push(node);
             }
@@ -67,11 +67,27 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
         }).bind(this));
 
         $scope.refresh = function () {
-            if(!sceneSvc.getActiveGameScene()) {
+            if (!sceneSvc.getActiveGameScene()) {
                 return;
             }
 
             $scope.model.tree = mapTreeModel(sceneSvc.getActiveGameScene().getGameObjects());
+        };
+
+        $scope.onTreeSelectionChanged = function (selected) {
+            // if there are selected objects, we are going to map them with the tree data:
+            var selectedGameObjects = [], uid, node;
+
+            for (var i = 0; i < selected.length; i++) {
+                uid = selected[i].attachment;
+                node = $scope.getNodeByGameObjectUID(uid);
+
+                if (node) {
+                    selectedGameObjects.push(node.gameObject);
+                }
+            }
+
+            sceneSvc.setSelectedObjects(selectedGameObjects);
         };
 
         function mapTreeModel(gameObjects) {

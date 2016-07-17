@@ -40,7 +40,8 @@ var app = angular.module('scarlett', dependencies)
 	},
 	EVENTS: {
 		CONTAINER_RESIZE: "onContainerResize",
-		GAME_OBJECT_ADDED: "onGameObjectAdded"
+		GAME_OBJECT_ADDED: "onGameObjectAdded",
+		GAME_OBJECT_SELECTION_CHANGED: "onGameObjectSelectionChange"
 	},
 	CONTAINERS: {
 		SCENE_VIEW: "sceneView"

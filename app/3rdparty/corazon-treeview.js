@@ -6,49 +6,63 @@ angular.module("cz-tree", [])
 	itemPadding: 18,    // px
 	multiSelect: true
 });;angular.module('cz-tree')
-.controller('TreeCtrl', ['$scope', 'settings',
-	function ($scope, settings) {
-		/* quick tip: */
-		/* definitions with 'this' will be accessible from the directive */
+    .controller('TreeCtrl', ['$scope', 'settings',
+        function ($scope, settings) {
+            /* quick tip: */
+            /* definitions with 'this' will be accessible from the directive */
 
-		this.scope = $scope;
+            this.scope = $scope;
 
-		/* scope variables */
+            /* scope variables */
 
-		$scope.$selectedNodes = [];
-		$scope.$multiSelectEnabled = settings.multiSelect;
+            $scope.$selectedNodes = [];
+            $scope.$multiSelectEnabled = settings.multiSelect;
 
-		/* scope functions */
+            /* scope functions */
 
-		$scope.initialize = function() {
+            $scope.initialize = function () {
 
-		};
+            };
 
-		$scope.selectNode = function(node, keepPrevious) {
-			if($scope.$multiSelectEnabled && keepPrevious) {
-				if(!$scope.isNodeSelected(node)) {
-					$scope.$selectedNodes.push(node);
-				}
-			} else {
-				$scope.$selectedNodes = [node];
-			}
-		};
+            $scope.selectNode = function (id, attachment, keepPrevious) {
+                if ($scope.$multiSelectEnabled && keepPrevious) {
+                    if (!$scope.isNodeSelected(id)) {
+                        $scope.$selectedNodes.push({id: id, attachment: attachment});
+                    }
+                } else {
+                    $scope.$selectedNodes = [{id: id, attachment: attachment}];
+                }
 
-		$scope.unselectNode = function(node) {
-			if($scope.isNodeSelected(node)) {
-				$scope.$selectedNodes.splice($scope.$selectedNodes.indexOf(node), 1);
-			}
-		};
+                $scope.onSelectionChange({selected: $scope.$selectedNodes});
+            };
 
-		$scope.clearNodeSelection = function() {
-			$scope.$selectedNodes = [];
-		};
+            $scope.unselectNode = function (node) {
+                var index = $scope.getSelectedNodeIndex(node);
+                if (index >= 0) {
+                    $scope.$selectedNodes.splice(index, 1);
+                }
+            };
 
-		$scope.isNodeSelected = function(node) {
-			return $scope.$selectedNodes.indexOf(node) >= 0;
-		};
-	}
-]);;angular.module('cz-tree')
+            $scope.clearNodeSelection = function () {
+                $scope.$selectedNodes = [];
+            };
+
+            $scope.getSelectedNodeIndex = function(id) {
+                for (var i = 0; i < $scope.$selectedNodes.length; i++) {
+                    if ($scope.$selectedNodes[i].id == id) {
+                        return i;
+                    }
+                }
+
+                return -1;
+            };
+
+            $scope.isNodeSelected = function (id) {
+                var index = $scope.getSelectedNodeIndex(id);
+                return index >= 0;
+            };
+        }
+    ]);;angular.module('cz-tree')
 .controller('TreeNodeCtrl', ['$scope',
 	function ($scope) {
 		/* quick tip: */
@@ -62,6 +76,7 @@ angular.module("cz-tree", [])
 		$scope.$treeScope = null;
 
 		$scope.collapsed = false;
+		$scope.attachment = null;
 
 		/* scope functions */
 
@@ -83,7 +98,7 @@ angular.module("cz-tree", [])
 		};
 
 		$scope.select = function(keepPrevious) {
-			$scope.$treeScope.selectNode($scope.$id, keepPrevious);
+			$scope.$treeScope.selectNode($scope.$id, $scope.attachment, keepPrevious);
 		};
 
 		$scope.isSelected = function() {
@@ -98,47 +113,52 @@ angular.module("cz-tree", [])
 		};
 	}
 ]);;angular.module('cz-tree')
-.directive('czTree', [
-	function () {
-		return {
-			restrict: 'A',
-			scope: true,
-			controller: 'TreeCtrl',
-			link: function(scope, element, attributes) {
-				// add the cz-tree class to the element:
-				element.addClass('cz-tree');
+    .directive('czTree', [
+        function () {
+            return {
+                restrict: 'AE',
+                controller: 'TreeCtrl',
+                scope: {
+                    onSelectionChange: '&'
+                },
+                link: function (scope, element, attributes) {
+                    // add the cz-tree class to the element:
+                    element.addClass('cz-tree');
 
-				// initialize the controller:
-				scope.initialize();
-			}
-		}
-	}
-]);;angular.module('cz-tree')
-.directive('czTreeNode', ['$parse',
-	function ($parse) {
-		return {
-			require: ['?^^czTreeNode', '^^czTree'],
-			restrict: 'A',
-			scope: true,
-			controller: 'TreeNodeCtrl',
-			link: function(scope, element, attributes, controllers) {
-				pre: {
-					// initialize the controller:
-					scope.initialize(controllers[0], controllers[1]);
+                    // initialize the controller:
+                    scope.initialize();
+                }
+            }
+        }
+    ]);;angular.module('cz-tree')
+    .directive('czTreeNode', [
+        function () {
+            return {
+                require: ['?^^czTreeNode', '^^czTree'],
+                restrict: 'AE',
+                scope: true,
+                controller: 'TreeNodeCtrl',
+                replace: true,
+                link: function (scope, element, attributes, controllers) {
+                    // initialize the controller:
+                    scope.initialize(controllers[0], controllers[1]);
 
-					// add the cz-tree-node class to the element:
-					element.addClass('cz-tree-node');
-				}
-			}
-		}
-	}
-]);;angular.module('cz-tree')
+                    // set the attachment (if any)
+                    scope.attachment = attributes["attachment"];
+
+                    // add the cz-tree-node class to the element:
+                    element.addClass('cz-tree-node');
+                }
+            }
+        }
+    ]);;angular.module('cz-tree')
 .directive('czTreeNodeHeader', ['$timeout', 'settings',
 	function ($timeout, settings) {
 		return {
 			require: '^czTreeNode',
 			restrict: 'A',
-			scope: false,
+			scope: true,
+			replace: false,
 			link: function(scope, element, attributes, treeNode) {
 				// add the cz-tree-nodes class to the element:
 				element.addClass('cz-tree-header');
@@ -156,10 +176,11 @@ angular.module("cz-tree", [])
 				element.attr('onclick', '{{onClick(e)}}');
 
 				// event handlers:
+				var nodeScope = treeNode ? treeNode.scope : scope;
 
 				element[0].onclick = function(e) {
 					// based on the shift key state we are going to keep the previous selection or not
-					scope.select(e.shiftKey);
+					nodeScope.select(e.shiftKey);
 					scope.$apply();
 				};
 
