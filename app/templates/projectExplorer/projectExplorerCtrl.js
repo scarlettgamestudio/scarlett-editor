@@ -69,6 +69,7 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 				case ".gif":
 				case ".bmp":
 				case ".svg":
+				case ".ico":
 					return "fa-file-image-o";
 
 				// default

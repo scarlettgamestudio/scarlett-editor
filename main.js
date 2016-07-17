@@ -39,10 +39,7 @@ app.on('ready', function () {
 
 	// emmited when the window is shown:
 	mainWindow.on('show', function() {
-
-		console.log("aa");
-
-
+		// this doesn't work on all operative systems (validate in future versions)
 
 	});
 
