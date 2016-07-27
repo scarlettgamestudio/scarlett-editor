@@ -10,6 +10,12 @@ app.controller('FilepathCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc',
                 if (path) {
                     var projectPath = scarlettSvc.activeProjectPath;
 
+                    // is this already part of the project?
+                    if (path.indexOf(projectPath) < 0) {
+                        // nope, we are going to copy the asset to the default assets folder
+
+                    }
+
                     $scope.model.bind = path;
                     $scope.onValueChange();
                     $scope.$apply();

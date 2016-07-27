@@ -9788,27 +9788,33 @@ function Camera2D(x, y, viewWidth, viewHeight) {
     // public properties:
     this.x = x || 0;
     this.y = y || 0;
+    this.zoom = 1.0;
     this.viewWidth = viewWidth || 0;
     this.viewHeight = viewHeight || 0;
 
     // private properties:
     this._lastX = null;
     this._lastY = null;
+    this._lastZoom = null;
     this._matrix = mat4.create();
 }
 
-Camera2D.prototype.calculateMatrix = function() {
-    // FIXME optimize this?
-    var ortho = mat4.create();
-    mat4.ortho(ortho, -this.viewWidth / 2.0, this.viewWidth / 2.0, this.viewHeight / 2.0, -this.viewHeight / 2.0, 0.0, 1.0);
+Camera2D.prototype.calculateMatrix = function () {
+    // generate ortho perspective:
+    mat4.ortho(
+        this._matrix,
+        -this.viewWidth * this.zoom / 2.0,
+        this.viewWidth * this.zoom / 2.0,
+        this.viewHeight * this.zoom / 2.0,
+        -this.viewHeight * this.zoom / 2.0,
+        0.0, 1.0);
 
-    var translate = mat4.create();
-    mat4.translate(translate, translate, [this.x, this.y, 0.0]);
-
-    mat4.multiply(this._matrix, ortho, translate);
+    // move to camera position:
+    mat4.translate(this._matrix, this._matrix, [this.x, this.y, 0]);
 
     this._lastX = this.x;
     this._lastY = this.y;
+    this._lastZoom = this.zoom;
 
     return this._matrix;
 };
@@ -9827,7 +9833,7 @@ Camera2D.prototype.setViewSize = function (viewWidth, viewHeight) {
  */
 Camera2D.prototype.getMatrix = function () {
     // needs to have a new calculation?
-    if(this.x != this._lastX || this.y != this._lastY) {
+    if (this.x != this._lastX || this.y != this._lastY || this._lastZoom != this.zoom) {
         return this.calculateMatrix();
     }
 
@@ -10140,6 +10146,7 @@ GameManager.activeScene = null;;/**
  * GameObject class
  */
 AttributeDictionary.addRule("gameobject", "transform", {ownContainer: true});
+AttributeDictionary.addRule("gameobject", "_parent", {visible: false});
 
 function GameObject(params) {
     params = params || {};
@@ -10178,8 +10185,20 @@ GameObject.prototype.getParent = function () {
 };
 
 GameObject.prototype.setParent = function (gameObject) {
-    // TODO: check if already had parent, if so, remove first from there..
+    if (gameObject.getParent() != null) {
+        gameObject.getParent().removeChild(gameObject);
+    }
+
     this._parent = gameObject;
+};
+
+GameObject.prototype.removeChild = function (gameObject) {
+    for (var i = this._children.length - 1; i >= 0; i--) {
+        if (this._children[i].getUID() == gameObject.getUID()) {
+            this._children.splice(i, 1);
+            break;
+        }
+    }
 };
 
 GameObject.prototype.getChildren = function () {
@@ -10187,6 +10206,10 @@ GameObject.prototype.getChildren = function () {
 };
 
 GameObject.prototype.addChild = function (gameObject) {
+    // update the object parent
+    gameObject.setParent(gameObject);
+
+    // add this to our children array
     this._children.push(gameObject);
 };
 
@@ -10198,8 +10221,22 @@ GameObject.prototype.addComponent = function (component) {
     this._components.push(component);
 };
 
+GameObject.prototype.update = function (delta) {
+    // update children:
+    this._children.forEach(function (elem) {
+        if (elem.update) {
+            elem.update(delta);
+        }
+    });
+};
+
 GameObject.prototype.render = function (delta, spriteBatch) {
-    // nothing to do here..
+    // render children:
+    this._children.forEach(function (elem) {
+        if (elem.render) {
+            elem.render(delta, spriteBatch);
+        }
+    });
 };
 
 GameObject.prototype.getComponents = function () {
@@ -10584,6 +10621,10 @@ Sprite.prototype.setTexture = function (texture) {
 };
 
 Sprite.prototype.render = function (delta, spriteBatch) {
+    // parent render function:
+    GameObject.prototype.render.call(this, delta, spriteBatch);
+
+    // just store the sprite to render on flush:
     spriteBatch.storeSprite(this);
 };
 
@@ -10819,96 +10860,104 @@ Texture2D.prototype.unload = function () {
 AttributeDictionary.addRule("transform", "gameObject", {ownContainer: true});
 
 function Transform(params) {
-	params = params || {};
+    params = params || {};
 
-	// public properties:
-	this.gameObject = params.gameObject || null;
+    // public properties:
+    this.gameObject = params.gameObject || null;
 
-	// private properties:
-	this._position = new Vector2();
-	this._rotation = 0.0;
-	this._scale = new Vector2(1.0, 1.0);
+    // private properties:
+    this._position = new Vector2();
+    this._rotation = 0.0;
+    this._scale = new Vector2(1.0, 1.0);
 
-	this._overridePositionFunction = null;
-	this._overrideRotationFunction = null;
-	this._overrideScaleFunction = null;
+    this._overridePositionFunction = null;
+    this._overrideRotationFunction = null;
+    this._overrideScaleFunction = null;
 }
 
+Transform.prototype.calculateMatrix = function() {
+    
+};
+
+Transform.prototype.getMatrix = function() {
+
+};
+
 Transform.prototype.clearPositionGetter = function () {
-	this._overridePositionFunction = null;
+    this._overridePositionFunction = null;
 };
 
 Transform.prototype.clearRotationGetter = function () {
-	this._overrideRotationFunction = null;
+    this._overrideRotationFunction = null;
 };
 
 Transform.prototype.clearScaleGetter = function () {
-	this._overrideScaleFunction = null;
+    this._overrideScaleFunction = null;
 };
 
 Transform.prototype.overridePositionGetter = function (overrideFunction) {
-	this._overridePositionFunction = overrideFunction;
+    this._overridePositionFunction = overrideFunction;
 };
 
 Transform.prototype.overrideScaleGetter = function (overrideFunction) {
-	this._overrideScaleFunction = overrideFunction;
+    this._overrideScaleFunction = overrideFunction;
 };
 
 Transform.prototype.overrideRotationGetter = function (overrideFunction) {
-	this._overrideRotationFunction = overrideFunction;
+    this._overrideRotationFunction = overrideFunction;
 };
 
 Transform.prototype.setPosition = function (x, y) {
-	this._position.set(x, y);
-	this.gameObject.propagatePropertyUpdate("Position", this._position);
+    this._position.set(x, y);
+    this.gameObject.propagatePropertyUpdate("Position", this._position);
 };
 
 Transform.prototype.getPosition = function () {
-	if (isFunction(this._overridePositionFunction)) {
-		return this._overridePositionFunction();
-	}
+    if (isFunction(this._overridePositionFunction)) {
+        return this._overridePositionFunction();
+    }
 
-	return this._position;
+    return this._position;
 };
 
 Transform.prototype.setRotation = function (value) {
-	this._rotation = value;
-	this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
+    this._rotation = value;
+    this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
 };
 
 Transform.prototype.getRotation = function () {
-	if (isFunction(this._overrideRotationFunction)) {
-		return this._overrideRotationFunction();
-	}
+    if (isFunction(this._overrideRotationFunction)) {
+        return this._overrideRotationFunction();
+    }
 
-	return this._rotation;
+    return this._rotation;
 };
 
 Transform.prototype.setScale = function (x, y) {
-	this._scale.set(x, y);
-	this.gameObject.propagatePropertyUpdate("Scale", this._scale);
+    this._scale.set(x, y);
+    this.gameObject.propagatePropertyUpdate("Scale", this._scale);
 };
 
 Transform.prototype.getScale = function () {
-	if (isFunction(this._overrideScaleFunction)) {
-		return this._overrideScaleFunction();
-	}
+    if (isFunction(this._overrideScaleFunction)) {
+        return this._overrideScaleFunction();
+    }
 
-	return this._scale;
+    return this._scale;
 };
 
 Transform.prototype.toJSON = function () {
-	// TODO: implement
-	return "";
+    // TODO: implement
+    return "";
 };
 
 Transform.prototype.unload = function () {
 
 };
 ;/**
- * DebugExt class
+ * GridExt class
  */
-function DebugExt(params) {
+function GridExt(params) {
 	params = params || {};
 
 	if (!params.game) {
@@ -10929,7 +10978,7 @@ function DebugExt(params) {
  *
  * @param enable
  */
-DebugExt.prototype.setGridRender = function (enable) {
+GridExt.prototype.setGridRender = function (enable) {
 	this._renderGrid = enable;
 };
 
@@ -10937,7 +10986,7 @@ DebugExt.prototype.setGridRender = function (enable) {
  *
  * @param value
  */
-DebugExt.prototype.setGridSize = function (value) {
+GridExt.prototype.setGridSize = function (value) {
 	this._gridSize = value;
 };
 
@@ -10945,7 +10994,7 @@ DebugExt.prototype.setGridSize = function (value) {
  *
  * @param color
  */
-DebugExt.prototype.setGridColor = function (color) {
+GridExt.prototype.setGridColor = function (color) {
 	this._gridColor = color;
 };
 
@@ -10953,29 +11002,90 @@ DebugExt.prototype.setGridColor = function (color) {
  *
  * @param delta
  */
-DebugExt.prototype.render = function (delta) {
+GridExt.prototype.render = function (delta) {
 	// render a grid?
 	if (this._renderGrid) {
+	    // I have an idea that can be great here..
+        // create a global event for whenever the camera properties change (aka, calculate matrix is called), and store
+        // the following calculations on event:
 		var screenResolution = this._game.getVirtualResolution();
-		var howManyX = screenResolution.width / this._gridSize + 10;
-		var howManyY = screenResolution.height / this._gridSize + 10;
+		var offsetX = this._game.getActiveCamera().x * -1 + (this._game.getActiveCamera().x % this._gridSize);
+		var offsetY = this._game.getActiveCamera().y * -1 + (this._game.getActiveCamera().y % this._gridSize);
+        var zoom = this._game.getActiveCamera().zoom;
+        var zoomDifX = (zoom > 1 ? (zoom * screenResolution.width) * 2.0 : 0);
+        var zoomDifY = (zoom > 1 ? (zoom * screenResolution.height) * 2.0 : 0);
+        var howManyX = (screenResolution.width + zoomDifX) / this._gridSize + 2;
+        var howManyY = (screenResolution.height + zoomDifY) / this._gridSize + 2;
+		var left = -(screenResolution.width + zoomDifX) / 2;
+		var right = (screenResolution.width + zoomDifX) / 2;
+		var top = -(screenResolution.height + zoomDifY) / 2;
+		var bottom = (screenResolution.height + zoomDifY) / 2;
 
-		// horizontal shift
+		// horizontal shift ||||||||
 		for (var x = 0; x < howManyX; x++) {
 			this._primitiveRender.drawLine(
-				{x: x * this._gridSize - screenResolution.width / 2, y: screenResolution.height / 2},
-				{x: x * this._gridSize - screenResolution.width / 2, y: -screenResolution.height / 2},
+				{x: x * this._gridSize + left - (left % this._gridSize) + offsetX, y: bottom + this._gridSize + offsetY},
+				{x: x * this._gridSize + left - (left % this._gridSize) + offsetX, y: top - this._gridSize + offsetY},
 				1, this._gridColor);
 		}
 
-		// vertical shift
+		// vertical shift _ _ _ _ _
 		for (var y = 0; y < howManyY; y++) {
 			this._primitiveRender.drawLine(
-				{x: screenResolution.width / 2, y: y * this._gridSize - screenResolution.height / 2},
-				{x: -screenResolution.width / 2, y: y * this._gridSize - screenResolution.height / 2},
+				{x: right + this._gridSize + offsetX, y: y * this._gridSize + top - (top % this._gridSize) + offsetY},
+				{x: left - this._gridSize + offsetX, y: y * this._gridSize + top - (top % this._gridSize) + offsetY},
 				1, this._gridColor);
 		}
 	}
+};;/**
+ * Math helper utility class
+ * @constructor
+ */
+var MathHelper = function () {};
+
+/**
+ * Clamp a value between a min and max value
+ * @param value
+ * @param min
+ * @param max
+ */
+MathHelper.clamp = function (value, min, max) {
+    return (value < min ? min : value > max ? max : value);
+};;/**
+ * Rectangle class
+ */
+/**
+ * @constructor
+ */
+SetterDictionary.addRule("ray", ["origin", "direction"]);
+
+function Ray(origin, direction) {
+    // public properties:
+    this.origin = origin || 0;
+    this.direction = direction || 0;
+
+    // private properties:
+
+}
+
+Ray.prototype.set = function(origin, direction) {
+    this.origin = origin;
+    this.direction = direction;
+};
+
+Ray.prototype.toJSON = function() {
+    return {
+        origin: this.origin,
+        direction: this.direction
+    };
+};
+
+Ray.prototype.equals = function(obj) {
+    return (obj.origin === this.origin && obj.direction === this.direction);
+};
+
+Ray.prototype.unload = function () {
+
 };;/**
  * Rectangle class
  */
@@ -10995,7 +11105,7 @@ function Rectangle(x, y, width, height) {
 
 }
 
-Vector3.prototype.set = function(x, y, width, height) {
+Rectangle.prototype.set = function(x, y, width, height) {
     this.x = x;
     this.y = y;
     this.width = width;
@@ -11026,32 +11136,48 @@ Rectangle.prototype.unload = function () {
 SetterDictionary.addRule("vector2", ["x", "y"]);
 
 function Vector2(x, y) {
-	// public properties:
-	this.x = x || 0;
-	this.y = y || 0;
+    // public properties:
+    this.x = x || 0;
+    this.y = y || 0;
 
-	// private properties:
+    // private properties:
 
 }
 
-Vector2.prototype.set = function(x, y) {
-	this.x = x;
-	this.y = y;
+// instance functions:
+
+Vector2.prototype.set = function (x, y) {
+    this.x = x;
+    this.y = y;
 };
 
-Vector2.prototype.toJSON = function() {
-	return {
-		x: this.x,
-		y: this.y
-	}; 
+Vector2.prototype.toJSON = function () {
+    return {
+        x: this.x,
+        y: this.y
+    };
 };
 
-Vector2.prototype.equals = function(obj) {
-	return (obj.x === this.x && obj.y === this.y);
+Vector2.prototype.equals = function (obj) {
+    return (obj.x === this.x && obj.y === this.y);
 };
 
 Vector2.prototype.unload = function () {
 
+};
+
+// static functions:
+
+Vector2.transformMat4 = function (vec2, mat) {
+    return new Vector2(
+        (mat[0] * vec2.x) + (mat[4] * vec2.y) + mat[12],
+        (mat[1] * vec2.x) + (mat[5] * vec2.y) + mat[13]);
+};
+
+Vector2.transformMat3 = function (vec2, mat) {
+    return new Vector2(
+        mat[0] * vec2.x + mat[3] * vec2.y + mat[6],
+        mat[1] * vec2.x + mat[4] * vec2.y + mat[7]);
 };
 ;/**
  * Vector3 class for tri dimensional point references
@@ -11104,6 +11230,8 @@ function Vector4(x, y, z, w) {
 
 }
 
+// instance functions
+
 Vector4.prototype.set = function(x, y, z, w) {
 	this.x = x;
 	this.y = y;
@@ -11126,7 +11254,10 @@ Vector4.prototype.equals = function(obj) {
 
 Vector4.prototype.unload = function () {
 	
-};;/**
+};
+
+// static functions
+;/**
  * Shader class
  * Some cool code ideas were applied from Pixi.JS Shader class
  */
@@ -11491,10 +11622,11 @@ WebGLContext.prototype.assignContextFromContainer = function(canvas) {
 
     this._canvas = canvas;
 
-    // default settings
+    // disable gl functions:
     gl.disable(gl.CULL_FACE);
     gl.disable(gl.DEPTH_TEST);
 
+    // enable gl functions:
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 };
@@ -11661,13 +11793,13 @@ WebGLContext.prototype.unload = function () {
             var glMatrix = {};
 
             // Configuration Constants
-            glMatrix.EPSILON = 0.000001; 
+            glMatrix.EPSILON = 0.000001;
             glMatrix.ARRAY_TYPE = (typeof Float32Array !== 'undefined') ? Float32Array : Array;
             glMatrix.RANDOM = Math.random;
             glMatrix.ENABLE_SIMD = false;
 
             // Capability detection
-            glMatrix.SIMD_AVAILABLE = (glMatrix.ARRAY_TYPE === Float32Array) && ('SIMD' in this);
+            glMatrix.SIMD_AVAILABLE = (glMatrix.ARRAY_TYPE === this.Float32Array) && ('SIMD' in this);
             glMatrix.USE_SIMD = glMatrix.ENABLE_SIMD && glMatrix.SIMD_AVAILABLE;
 
             /**
@@ -11684,7 +11816,7 @@ WebGLContext.prototype.unload = function () {
             /**
              * Convert Degree To Radian
              *
-             * @param {Number} Angle in Degrees
+             * @param {Number} a Angle in Degrees
              */
             glMatrix.toRadian = function(a){
                 return a * degree;
@@ -11866,7 +11998,7 @@ WebGLContext.prototype.unload = function () {
             mat2.invert = function(out, a) {
                 var a0 = a[0], a1 = a[1], a2 = a[2], a3 = a[3],
 
-                // Calculate the determinant
+                    // Calculate the determinant
                     det = a0 * a3 - a2 * a1;
 
                 if (!det) {
@@ -12014,7 +12146,7 @@ WebGLContext.prototype.unload = function () {
             /**
              * Returns a string representation of a mat2
              *
-             * @param {mat2} mat matrix to represent as a string
+             * @param {mat2} a matrix to represent as a string
              * @returns {String} string representation of the matrix
              */
             mat2.str = function (a) {
@@ -12857,7 +12989,7 @@ WebGLContext.prototype.unload = function () {
                     b11 = -a22 * a10 + a12 * a20,
                     b21 = a21 * a10 - a11 * a20,
 
-                // Calculate the determinant
+                    // Calculate the determinant
                     det = a00 * b01 + a01 * b11 + a02 * b21;
 
                 if (!det) {
@@ -13201,7 +13333,7 @@ WebGLContext.prototype.unload = function () {
                     b10 = a21 * a33 - a23 * a31,
                     b11 = a22 * a33 - a23 * a32,
 
-                // Calculate the determinant
+                    // Calculate the determinant
                     det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
                 if (!det) {
@@ -13227,7 +13359,7 @@ WebGLContext.prototype.unload = function () {
             /**
              * Returns a string representation of a mat3
              *
-             * @param {mat3} mat matrix to represent as a string
+             * @param {mat3} a matrix to represent as a string
              * @returns {String} string representation of the matrix
              */
             mat3.str = function (a) {
@@ -13337,7 +13469,7 @@ WebGLContext.prototype.unload = function () {
                 return out;
             };
 
-            /*
+            /**
              * Returns whether or not the matrices have exactly the same elements in the same position (when compared with ===)
              *
              * @param {mat3} a The first matrix.
@@ -13407,7 +13539,7 @@ WebGLContext.prototype.unload = function () {
              */
             var mat4 = {
                 scalar: {},
-                SIMD: {},
+                SIMD: {}
             };
 
             /**
@@ -13718,7 +13850,7 @@ WebGLContext.prototype.unload = function () {
                     b10 = a21 * a33 - a23 * a31,
                     b11 = a22 * a33 - a23 * a32,
 
-                // Calculate the determinant
+                    // Calculate the determinant
                     det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
                 if (!det) {
@@ -13900,10 +14032,10 @@ WebGLContext.prototype.unload = function () {
                 var tmp1;
                 var minor0, minor1, minor2, minor3;
 
-                var a0 = SIMD.Float32x4.load(a, 0);
-                var a1 = SIMD.Float32x4.load(a, 4);
-                var a2 = SIMD.Float32x4.load(a, 8);
-                var a3 = SIMD.Float32x4.load(a, 12);
+                a0 = SIMD.Float32x4.load(a, 0);
+                a1 = SIMD.Float32x4.load(a, 4);
+                a2 = SIMD.Float32x4.load(a, 8);
+                a3 = SIMD.Float32x4.load(a, 12);
 
                 // Transpose the source matrix.  Sort of.  Not a true transpose operation
                 tmp1 = SIMD.Float32x4.shuffle(a0, a1, 0, 1, 4, 5);
@@ -15323,7 +15455,7 @@ WebGLContext.prototype.unload = function () {
             /**
              * Returns a string representation of a mat4
              *
-             * @param {mat4} mat matrix to represent as a string
+             * @param {mat4} a matrix to represent as a string
              * @returns {String} string representation of the matrix
              */
             mat4.str = function (a) {
@@ -16095,7 +16227,7 @@ WebGLContext.prototype.unload = function () {
             /**
              * Returns a string representation of a quatenion
              *
-             * @param {quat} vec vector to represent as a string
+             * @param {quat} a vector to represent as a string
              * @returns {String} string representation of the vector
              */
             quat.str = function (a) {
@@ -16706,7 +16838,7 @@ WebGLContext.prototype.unload = function () {
                 var x = a[0], y = a[1], z = a[2],
                     qx = q[0], qy = q[1], qz = q[2], qw = q[3],
 
-                // calculate quat * vec
+                    // calculate quat * vec
                     ix = qw * x + qy * z - qz * y,
                     iy = qw * y + qz * x - qx * z,
                     iz = qw * z + qx * y - qy * x,
@@ -16870,7 +17002,7 @@ WebGLContext.prototype.unload = function () {
             /**
              * Returns a string representation of a vector
              *
-             * @param {vec3} vec vector to represent as a string
+             * @param {vec3} a vector to represent as a string
              * @returns {String} string representation of the vector
              */
             vec3.str = function (a) {
@@ -17426,7 +17558,7 @@ WebGLContext.prototype.unload = function () {
                 var x = a[0], y = a[1], z = a[2],
                     qx = q[0], qy = q[1], qz = q[2], qw = q[3],
 
-                // calculate quat * vec
+                    // calculate quat * vec
                     ix = qw * x + qy * z - qz * y,
                     iy = qw * y + qz * x - qx * z,
                     iz = qw * z + qx * y - qy * x,
@@ -17484,7 +17616,7 @@ WebGLContext.prototype.unload = function () {
             /**
              * Returns a string representation of a vector
              *
-             * @param {vec4} vec vector to represent as a string
+             * @param {vec4} a vector to represent as a string
              * @returns {String} string representation of the vector
              */
             vec4.str = function (a) {
@@ -18079,7 +18211,7 @@ WebGLContext.prototype.unload = function () {
             /**
              * Returns a string representation of a vector
              *
-             * @param {vec2} vec vector to represent as a string
+             * @param {vec2} a vector to represent as a string
              * @returns {String} string representation of the vector
              */
             vec2.str = function (a) {
@@ -18282,9 +18414,6 @@ var glu = new WebGLUtils();
 ;/**
  * PrimitiveShader class
  * @depends shader.js
- */
-/**
- * @constructor
  */
 function PrimitiveShader() {
     Shader.call(this,

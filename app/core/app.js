@@ -45,6 +45,11 @@ var app = angular.module('scarlett', dependencies)
 	},
 	CONTAINERS: {
 		SCENE_VIEW: "sceneView"
+	},
+	MOUSE_BUTTONS: {
+		LEFT: 0,
+		MIDDLE: 1,
+		RIGHT: 2
 	}
 })
 

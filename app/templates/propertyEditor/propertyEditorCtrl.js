@@ -1,6 +1,8 @@
 app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
     function ($scope, logSvc, constants) {
 
+        var _LOG_CONTEXT = "propertyEditor ";
+
         function resetModel() {
             $scope.model = {
                 propertyContainers: [],         // the property containers that will be displayed on the UI
@@ -226,12 +228,9 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                     var bContainer = getContainerByType(targets[i].propertyContainers, aContainer.type);
                     // after all those validations it would be a shame if the following condition is false, but better
                     // be safe than sorry:
-                    if (bContainer) {
+                    if (bContainer && bContainer.properties.length == aContainer.properties.length) {
                         // now that we have the comparison container, let's go through the properties themselves
                         for (var j = 0; j < bContainer.properties.length; j++) {
-                            // note: since these are both containers of the same kind, it's safe to assume the array positions
-                            // for the properties are the same..
-
                             // a difference for this particular property was already found?
                             // when true, it means there is no need to validate because one difference is enough
                             if (!aContainer.properties[j].hasDifferentAssignments) {
@@ -257,6 +256,8 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                                 }
                             });
                         }
+                    } else {
+                        logSvc.warn(_LOG_CONTEXT + "failed to get unified containers, mismatched properties?")
                     }
                 }
             });

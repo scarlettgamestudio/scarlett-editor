@@ -59,7 +59,7 @@ NativeInterface.mapDirectory = function (path, originalPath) {
 			})
 		});
 	});
-
+	
 	return directoryModel;
 };
 
