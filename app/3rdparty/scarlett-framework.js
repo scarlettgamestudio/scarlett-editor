@@ -9803,14 +9803,11 @@ Camera2D.prototype.calculateMatrix = function () {
     // generate ortho perspective:
     mat4.ortho(
         this._matrix,
-        -this.viewWidth * this.zoom / 2.0,
-        this.viewWidth * this.zoom / 2.0,
-        this.viewHeight * this.zoom / 2.0,
-        -this.viewHeight * this.zoom / 2.0,
+        this.x + -this.viewWidth * this.zoom / 2.0,
+        this.x + this.viewWidth * this.zoom / 2.0,
+        this.y + this.viewHeight * this.zoom / 2.0,
+        this.y + -this.viewHeight * this.zoom / 2.0,
         0.0, 1.0);
-
-    // move to camera position:
-    mat4.translate(this._matrix, this._matrix, [this.x, this.y, 0]);
 
     this._lastX = this.x;
     this._lastY = this.y;
@@ -10546,6 +10543,7 @@ PrimitiveRender.prototype.drawRectangle = function (rectangle, color) {
 
 PrimitiveRender.prototype.drawLine = function (vectorA, vectorB, thickness, color) {
     var gl = this._gl;
+    //gl.lineWidth(thickness); // not all implementations support this
 
     this._game.getShaderManager().useShader(this._primitiveShader);
 
@@ -10574,6 +10572,7 @@ PrimitiveRender.prototype.drawLine = function (vectorA, vectorB, thickness, colo
  */
 AttributeDictionary.addRule("sprite", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
 AttributeDictionary.addRule("sprite", "transform", {ownContainer:true});
+AttributeDictionary.addRule("sprite", "_parent", {visible: false});
 
 function Sprite(params) {
     params = params || {};
@@ -10969,7 +10968,7 @@ function GridExt(params) {
 	// private properties:
 	this._game = params.game || null;
 	this._renderGrid = true;
-	this._gridSize = 32;
+	this._gridSize = 24;
 	this._gridColor = Color.Red;
 	this._primitiveRender = new PrimitiveRender(params.game); // maybe get a batch here?
 }
@@ -11009,11 +11008,11 @@ GridExt.prototype.render = function (delta) {
         // create a global event for whenever the camera properties change (aka, calculate matrix is called), and store
         // the following calculations on event:
 		var screenResolution = this._game.getVirtualResolution();
-		var offsetX = this._game.getActiveCamera().x * -1 + (this._game.getActiveCamera().x % this._gridSize);
-		var offsetY = this._game.getActiveCamera().y * -1 + (this._game.getActiveCamera().y % this._gridSize);
+		var offsetX = this._game.getActiveCamera().x - (this._game.getActiveCamera().x % this._gridSize);
+		var offsetY = this._game.getActiveCamera().y - (this._game.getActiveCamera().y % this._gridSize);
         var zoom = this._game.getActiveCamera().zoom;
-        var zoomDifX = (zoom > 1 ? (zoom * screenResolution.width) * 2.0 : 0);
-        var zoomDifY = (zoom > 1 ? (zoom * screenResolution.height) * 2.0 : 0);
+        var zoomDifX = (zoom * screenResolution.width) * 2.0;
+        var zoomDifY = (zoom * screenResolution.height) * 2.0;
         var howManyX = (screenResolution.width + zoomDifX) / this._gridSize + 2;
         var howManyY = (screenResolution.height + zoomDifY) / this._gridSize + 2;
 		var left = -(screenResolution.width + zoomDifX) / 2;
@@ -11036,6 +11035,17 @@ GridExt.prototype.render = function (delta) {
 				{x: left - this._gridSize + offsetX, y: y * this._gridSize + top - (top % this._gridSize) + offsetY},
 				1, this._gridColor);
 		}
+
+		// main "lines" (origin)
+        // vertical
+        this._primitiveRender.drawRectangle(
+            new Rectangle(-2, top - this._gridSize + offsetY, 4, screenResolution.height + zoomDifY),
+            this._gridColor);
+
+        // vertical
+        this._primitiveRender.drawRectangle(
+            new Rectangle(left - this._gridSize + offsetX, -2, screenResolution.width + zoomDifX, 4),
+            this._gridColor);
 	}
 };;/**
  * Math helper utility class

@@ -1,3 +1,11 @@
-<div ng-controller="SceneViewCtrl" class="still-container">
-    <canvas class="child-fill-container" game-canvas></canvas>
+<div ng-controller="SceneViewCtrl" class="control-container still-container">
+    <div class="toolbar clearfix">
+        <div class="info align-right"><i class="fa fa-search" aria-hidden="true"></i> {{model.visualZoom}}%</div>
+        <div class="info right-margin align-right">
+            <i class="fa fa-video-camera" aria-hidden="true"></i>
+            <span class="display">x: {{getVisualCameraPosition().x}}</span>
+            <span class="display">y: {{getVisualCameraPosition().y}}</span>
+        </div>
+    </div>
+    <canvas game-canvas></canvas>
 </div>

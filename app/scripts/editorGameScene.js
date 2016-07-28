@@ -47,7 +47,13 @@ EditorGameScene.prototype.onMouseDown = function (evt) {
     this._mouseState.button = evt.button;
     this._mouseState.dragging = true;
     this._mouseState.startScreenPosition = new Vector2(evt.offsetX, evt.offsetY);
-    console.log(this._mouseState.startPosition.x + ":" + this._mouseState.startPosition.y);
+    //console.log(this._mouseState.startPosition.x + ":" + this._mouseState.startPosition.y);
+
+    switch(evt.button) {
+        case 1:
+            document.body.style.cursor = '-webkit-grab';
+            break;
+    }
 
     // store the current camera position
     this._setStartCameraPosition();
@@ -62,8 +68,8 @@ EditorGameScene.prototype.onMouseMove = function (evt) {
         this._mouseState.lastPosition = this._getWorldCoordinates(evt.offsetX, evt.offsetY);
 
         if (this._mouseState.button == 1) {
-            this._camera.x = this._startCameraPosition.x + (this._mouseState.startScreenPosition.x - evt.offsetX) * -1;
-            this._camera.y = this._startCameraPosition.y + (this._mouseState.startScreenPosition.y - evt.offsetY) * -1;
+            this._camera.x = this._startCameraPosition.x + ((this._mouseState.startScreenPosition.x - evt.offsetX) * this._camera.zoom);
+            this._camera.y = this._startCameraPosition.y + ((this._mouseState.startScreenPosition.y - evt.offsetY) * this._camera.zoom);
         }
     }
 };
@@ -77,6 +83,8 @@ EditorGameScene.prototype.onMouseOut = function (evt) {
     if(this._mouseState.button !== 0) {
         this._mouseState.dragging = false;
     }
+
+    document.body.style.cursor = "default";
 };
 
 /**
@@ -85,6 +93,8 @@ EditorGameScene.prototype.onMouseOut = function (evt) {
  */
 EditorGameScene.prototype.onMouseUp = function (evt) {
     this._mouseState.dragging = false;
+
+    document.body.style.cursor = "default";
 };
 
 /**
@@ -99,7 +109,7 @@ EditorGameScene.prototype.update = function (delta) {
  * Update handler
  * @param delta
  */
-EditorGameScene.prototype.render = function (delta) {
+EditorGameScene.prototype.lateRender = function (delta) {
     this._renderMouse(delta);
 };
 

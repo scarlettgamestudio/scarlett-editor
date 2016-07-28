@@ -2,6 +2,7 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
     function ($scope, $timeout, logSvc, config, scarlettSvc, gameSvc, sceneSvc) {
 
         $scope.model = {
+            visualZoom: 100,
             gameUID: null,
             canvasID: null,
             scene: null,
@@ -28,8 +29,33 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
             }
         };
 
-        $scope.onCanvasWheel = function(evt) {
+        $scope.safeDigest = function () {
+            if (!$scope.$$phase) {
+                $scope.$digest();
+            }
+        };
+
+        $scope.getVisualCameraPosition = function () {
+            if($scope.model.scene && $scope.model.scene.getCamera()) {
+                return {
+                    x: Math.round($scope.model.scene.getCamera().x),
+                    y: Math.round($scope.model.scene.getCamera().y)
+                };
+            } else {
+                return {
+                    x: 0, y: 0
+                }
+            }
+        };
+
+        $scope.updateVisualZoom = function () {
+            $scope.model.visualZoom = Math.ceil(1 / $scope.model.scene.getCamera().zoom * 100);
+            $scope.safeDigest();
+        };
+
+        $scope.onCanvasWheel = function (evt) {
             $scope.model.scene.onMouseWheel(evt);
+            $scope.updateVisualZoom();
         };
 
         $scope.onCanvasClick = function (evt) {
@@ -45,6 +71,7 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
         $scope.onCanvasMouseMove = function (evt) {
             // trigger mouse move event:
             $scope.model.scene.onMouseMove(evt);
+            $scope.safeDigest();
         };
 
         $scope.onCanvasMouseUp = function (evt) {
@@ -90,6 +117,8 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
             if ($scope.lastWidth != null && $scope.lastHeight != null) {
                 $scope.updateGameBoundries($scope.lastWidth, $scope.lastHeight);
             }
+
+            $scope.updateVisualZoom();
         }
 
         $scope.model.gameUID = gameSvc.createGame();
