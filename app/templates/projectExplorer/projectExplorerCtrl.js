@@ -83,6 +83,15 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 			$scope.model.tree = [mapTreeModel(scarlettSvc.activeProjectFileMap, true, 0)];
 		};
 
+		$scope.onTreeDoubleClick = function(selected) {
+			for (var i = 0; i < selected.length; i++) {
+				var attr = JSON.parse(selected[i].attachment);
+
+				// open the file using the system preferred software:
+				NativeInterface.openFile(attr.path);
+			}
+		};
+
 		function generateNode(id, name, type, attributes) {
 			return {
 				id: id,

@@ -6,6 +6,10 @@
   font-weight: bold;
 }
 
+.center-text {
+  text-align: center;
+}
+
 .left-padding {
   padding-left: map-get($default-collection, padding);
 }

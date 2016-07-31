@@ -7,7 +7,7 @@
     "applicationFolderName": "Scarlett"
   },
   "dependencies": {
-    "angular": "^1.4.8",
+    "angular": "~1.4.8",
     "angular-bootstrap-contextmenu": "^0.9.7",
     "angular-local-storage": "^0.2.2",
     "angular-route": "1.4.x",
@@ -16,6 +16,7 @@
     "angular-validation-match": "^1.5.2",
     "bootstrap": "^3.3.6",
     "electron-prebuilt": "^1.0.1",
+    "fs-extra": "^0.30.0",
     "golden-layout": "^1.5.1",
     "jquery": "^2.2.3"
   },

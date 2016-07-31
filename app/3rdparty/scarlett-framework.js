@@ -9278,6 +9278,7 @@ var Common = require('../core/Common');
  */
 var AttributeDictionary = function () {};
 AttributeDictionary._rules = {};
+AttributeDictionary._inheritance = {};
 
 /**
  *
@@ -9287,32 +9288,63 @@ AttributeDictionary._rules = {};
  * @returns {boolean}
  */
 AttributeDictionary.addRule = function (context, propertyName, rule) {
-	if(isObjectAssigned(context)) {
-		var contextName = context.toLowerCase();
+    if (isObjectAssigned(context)) {
+        context = context.toLowerCase();
 
-		if(!isObjectAssigned(AttributeDictionary._rules[contextName])) {
-			AttributeDictionary._rules[contextName] = {}
-		}
+        if (!isObjectAssigned(AttributeDictionary._rules[context])) {
+            AttributeDictionary._rules[context] = {}
+        }
 
-		AttributeDictionary._rules[contextName][propertyName] = rule;
+        AttributeDictionary._rules[context][propertyName] = rule;
 
-		return true;
-	}
+        return true;
+    }
 
-	return false;
+    return false;
 };
 
 /**
- * 
- * @param typeName
+ *
+ * @param context
  * @param propertyName
  * @returns {*}
  */
-AttributeDictionary.getRule = function (typeName, propertyName) {
-	typeName = typeName.toLowerCase();
-	if (AttributeDictionary._rules[typeName]) {
-		return AttributeDictionary._rules[typeName][propertyName];
-	}
+AttributeDictionary.getRule = function (context, propertyName) {
+    context = context.toLowerCase();
+
+    // first check the first order rules:
+    if (AttributeDictionary._rules[context] && AttributeDictionary._rules[context][propertyName]) {
+        return AttributeDictionary._rules[context][propertyName];
+    }
+
+    // maybe the parents have this rule?
+    if (AttributeDictionary._inheritance[context]) {
+        // recursively try to get the rule from the parents:
+        for (var i = 0; i < AttributeDictionary._inheritance[context].length; ++i) {
+            var result = AttributeDictionary.getRule(AttributeDictionary._inheritance[context][i], propertyName);
+            if (result != null) {
+                return result;
+            }
+        }
+    }
+
+    return null;
+};
+
+/**
+ *
+ * @param typeName
+ * @param parent
+ */
+AttributeDictionary.inherit = function (context, parent) {
+    context = context.toLowerCase();
+    parent = parent.toLowerCase();
+
+    if (!isObjectAssigned(AttributeDictionary._inheritance[context])) {
+        AttributeDictionary._inheritance[context] = [];
+    }
+
+    AttributeDictionary._inheritance[context].push(parent);
 };;/**
  * CallbackResponse class
  */
@@ -9437,6 +9469,7 @@ var ImageLoader = function () {
  */
 ImageLoader.loaded = {};
 
+
 /**
  * loads an image from a specified path into memory
  * @param path
@@ -9445,6 +9478,11 @@ ImageLoader.loaded = {};
  */
 ImageLoader.loadImage = function (path, callback) {
     var image;
+
+    // is this a relative path?
+    if(GameManager.activeProjectPath && path.indexOf(GameManager.activeProjectPath) < 0) {
+       path = GameManager.activeProjectPath + path;
+    }
 
     // is the image on cache?
     if (ImageLoader.loaded.hasOwnProperty(path)) {
@@ -9800,7 +9838,7 @@ function Camera2D(x, y, viewWidth, viewHeight) {
 }
 
 Camera2D.prototype.calculateMatrix = function () {
-    // generate ortho perspective:
+    // generate orthographic perspective:
     mat4.ortho(
         this._matrix,
         this.x + -this.viewWidth * this.zoom / 2.0,
@@ -9839,52 +9877,105 @@ Camera2D.prototype.getMatrix = function () {
 
 Camera2D.prototype.unload = function () {
 
-};;/**
- * Color class
- */
-function Color(params) {
-    params = params || {};
+};;SetterDictionary.addRule("color", ["r", "g", "b", "a"]);
 
+/**
+ * Color Class
+ * @param r
+ * @param g
+ * @param b
+ * @param a
+ * @constructor
+ */
+function Color(r, g, b, a) {
     // public properties:
-    this.r = params.r || 0.0;
-    this.g = params.g || 0.0;
-    this.b = params.b || 0.0;
-    this.a = params.a || 1.0;
+    this.r = r || 0.0;
+    this.g = g || 0.0;
+    this.b = b || 0.0;
+    this.a = a || 1.0;
 }
 
-// functions
+/**
+ *
+ * @param r
+ * @param g
+ * @param b
+ * @param a
+ */
+Color.prototype.set = function(r, g, b, a) {
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.a = a;
+};
+
+/**
+ *
+ * @param obj
+ * @returns {boolean}
+ */
+Color.prototype.equals = function (obj) {
+    return (obj.r === this.r && obj.g === this.g && obj.b === this.b && obj.a === this.a);
+};
+
+/**
+ *
+ */
 Color.prototype.toJSON = function () {
-    return JSON.stringify({
+    return {
         r: this.r,
         g: this.g,
         b: this.b,
         a: this.a
-    });
+    };
 };
 
+/**
+ *
+ * @returns {string}
+ */
+Color.prototype.toHex = function () {
+    return Color.rgbToHex(this.r * 255, this.g * 255, this.b * 255);
+};
+
+/**
+ *
+ * @returns {*[]}
+ */
 Color.prototype.toArray = function () {
     return [this.r, this.g, this.b, this.a];
 };
 
+/**
+ *
+ * @returns {Float32Array}
+ */
 Color.prototype.toFloat32Array = function () {
     return new Float32Array([this.r, this.g, this.b, this.a]);
 };
 
+/**
+ *
+ */
 Color.prototype.unload = function () {
 
 };
 
 // static functions
 
+Color.rgbToHex = function(r, g, b) {
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+};
+
 Color.fromRGBA = function (red, green, blue, alpha) {
-    return new Color({r: red / 255.0, g: green / 255.0, b: blue / 255.0, a: alpha});
+    return new Color(red / 255.0, green / 255.0, blue / 255.0, alpha);
 };
 
 Color.fromRGB = function (red, green, blue) {
-    return new Color({r: red / 255.0, g: green / 255.0, b: blue / 255.0, a: 1.0});
+    return new Color(red / 255.0, green / 255.0, blue / 255.0, 1.0);
 };
 
-Color.random = function(alpha) {
+Color.random = function (alpha) {
     alpha = alpha || 1.0;
     return Color.fromRGBA(Math.random() * 255, Math.random() * 255, Math.random() * 255, alpha);
 };
@@ -9921,6 +10012,7 @@ function Game(params) {
 	this._physicsEngine = Matter.Engine.create();
 	this._physicsEngine.enableSleeping = true;
 	this._renderExtensions = {};
+	this._paused = false;
 
 	Matter.Engine.run(this._physicsEngine);
 
@@ -9980,9 +10072,10 @@ Game.prototype._onAnimationFrame = function (timestamp) {
 	var self = this;
 	this._totalElapsedTime = timestamp;
 
-	if (isGameScene(this._gameScene)) {
+	if (!this._paused && isGameScene(this._gameScene)) {
 		// handle the active game scene interactions here:
 
+		// TODO: before release, add the try here..
 		//try {
 			// the user defined the game scene update function?
 			if (isFunction(this._gameScene.update)) {
@@ -10033,6 +10126,14 @@ Game.prototype._onAnimationFrame = function (timestamp) {
 
 	// request a new animation frame:
 	requestAnimationFrame(this._onAnimationFrame.bind(this));
+};
+
+Game.prototype.pauseGame = function() {
+	this._pause = true;
+};
+
+Game.prototype.resumeGame = function() {
+	this._pause = false;
 };
 
 Game.prototype.getShaderManager = function () {
@@ -10139,7 +10240,9 @@ var GameManager = function() {};
  * @type {renderContext}
  */
 GameManager.renderContext = null;
-GameManager.activeScene = null;;/**
+GameManager.activeScene = null;
+GameManager.activeProject = null;
+GameManager.activeProjectPath = null;;/**
  * GameObject class
  */
 AttributeDictionary.addRule("gameobject", "transform", {ownContainer: true});
@@ -10570,9 +10673,9 @@ PrimitiveRender.prototype.drawLine = function (vectorA, vectorB, thickness, colo
 };;/**
  * Sprite class
  */
+AttributeDictionary.inherit("sprite", "gameobject");
 AttributeDictionary.addRule("sprite", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
-AttributeDictionary.addRule("sprite", "transform", {ownContainer:true});
-AttributeDictionary.addRule("sprite", "_parent", {visible: false});
+AttributeDictionary.addRule("sprite", "_tint", {displayName: "Tint"});
 
 function Sprite(params) {
     params = params || {};
@@ -10586,18 +10689,27 @@ function Sprite(params) {
     // private properties:
     this._texture = params.texture;
     this._textureSrc = "";
+    this._tint = Color.fromRGB(255, 255, 255);
 
 }
 
 inheritsFrom(Sprite, GameObject);
 
+Sprite.prototype.setTint = function (color) {
+    this._tint = color;
+};
+
+Sprite.prototype.getTint = function () {
+    return this._tint;
+};
+
 Sprite.prototype.setTextureSrc = function (path) {
     this._textureSrc = path;
 
     Texture2D.fromPath(path).then(
-        (function(texture) {
-             this.setTexture(texture);
-        }).bind(this), function(error) {
+        (function (texture) {
+            this.setTexture(texture);
+        }).bind(this), function (error) {
             // TODO: log this..
         }
     );
@@ -10620,16 +10732,16 @@ Sprite.prototype.setTexture = function (texture) {
 };
 
 Sprite.prototype.render = function (delta, spriteBatch) {
-    // parent render function:
-    GameObject.prototype.render.call(this, delta, spriteBatch);
-
     // just store the sprite to render on flush:
     spriteBatch.storeSprite(this);
+
+    // parent render function:
+    GameObject.prototype.render.call(this, delta, spriteBatch);
 };
 
 // functions:
 Sprite.prototype.toJSON = function () {
-   // TODO: do this
+    // TODO: do this
 };
 
 Sprite.prototype.unload = function () {
@@ -10644,128 +10756,135 @@ Sprite.prototype.changeSource = function (src) {
  * SpriteBatch class
  */
 function SpriteBatch(game) {
-	if (!isGame(game)) {
-		throw error("Cannot create sprite render, the Game object is missing from the parameters");
-	}
+    if (!isGame(game)) {
+        throw error("Cannot create sprite render, the Game object is missing from the parameters");
+    }
 
-	// public properties:
-	
+    // public properties:
 
-	// private properties:
-	this._game = game;
-	this._gl = game.getRenderContext().getContext();
-	this._vertexBuffer = this._gl.createBuffer();
-	this._texBuffer = this._gl.createBuffer();
-	this._transformMatrix = mat4.create();
-	this._textureShader = new TextureShader();
-	this._lastTexUID = -1;
-	this._drawData = [];
-	this._rectangleData = new Float32Array([
-		0.0,  0.0,
-		1.0,  0.0,
-		0.0,  1.0,
-		0.0,  1.0,
-		1.0,  0.0,
-		1.0,  1.0
-	]);
-	this._textureData = new Float32Array([
-		0.0,  0.0,
-		1.0,  0.0,
-		0.0,  1.0,
-		0.0,  1.0,
-		1.0,  0.0,
-		1.0,  1.0
-	]);
+
+    // private properties:
+    this._game = game;
+    this._gl = game.getRenderContext().getContext();
+    this._vertexBuffer = this._gl.createBuffer();
+    this._texBuffer = this._gl.createBuffer();
+    this._transformMatrix = mat4.create();
+    this._textureShader = new TextureShader();
+    this._lastTexUID = -1;
+    this._drawData = [];
+    this._rectangleData = new Float32Array([
+        0.0, 0.0,
+        1.0, 0.0,
+        0.0, 1.0,
+        0.0, 1.0,
+        1.0, 0.0,
+        1.0, 1.0
+    ]);
+    this._textureData = new Float32Array([
+        0.0, 0.0,
+        1.0, 0.0,
+        0.0, 1.0,
+        0.0, 1.0,
+        1.0, 0.0,
+        1.0, 1.0
+    ]);
 }
 
-SpriteBatch.prototype.clear = function() {
-	this._drawData = [];
+SpriteBatch.prototype.clear = function () {
+    this._drawData = [];
 };
 
 SpriteBatch.prototype.storeSprite = function (sprite) {
-	this._drawData.push({
-		texture: sprite.getTexture(),
-		x: sprite.transform.getPosition().x,
-		y: sprite.transform.getPosition().y,
-		scaleX: sprite.transform.getScale().x,
-		scaleY: sprite.transform.getScale().y,
-		rotation: sprite.transform.getRotation()
-	});
+    this._drawData.push({
+        texture: sprite.getTexture(),
+        x: sprite.transform.getPosition().x,
+        y: sprite.transform.getPosition().y,
+        scaleX: sprite.transform.getScale().x,
+        scaleY: sprite.transform.getScale().y,
+        rotation: sprite.transform.getRotation(),
+        tint: sprite.getTint()
+    });
 };
 
-SpriteBatch.prototype.store = function(texture, x, y, scaleX, scaleY, rotation) {
-	this._drawData.push({
-		texture: texture,
-		x: x,
-		y: y,
-		scaleX: scaleX,
-		scaleY: scaleY,
-		rotation: rotation
-	});
+SpriteBatch.prototype.store = function (texture, x, y, scaleX, scaleY, rotation) {
+    this._drawData.push({
+        texture: texture,
+        x: x,
+        y: y,
+        scaleX: scaleX,
+        scaleY: scaleY,
+        rotation: rotation
+    });
 };
 
-SpriteBatch.prototype.flush = function() {
-	if(this._drawData.length == 0) {
-		return;
-	}
+SpriteBatch.prototype.flush = function () {
+    if (this._drawData.length == 0) {
+        return;
+    }
 
-	var gl = this._gl;
-	var cameraMatrix = this._game.getActiveCamera().getMatrix();
+    var gl = this._gl;
+    var cameraMatrix = this._game.getActiveCamera().getMatrix();
 
-	this._game.getShaderManager().useShader(this._textureShader);
+    this._game.getShaderManager().useShader(this._textureShader);
 
-	// position buffer attribute
-	gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
+    // position buffer attribute
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
 
-	gl.enableVertexAttribArray(this._textureShader.attributes.aVertexPosition);
-	gl.vertexAttribPointer(this._textureShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(this._textureShader.attributes.aVertexPosition);
+    gl.vertexAttribPointer(this._textureShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
 
-	// texture attribute
-	gl.bindBuffer(gl.ARRAY_BUFFER, this._texBuffer);
-	gl.bufferData(gl.ARRAY_BUFFER, this._textureData, gl.STATIC_DRAW);
-	gl.enableVertexAttribArray(this._textureShader.attributes.aTextureCoord);
-	gl.vertexAttribPointer(this._textureShader.attributes.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+    //gl.enableVertexAttribArray(this._textureShader.attributes.aColor);
+    //gl.vertexAttribPointer(this._textureShader.attributes.aColor, 4, gl.FLOAT, false, 0, 0);
 
-	// set uniforms
-	gl.uniformMatrix4fv(this._textureShader.uniforms.uMatrix._location, false, cameraMatrix);
+    // texture attribute
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._texBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._textureData, gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(this._textureShader.attributes.aTextureCoord);
+    gl.vertexAttribPointer(this._textureShader.attributes.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
 
-	for(var i = 0; i < this._drawData.length; i++) {
-		var texture = this._drawData[i].texture;
-		if(texture && texture.isReady()) {
+    // set uniforms
+    gl.uniformMatrix4fv(this._textureShader.uniforms.uMatrix._location, false, cameraMatrix);
 
-			// for performance sake, consider if the texture is the same so we don't need to bind again
-			// TODO: maybe it's a good idea to group the textures somehow (depth should be considered)
-			if(this._lastTexUID != texture.getUID()) {
-				texture.bind();
-				this._lastTexUID = texture.getUID();
-			}
+    for (var i = 0; i < this._drawData.length; i++) {
+        var texture = this._drawData[i].texture;
+        if (texture && texture.isReady()) {
 
-			var width = texture.getImageData().width * this._drawData[i].scaleX;
-			var height = texture.getImageData().height * this._drawData[i].scaleY;
+            // for performance sake, consider if the texture is the same so we don't need to bind again
+            // TODO: maybe it's a good idea to group the textures somehow (depth should be considered)
+            if (this._lastTexUID != texture.getUID()) {
+                texture.bind();
+                this._lastTexUID = texture.getUID();
+            }
 
-			mat4.identity(this._transformMatrix);
-			mat4.translate(this._transformMatrix, this._transformMatrix, [this._drawData[i].x, this._drawData[i].y, 0]);
-			mat4.translate(this._transformMatrix, this._transformMatrix, [width/2, height/2, 0]);
-			mat4.rotate(this._transformMatrix, this._transformMatrix, this._drawData[i].rotation, [0.0, 0.0, 1.0]);
-			mat4.translate(this._transformMatrix, this._transformMatrix, [-width/2, -height/2, 0]);
-			mat4.scale(this._transformMatrix, this._transformMatrix, [width, height, 0]);
-			
-			gl.uniformMatrix4fv(this._textureShader.uniforms.uTransform._location, false, this._transformMatrix);
-			//gl.uniform4f(this._primitiveShader.uniforms.uColor._location, this._rectangleColorData[i].r, this._rectangleColorData[i].g, this._rectangleColorData[i].b, this._rectangleColorData[i].a);
+            var width = texture.getImageData().width * this._drawData[i].scaleX;
+            var height = texture.getImageData().height * this._drawData[i].scaleY;
 
-			gl.drawArrays(gl.TRIANGLES, 0, 6);
-		}
-	}
+            mat4.identity(this._transformMatrix);
+            mat4.translate(this._transformMatrix, this._transformMatrix, [this._drawData[i].x, this._drawData[i].y, 0]);
+            mat4.translate(this._transformMatrix, this._transformMatrix, [width / 2, height / 2, 0]);
+            mat4.rotate(this._transformMatrix, this._transformMatrix, this._drawData[i].rotation, [0.0, 0.0, 1.0]);
+            mat4.translate(this._transformMatrix, this._transformMatrix, [-width / 2, -height / 2, 0]);
+            mat4.scale(this._transformMatrix, this._transformMatrix, [width, height, 0]);
 
-	this.clear();
+            gl.uniformMatrix4fv(this._textureShader.uniforms.uTransform._location, false, this._transformMatrix);
+
+            if (this._drawData[i].tint) {
+                gl.uniform4f(this._textureShader.uniforms.uColor._location, this._drawData[i].tint.r, this._drawData[i].tint.g, this._drawData[i].tint.b, this._drawData[i].tint.a);
+            }
+
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+        }
+    }
+
+    this.clear();
 };
 
 SpriteBatch.prototype.unload = function () {
-	gl.deleteBuffer(this._vertexBuffer);
-	gl.deleteBuffer(this._texBuffer);
+    gl.deleteBuffer(this._vertexBuffer);
+    gl.deleteBuffer(this._texBuffer);
 
-	this._textureShader.unload();
+    this._textureShader.unload();
 };;/**
  * Texture2D class
  */
@@ -10970,8 +11089,18 @@ function GridExt(params) {
 	this._renderGrid = true;
 	this._gridSize = 24;
 	this._gridColor = Color.Red;
+    this._originLines = true;
 	this._primitiveRender = new PrimitiveRender(params.game); // maybe get a batch here?
 }
+
+/**
+ *
+ * @param enable
+ */
+GridExt.prototype.setOriginLines = function (enable) {
+    this._originLines = enable;
+};
+
 
 /**
  *
@@ -11037,15 +11166,17 @@ GridExt.prototype.render = function (delta) {
 		}
 
 		// main "lines" (origin)
-        // vertical
-        this._primitiveRender.drawRectangle(
-            new Rectangle(-2, top - this._gridSize + offsetY, 4, screenResolution.height + zoomDifY),
-            this._gridColor);
+        if (this._originLines) {
+            // vertical
+            this._primitiveRender.drawRectangle(
+                new Rectangle(-2, top - this._gridSize + offsetY, 4, screenResolution.height + zoomDifY),
+                this._gridColor);
 
-        // vertical
-        this._primitiveRender.drawRectangle(
-            new Rectangle(left - this._gridSize + offsetX, -2, screenResolution.width + zoomDifX, 4),
-            this._gridColor);
+            // horizontal
+            this._primitiveRender.drawRectangle(
+                new Rectangle(left - this._gridSize + offsetX, -2, screenResolution.width + zoomDifX, 4),
+                this._gridColor);
+        }
 	}
 };;/**
  * Math helper utility class
@@ -11498,19 +11629,15 @@ function TextureShader() {
 
             'attribute vec2 aVertexPosition;',
             'attribute vec2 aTextureCoord;',
-            'attribute vec4 aColor;',
 
             'uniform mat4 uMatrix;',
             'uniform mat4 uTransform;',
 
             'varying vec2 vTextureCoord;',
-            'varying vec4 vColor;',
 
             'void main(void){',
             '   gl_Position = uMatrix * uTransform * vec4(aVertexPosition, 0.0, 1.0);',
             '   vTextureCoord = aTextureCoord;',
-            //'   //vColor = vec4(aColor.rgb * aColor.a, aColor.a);',
-            '   vColor = aColor;',
             '}'
         ].join('\n'),
         // inline-fragment shader
@@ -11521,22 +11648,23 @@ function TextureShader() {
             'varying vec4 vColor;',
 
             'uniform sampler2D uSampler;',
+            'uniform vec4 uColor;',
 
             'void main(void){',
-            '   gl_FragColor = texture2D(uSampler, vTextureCoord) ;',
+            '   gl_FragColor = texture2D(uSampler, vTextureCoord) * uColor;',
             '}'
         ].join('\n'),
         // uniforms:
         {
             uSampler: {type: 'tex', value: 0},
             uMatrix: {type: 'mat4', value: mat4.create()},
-            uTransform: {type: 'mat4', value: mat4.create()}
+            uTransform: {type: 'mat4', value: mat4.create()},
+            uColor: [1.0, 1.0, 1.0, 1.0]
         },
         // attributes:
         {
             aVertexPosition:    0,
-            aTextureCoord:      0,
-            aColor:             0
+            aTextureCoord:      0
         });
 }
 

@@ -1,22 +1,5 @@
 <div ng-controller="ProjectExplorerCtrl">
 
-    <!--<script type="text/ng-template" id="nodes_renderer.html">
-        <div class="angular-ui-tree-element" ng-click="select()">
-            <i class="angular-ui-tree-selector fa" ng-if="node.type === 'directory'" ng-class="{'fa-folder-open' : !collapsed, 'fa-folder' : collapsed}" ng-click="toggle(this)"></i>
-            <span ui-tree-handle><i class="fa fa-file-o" aria-hidden="true" ng-if="node.type === 'file'"></i> {{node.title}} - {{isSelected()}}</span>
-        </div>
-        <ol ui-tree-nodes="" ng-model="node.nodes" ng-class="{hidden: collapsed}">
-            <li ng-repeat="node in node.nodes" ui-tree-node ng-include="'nodes_renderer.html'">
-            </li>
-        </ol>
-    </script>
-
-    <div ui-tree="model.treeOptions" data-drag-delay="250">
-        <ol ui-tree-nodes="" ng-model="model.tree" id="tree-root">
-            <li ng-repeat="node in model.tree" data-drag-enable="false" ui-tree-node ng-include="'nodes_renderer.html'"></li>
-        </ol>
-    </div>-->
-
     <!-- tree node template -->
     <script type="text/ng-template" id="nodeTemplate.html">
 
@@ -30,16 +13,16 @@
 
         <!-- sub nodes -->
         <div cz-tree-nodes ng-class="{'hidden': collapsed}">
-            <cz-tree-node ng-repeat="node in node.nodes"  attachment="" ng-include="'nodeTemplate.html'"></cz-tree-node>
+            <cz-tree-node ng-repeat="node in node.nodes" attachment="{{node.attributes}}" ng-include="'nodeTemplate.html'"></cz-tree-node>
         </div>
 
     </script>
 
     <div>
         <!-- tree root node -->
-        <div cz-tree>
-            <cz-tree-node ng-repeat="node in model.tree"  attachment="" ng-include="'nodeTemplate.html'"></cz-tree-node>
-        </div>
+        <cz-tree on-double-click="onTreeDoubleClick(selected)">
+            <cz-tree-node ng-repeat="node in model.tree" attachment="{{node.attributes}}" ng-include="'nodeTemplate.html'"></cz-tree-node>
+        </cz-tree>
     </div>
 
 </div>

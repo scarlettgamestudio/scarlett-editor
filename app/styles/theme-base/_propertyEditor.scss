@@ -12,6 +12,12 @@
 
   .pePanel {
 
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
     hr {
       width: 90%;
       border-color: lighten(map-get($default-colors, grey-hound), 4);
@@ -108,6 +114,41 @@
                             map-get($default-colors, grey-hound) 6px,
                             map-get($default-colors, grey-hound) 12px
             );
+          }
+        }
+
+        .color-preview {
+          border: none;
+          position: relative;
+
+          &.inconclusive {
+            //background: #544E45;
+            //border-color: #544E45;
+            background: repeating-linear-gradient(
+                            45deg,
+                            lighten(map-get($default-colors, grey-hound), 2),
+                            lighten(map-get($default-colors, grey-hound), 2) 6px,
+                            map-get($default-colors, grey-hound) 6px,
+                            map-get($default-colors, grey-hound) 12px
+            );
+
+            div {
+              display: none;
+            }
+          }
+
+          .color-preview-alpha {
+            position: absolute;
+            height: 3px;
+            width: 100%;
+            background: #333;
+            margin: 0;
+            padding: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            border-bottom-left-radius: 2px;
+            border-bottom-right-radius: 2px;
           }
         }
 

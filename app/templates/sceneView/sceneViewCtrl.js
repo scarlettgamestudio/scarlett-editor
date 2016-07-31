@@ -20,12 +20,12 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
         $scope.updateGameBoundries = function (width, height) {
             var game = gameSvc.getGame($scope.model.gameUID);
 
-            $scope.lastWidth = width;
-            $scope.lastHeight = height;
-
             if (game) {
                 // usually the width and height will be the same as the canvas container
                 game.setVirtualResolution(width, height);
+
+                $scope.lastWidth = width;
+                $scope.lastHeight = height;
             }
         };
 

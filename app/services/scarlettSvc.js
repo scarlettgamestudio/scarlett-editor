@@ -115,6 +115,9 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, ga
 
 					svc.setupProject(gameProject, Path.getDirectory(path));
 
+					GameManager.activeProject = gameProject;
+					GameManager.activeProjectPath = Path.wrapDirectoryPath(Path.getDirectory(gamefilePath));
+
 					defer.resolve(gameProject);
 
 				} catch (error) {

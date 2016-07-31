@@ -323,8 +323,8 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                             }
                         });
 
-                        property.setter.apply(targetContainer.target, args);
-
+                        //property.setter.apply(targetContainer.target, args);
+                        targetContainer.target[property.name].set.apply(targetContainer.target[property.name], args);
                     } else {
                         // this doesn't have any rules so we are supposing it's a single value setter:
                         property.setter.apply(targetContainer.target, [targetValue]);
