@@ -1,5 +1,5 @@
-app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc',
-	function ($scope, logSvc, config, scarlettSvc) {
+app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc',
+	function ($scope, logSvc, config, scarlettSvc, sceneSvc) {
 
 		$scope.model = {
 			tree: [],
@@ -15,13 +15,16 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 					return "fa-git";
 
 				// game scene
-				case ".gs":
+				case ".ss":
 					// maybe get a better icon here?
 					return "fa-picture-o";
 
 				// archive files
 				case ".zip":
 				case ".rar":
+				case ".tar":
+				case ".tar.gz":
+				case ".7zip":
 					return "fa-file-archive-o";
 
 				// scarlett project file
@@ -86,9 +89,18 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 		$scope.onTreeDoubleClick = function(selected) {
 			for (var i = 0; i < selected.length; i++) {
 				var attr = JSON.parse(selected[i].attachment);
+				var ext = Path.getFileExtension(attr.path);
 
-				// open the file using the system preferred software:
-				NativeInterface.openFile(attr.path);
+				switch (ext) {
+					case ".ss":
+						sceneSvc.loadSceneFromFile(attr.path);
+						break;
+
+					default:
+						// open the file using the system preferred software:
+						NativeInterface.openFile(attr.path);
+						break;
+				}
 			}
 		};
 

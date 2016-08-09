@@ -9822,11 +9822,11 @@ RigidBody.prototype.unload = function() {
 };;/**
  * Camera2D class
  */
-function Camera2D(x, y, viewWidth, viewHeight) {
+function Camera2D(x, y, viewWidth, viewHeight, zoom) {
     // public properties:
     this.x = x || 0;
     this.y = y || 0;
-    this.zoom = 1.0;
+    this.zoom = zoom || 1.0;
     this.viewWidth = viewWidth || 0;
     this.viewHeight = viewHeight || 0;
 
@@ -9877,6 +9877,18 @@ Camera2D.prototype.getMatrix = function () {
 
 Camera2D.prototype.unload = function () {
 
+};
+
+Camera2D.prototype.objectify = function() {
+    return {
+        x: this.x,
+        y: this.y,
+        zoom: this.zoom
+    }
+};
+
+Camera2D.restore = function(data) {
+    return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
 };;SetterDictionary.addRule("color", ["r", "g", "b", "a"]);
 
 /**
@@ -9910,7 +9922,7 @@ Color.prototype.set = function(r, g, b, a) {
 };
 
 /**
- *
+ * Compares the color object
  * @param obj
  * @returns {boolean}
  */
@@ -9919,15 +9931,31 @@ Color.prototype.equals = function (obj) {
 };
 
 /**
+ * Compares the color object ignoring the alpha color
+ * @param obj
+ */
+Color.prototype.equalsIgnoreAlpha = function (obj) {
+    return (obj.r === this.r && obj.g === this.g && obj.b === this.b);
+};
+
+/**
  *
  */
-Color.prototype.toJSON = function () {
+Color.prototype.objectify = function () {
     return {
         r: this.r,
         g: this.g,
         b: this.b,
         a: this.a
     };
+};
+
+/**
+ *
+ * @param data
+ */
+Color.restore = function(data) {
+    return new Color(data.r, data.g, data.b, data.a);
 };
 
 /**
@@ -10158,7 +10186,17 @@ Game.prototype.init = function () {
 	// request to begin the animation frame handling
 	this._onAnimationFrame(0);
 
+	// set this as the active game:
+	GameManager.activeGame = this;
+
 	this._initalized = true;
+};
+
+/**
+ * Set this as the active game
+ */
+Game.prototype.setActive = function() {
+	GameManager.activeGame = this;
 };
 
 Game.prototype.setVirtualResolution = function (width, height) {
@@ -10207,7 +10245,7 @@ Game.prototype.setTarget = function (target) {
 
 Game.prototype.changeScene = function (scene) {
 	if (isGameScene(scene)) {
-		if (isGameScene(this._gameScene)) {
+		if(this._gameScene) {
 			// unload the active scene:
 			this._gameScene.unload();
 		}
@@ -10242,6 +10280,7 @@ var GameManager = function() {};
 GameManager.renderContext = null;
 GameManager.activeScene = null;
 GameManager.activeProject = null;
+GameManager.activeGame = null;
 GameManager.activeProjectPath = null;;/**
  * GameObject class
  */
@@ -10253,19 +10292,22 @@ function GameObject(params) {
 
     // public properties:
     this.name = params.name || "GameObject";
-    this.transform = new Transform({
-        gameObject: this
-    });
+
+    if (params.transform) {
+        params.transform.gameObject = this;
+    }
+
+    this.transform = params.transform || new Transform({gameObject: this});
 
     // private properties:
-    this._parent = params.parent || null;
     this._uid = generateUID();
-    this._children = [];
-    this._components = [];
+    this._parent = params.parent || null;
+    this._children = params.children || [];
+    this._components = params.components || [];
 }
 
 GameObject.prototype.getType = function () {
-    return "gameobject";
+    return "GameObject";
 };
 
 GameObject.prototype.getUID = function () {
@@ -10344,9 +10386,22 @@ GameObject.prototype.getComponents = function () {
 };
 
 // functions:
-GameObject.prototype.toJSON = function () {
-    // TODO: implement
-    return "";
+GameObject.prototype.objectify = function () {
+    return {
+        name: this.name,
+        transform: this.transform.objectify(),
+        children: Objectify.array(this._children),
+        components: Objectify.array(this._components)
+    };
+};
+
+GameObject.restore = function (data) {
+    return new GameObject({
+        name: data.name,
+        transform: Transform.restore(data.transform),
+        children: Objectify.restoreArray(data.children),
+        components: Objectify.restoreArray(data.components)
+    });
 };
 
 GameObject.prototype.unload = function () {
@@ -10375,85 +10430,103 @@ GameProject.prototype.toJSON = function() {
  * GameScene class
  */
 function GameScene(params) {
-	params = params || {};
+    params = params || {};
 
-	if(!params.game) {
-		throw "cannot create a game scene without the game parameter";
-	}
+    if (!params.game) {
+        throw "cannot create a game scene without the game parameter";
+    }
 
-	// public properties:
+    // public properties:
 
-	this.name = params.name || "GameScene";
+    this.name = params.name || "GameScene";
 
-	// private properties:
-	this._game = params.game || null;
-	this._camera = new Camera2D(0, 0, this._game.getVirtualResolution().width, this._game.getVirtualResolution().height); // the default scene camera
-	this._backgroundColor = params.backgroundColor || Color.CornflowerBlue;
-	this._gameObjects = [];
-	this._spriteBatch = new SpriteBatch(params.game);
+    // private properties:
+    this._uid = generateUID();
+    this._game = params.game || null;
+    this._backgroundColor = params.backgroundColor || Color.CornflowerBlue;
+    this._gameObjects = params.gameObjects || [];
+    this._camera = params.camera || new Camera2D(0, 0, this._game.getVirtualResolution().width, this._game.getVirtualResolution().height); // the default scene camera
+    this._spriteBatch = new SpriteBatch(params.game);
 }
 
+GameScene.prototype.getUID = function () {
+    return this._uid;
+};
+
 GameScene.prototype.getPhysicsWorld = function () {
-	return this._game.getPhysicsEngine().world;
+    return this._game.getPhysicsEngine().world;
 };
 
 GameScene.prototype.getCamera = function () {
-	return this._camera
+    return this._camera
 };
 
 GameScene.prototype.setGame = function (game) {
-	this._game = game;
+    this._game = game;
 };
 
 GameScene.prototype.getGame = function () {
-	return this._game;
+    return this._game;
 };
 
 GameScene.prototype.setBackgroundColor = function (color) {
-	this._backgroundColor = color;
+    this._backgroundColor = color;
 };
 
 GameScene.prototype.getBackgroundColor = function () {
-	return this._backgroundColor;
+    return this._backgroundColor;
 };
 
 GameScene.prototype.addGameObject = function (entity) {
-	this._gameObjects.push(entity);
+    this._gameObjects.push(entity);
 };
 
-GameScene.prototype.getGameObjects = function() {
-	return this._gameObjects;
+GameScene.prototype.getGameObjects = function () {
+    return this._gameObjects;
 };
 
 GameScene.prototype.removeEntity = function (entity) {
-	// TODO: implement
+    // TODO: implement
 };
 
 GameScene.prototype.prepareRender = function () {
-	var gl = this._game.getRenderContext().getContext();
+    var gl = this._game.getRenderContext().getContext();
 
-	// set clear color and clear the screen:
-	gl.clearColor(this._backgroundColor.r, this._backgroundColor.g, this._backgroundColor.b, this._backgroundColor.a);
-	gl.clear(gl.COLOR_BUFFER_BIT);
+    // set clear color and clear the screen:
+    gl.clearColor(this._backgroundColor.r, this._backgroundColor.g, this._backgroundColor.b, this._backgroundColor.a);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 };
 
 GameScene.prototype.sceneLateUpdate = function (delta) {
-	Matter.Engine.update(this._game.getPhysicsEngine(), 1000 / 60);
+    Matter.Engine.update(this._game.getPhysicsEngine(), 1000 / 60);
 };
 
 GameScene.prototype.sceneRender = function (delta) {
-	// let's render all game objects on scene:
-	for(var i = 0; i < this._gameObjects.length; i++) {
-		this._gameObjects[i].render(delta, this._spriteBatch);
-	}
+    // let's render all game objects on scene:
+    for (var i = 0; i < this._gameObjects.length; i++) {
+        this._gameObjects[i].render(delta, this._spriteBatch);
+    }
 
-	// all draw data was stored, now let's actually render stuff into the screen!
-	this._spriteBatch.flush();
+    // all draw data was stored, now let's actually render stuff into the screen!
+    this._spriteBatch.flush();
 };
 
-GameScene.prototype.toJSON = function () {
-	// TODO: implement
-	return "";
+GameScene.prototype.objectify = function () {
+    return {
+        name: this.name,
+        camera: this._camera.objectify(),
+        backgroundColor: this._backgroundColor.objectify(),
+        gameObjects: Objectify.array(this._gameObjects)
+    };
+};
+
+GameScene.restore = function (data) {
+    return new GameScene({
+        game: GameManager.activeGame,
+        backgroundColor: Color.restore(data.backgroundColor),
+        camera: Camera2D.restore(data.camera),
+        gameObjects: Objectify.restoreArray(data.gameObjects)
+    });
 };
 
 GameScene.prototype.unload = function () {
@@ -10683,14 +10756,10 @@ function Sprite(params) {
 
     GameObject.call(this, params);
 
-    // public properties:
-
-
     // private properties:
     this._texture = params.texture;
     this._textureSrc = "";
-    this._tint = Color.fromRGB(255, 255, 255);
-
+    this._tint = params.tint || Color.fromRGB(255, 255, 255);
 }
 
 inheritsFrom(Sprite, GameObject);
@@ -10706,13 +10775,15 @@ Sprite.prototype.getTint = function () {
 Sprite.prototype.setTextureSrc = function (path) {
     this._textureSrc = path;
 
-    Texture2D.fromPath(path).then(
-        (function (texture) {
-            this.setTexture(texture);
-        }).bind(this), function (error) {
-            // TODO: log this..
-        }
-    );
+    if (path && path.length > 0) {
+        Texture2D.fromPath(path).then(
+            (function (texture) {
+                this.setTexture(texture);
+            }).bind(this), function (error) {
+                // TODO: log this..
+            }
+        );
+    }
 };
 
 Sprite.prototype.getTextureSrc = function () {
@@ -10720,7 +10791,7 @@ Sprite.prototype.getTextureSrc = function () {
 };
 
 Sprite.prototype.getType = function () {
-    return "sprite";
+    return "Sprite";
 };
 
 Sprite.prototype.getTexture = function () {
@@ -10740,18 +10811,28 @@ Sprite.prototype.render = function (delta, spriteBatch) {
 };
 
 // functions:
-Sprite.prototype.toJSON = function () {
-    // TODO: do this
+Sprite.prototype.objectify = function () {
+    var superObjectify = GameObject.prototype.objectify.call(this);
+    return Objectify.extend(superObjectify, {
+        src: this._textureSrc,
+        tint: this._tint.objectify()
+    });
+};
+
+Sprite.restore = function (data) {
+    var gameObject = GameObject.restore(data);
+    var sprite = new Sprite();
+
+    Objectify.extend(sprite, gameObject);
+
+    sprite.setTextureSrc(data.src);
+
+    return sprite;
 };
 
 Sprite.prototype.unload = function () {
 
 };
-
-Sprite.prototype.changeSource = function (src) {
-
-};
-
 ;/**
  * SpriteBatch class
  */
@@ -10984,20 +11065,20 @@ function Transform(params) {
     this.gameObject = params.gameObject || null;
 
     // private properties:
-    this._position = new Vector2();
-    this._rotation = 0.0;
-    this._scale = new Vector2(1.0, 1.0);
+    this._position = params.position || new Vector2();
+    this._rotation = params.rotation || 0.0;
+    this._scale = params.scale || new Vector2(1.0, 1.0);
 
     this._overridePositionFunction = null;
     this._overrideRotationFunction = null;
     this._overrideScaleFunction = null;
 }
 
-Transform.prototype.calculateMatrix = function() {
-    
+Transform.prototype.calculateMatrix = function () {
+
 };
 
-Transform.prototype.getMatrix = function() {
+Transform.prototype.getMatrix = function () {
 
 };
 
@@ -11064,9 +11145,20 @@ Transform.prototype.getScale = function () {
     return this._scale;
 };
 
-Transform.prototype.toJSON = function () {
-    // TODO: implement
-    return "";
+Transform.prototype.objectify = function () {
+    return {
+        position: this._position.objectify(),
+        rotation: this._rotation,
+        scale: this._scale.objectify()
+    };
+};
+
+Transform.restore = function (data) {
+    return new Transform({
+        position: Vector2.restore(data.position),
+        rotation: data.rotation,
+        scale: Vector2.restore(data.scale)
+    });
 };
 
 Transform.prototype.unload = function () {
@@ -11292,11 +11384,15 @@ Vector2.prototype.set = function (x, y) {
     this.y = y;
 };
 
-Vector2.prototype.toJSON = function () {
+Vector2.prototype.objectify = function () {
     return {
         x: this.x,
         y: this.y
     };
+};
+
+Vector2.restore = function(data) {
+    return new Vector2(data.x, data.y);
 };
 
 Vector2.prototype.equals = function (obj) {
@@ -11341,7 +11437,7 @@ Vector3.prototype.set = function(x, y, z) {
 	this.z = z;
 };
 
-Vector3.prototype.toJSON = function() {
+Vector3.prototype.objectify = function() {
 	return {
 		x: this.x,
 		y: this.y,
@@ -11380,7 +11476,7 @@ Vector4.prototype.set = function(x, y, z, w) {
 	this.w = w;
 };
 
-Vector4.prototype.toJSON = function() {
+Vector4.prototype.objectify = function() {
 	return {
 		x: this.x,
 		y: this.y,
@@ -11669,10 +11765,119 @@ function TextureShader() {
 }
 
 inheritsFrom(TextureShader, Shader);;/**
+ * Objectify utility class
+ */
+var Objectify = function () {
+};
+Objectify._logger = new Logger("Objectify");
+
+/**
+ * Objectify an array:
+ * @param array
+ */
+Objectify.array = function (array) {
+    var result = [];
+    array.forEach(function (elem) {
+        // this element has objectify implemented?
+        if (isFunction(elem.objectify)) {
+            try {
+                var obj = Objectify.create(elem);
+                if (obj) {
+                    result.push(obj);
+                }
+
+            } catch (ex) {
+                Objectify._logger.error("Failed to objectify element: " + ex);
+            }
+        }
+    });
+
+    return result;
+};
+
+/**
+ * Restores to the original state an array of objectified data
+ * @param array
+ */
+Objectify.restoreArray = function (array) {
+    var result = [];
+    array.forEach(function (elem) {
+        if (elem._otype) {
+            result.push(Objectify.restore(elem._otype, elem));
+        }
+    });
+
+    return result;
+};
+
+/**
+ * Creates an objectify valid data object
+ * @param object
+ */
+Objectify.create = function (object) {
+    var type = getType(object);
+    var result;
+
+    // this object has objectify?
+    if (object.objectify) {
+        result = object.objectify();
+
+    } else {
+        // nope, we can try to get the public properties then:
+        result = JSON.parse(JSON.stringify(object));
+    }
+
+    result._otype = type;
+
+    return result;
+};
+
+/**
+ * Restores an object of a given type
+ * @param typeName (the name of the type to restore)
+ * @param data (the data to restore)
+ */
+Objectify.restore = function (typeName, data) {
+    try {
+        var type = eval(typeName);
+        if (type && type.restore) {
+            return type.restore(data);
+        }
+    } catch (ex) {
+        Objectify._logger.error("Failed to restore element: " + ex);
+    }
+};
+
+/**
+ * Extends the properties of the objA with the properties of objB
+ * @param objA
+ * @param objB
+ * @returns {*}
+ */
+Objectify.extend = function (objA, objB) {
+    Object.keys(objB).forEach(function (prop) {
+        objA[prop] = objB[prop];
+    });
+
+    return objA
+};;/**
  * IO Path utility class
  */
 var Path = function () {
 };
+
+/**
+ *
+ * @type {boolean}
+ * @private
+ */
+Path._IS_WIN = navigator.platform.toLowerCase().indexOf('win') > -1;
+
+/**
+ * The appropriate system trailing slash
+ * @type {string}
+ */
+Path.TRAILING_SLASH = Path._IS_WIN ? "\\" : "/";
 
 /**
  * Ensures this is a valid string directory (eg. ends with slash)
@@ -11680,7 +11885,7 @@ var Path = function () {
  * @returns {string}
  */
 Path.wrapDirectoryPath = function (path) {
-	return path + (path.endsWith('/') || path.endsWith('\\') ? '' : '/');
+    return path + (path.endsWith('/') || path.endsWith('\\') ? '' : Path.TRAILING_SLASH);
 };
 
 /**
@@ -11688,8 +11893,8 @@ Path.wrapDirectoryPath = function (path) {
  * @param path
  */
 Path.getDirectory = function (path) {
-	var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
-	return path.substring(0, (index >= 0 ? index : path.length));
+    var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+    return path.substring(0, (index >= 0 ? index : path.length));
 };
 
 /**
@@ -11698,12 +11903,12 @@ Path.getDirectory = function (path) {
  * @returns {string}
  */
 Path.getDirectoryName = function (path) {
-	if (path.endsWith("/") || path.endsWith("\\")) {
-		path = path.substring(0, path.length - 1);
-	}
+    if (path.endsWith("/") || path.endsWith("\\")) {
+        path = path.substring(0, path.length - 1);
+    }
 
-	var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
-	return path.substring(index + 1, path.length);
+    var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+    return path.substring(index + 1, path.length);
 };
 
 /**
@@ -11711,8 +11916,8 @@ Path.getDirectoryName = function (path) {
  * @param path
  */
 Path.getFilename = function (path) {
-	var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
-	return path.substring((index >= 0 && index < path.length - 1 ? index + 1 : 0), path.length);
+    var index = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+    return path.substring((index >= 0 && index < path.length - 1 ? index + 1 : 0), path.length);
 };
 
 /**
@@ -11720,7 +11925,25 @@ Path.getFilename = function (path) {
  * @param path
  */
 Path.getFileExtension = function (path) {
-	return path.substring(path.lastIndexOf('.'), path.length);
+    return path.substring(path.lastIndexOf('.'), path.length);
+};
+
+/**
+ * Checks if pathA can be contained inside pathB
+ * @param pathA
+ * @param pathB
+ */
+Path.relativeTo = function (pathA, pathB) {
+    return Path.wrapDirectoryPath(pathA).indexOf(Path.wrapDirectoryPath(pathB)) === 0;
+};
+
+/**
+ * Makes the full path relative to the base path
+ * @param basePath
+ * @param fullPath
+ */
+Path.makeRelative = function (basePath, fullPath) {
+    return fullPath.replace(Path.wrapDirectoryPath(basePath), "");
 };;/**
  * WebGL Context class
  */

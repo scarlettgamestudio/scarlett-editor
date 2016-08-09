@@ -2,79 +2,171 @@
  * Created by John
  */
 
-app.factory("sceneSvc", function ($rootScope, constants) {
-	var svc = {};
+app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $q) {
+    var svc = {};
 
-	svc._activeGameScene = null; // the active game scene, all operations on the scene should be made with this consideration
-	svc._selectedObjects = [];
+    svc._activeGameScenePath = null;
+    svc._activeGameScene = null; // the active game scene, all operations on the scene should be made with this consideration
+    svc._selectedObjects = [];
 
-	/**
-	 * sets the active game scene
-	 * @param scene
-	 */
-	svc.setActiveGameScene = function(scene) {
-		this._activeGameScene = scene;
-	};
+    /**
+     * sets the active game scene
+     * @param scene
+     */
+    svc.setActiveGameScene = function (scene) {
+        if (!isGameScene(scene)) {
+            return;
+        }
 
-	/**
-	 * gets the active game scene
-	 * @returns {*|null}
-	 */
-	svc.getActiveGameScene = function() {
-		return this._activeGameScene;
-	};
+        if (svc._activeGameScene && scene.getUID() === svc._activeGameScene.getUID()) {
+            // it's the same one, no need for further processing..
+            return;
+        }
 
-	/**
-	 * Add the given object to the selected scene
-	 * @param gameObject
-	 */
-	svc.addGameObjectToScene = function(gameObject) {
-		if(svc._activeGameScene === null) {
-			// cannot add without a active scene..
-			return;
-		}
+        svc._activeGameScene = scene;
 
-		var parent = null;
+        // update the game active scene:
+        scene.getGame().changeScene(scene);
 
-		// is there any object selected? if so, we will add it as a child (if it's only one)
-		if(svc._selectedObjects.length === 1) {
-			parent = svc._selectedObjects[0];
-			parent.addChild(gameObject);
-		} else {
-			// since there is no parent, we add it directly to the scene container:
-			svc._activeGameScene.addGameObject(gameObject);
-		}
+        // update the project editor last scene:
+        if (svc._activeGameScenePath) {
+            scarlettSvc.getActiveProject().editor.lastScene = Path.makeRelative(scarlettSvc.activeProjectPath, svc._activeGameScenePath);
+        }
 
-		// finally, broadcast this so other components know the game object was added to the scene:
-		$rootScope.$broadcast(constants.EVENTS.GAME_OBJECT_ADDED, gameObject, parent);
-	};
+        // broadcast this event
+        $rootScope.$broadcast(constants.EVENTS.GAME_SCENE_CHANGED, scene);
+    };
 
-	/**
-	 * set the selected game objects
-	 * @param objects
-	 */
-	svc.setSelectedObjects = function(objects) {
-		// update the selected objects object:
-		svc._selectedObjects = objects;
+    /**
+     * save the active game scene
+     */
+    svc.saveActiveScene = function () {
+        if (!isGameScene(svc._activeGameScene)) {
+            return;
+        }
 
-		// broadcast the event so other components know
-		$rootScope.$broadcast(constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, objects);
-	};
+        // first we get the scene data
+        var sceneData = svc._activeGameScene.objectify();
 
-	/**
-	 * checks if a given object is already selected
-	 * @param object
-	 */
-	svc.isObjectSelected = function(object) {
-		return svc._selectedObjects.indexOf(object) >= 0;
-	};
+        // the scene already exists on disc?
+        if (svc._activeGameScenePath) {
+            // write the scene data:
+            NativeInterface.writeFile(svc._activeGameScenePath, JSON.stringify(sceneData));
 
-	/**
-	 * clear the selected objects array
-	 */
-	svc.clearSelectedObjects = function() {
-		svc._selectedObjects = [];
-	};
+        } else {
+            // it doesn't, let's query the user:
+            var params = {
+                filters: [{name: '', extensions: ['ss']}]
+            };
 
-	return svc;
+            NativeInterface.saveFileDialog(Path.wrapDirectoryPath(scarlettSvc.activeProjectPath), params, function (path) {
+                if (path) {
+                    if (Path.relativeTo(path, scarlettSvc.activeProjectPath)) {
+                        // also, update the active scene path variable:
+                        svc.activeGameScenePath = path;
+
+                        // .. and update the editor values as well:
+                        scarlettSvc.getActiveProject().editor.lastScene = Path.makeRelative(scarlettSvc.activeProjectPath, svc._activeGameScenePath);
+
+                        // write the scene data:
+                        NativeInterface.writeFile(path, JSON.stringify(sceneData));
+                    }
+                }
+            });
+        }
+    };
+
+    /**
+     * loads a scene from a given path
+     * @param path
+     */
+    svc.loadSceneFromFile = function(path) {
+        var defer = $q.defer();
+
+        NativeInterface.readFile(path, function (result) {
+            if (result === false) {
+                // the file failed to load..
+                defer.reject(error);
+            } else {
+                try {
+                    // TODO: make this an editor game scene
+                    var gameScene = GameScene.restore(JSON.parse(result));
+
+                    svc.activeGameScenePath = path;
+
+                    svc.setActiveGameScene(gameScene);
+
+                    defer.resolve(gameScene);
+
+                } catch (error) {
+                    // the project failed while parsing..
+                    defer.reject(error);
+                }
+            }
+        });
+
+        return defer.promise;
+    };
+
+    /**
+     * gets the active game scene
+     * @returns {*|null}
+     */
+    svc.getActiveGameScene = function () {
+        return this._activeGameScene;
+    };
+
+    /**
+     * Add the given object to the selected scene
+     * @param gameObject
+     */
+    svc.addGameObjectToScene = function (gameObject) {
+        if (svc._activeGameScene === null) {
+            // cannot add without a active scene..
+            return;
+        }
+
+        var parent = null;
+
+        // is there any object selected? if so, we will add it as a child (if it's only one)
+        if (svc._selectedObjects.length === 1) {
+            parent = svc._selectedObjects[0];
+            parent.addChild(gameObject);
+        } else {
+            // since there is no parent, we add it directly to the scene container:
+            svc._activeGameScene.addGameObject(gameObject);
+        }
+
+        // finally, broadcast this so other components know the game object was added to the scene:
+        $rootScope.$broadcast(constants.EVENTS.GAME_OBJECT_ADDED, gameObject, parent);
+    };
+
+    /**
+     * set the selected game objects
+     * @param objects
+     */
+    svc.setSelectedObjects = function (objects) {
+        // update the selected objects object:
+        svc._selectedObjects = objects;
+
+        // broadcast the event so other components know
+        $rootScope.$broadcast(constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, objects);
+    };
+
+    /**
+     * checks if a given object is already selected
+     * @param object
+     */
+    svc.isObjectSelected = function (object) {
+        return svc._selectedObjects.indexOf(object) >= 0;
+    };
+
+    /**
+     * clear the selected objects array
+     */
+    svc.clearSelectedObjects = function () {
+        svc._selectedObjects = [];
+    };
+
+    return svc;
 });

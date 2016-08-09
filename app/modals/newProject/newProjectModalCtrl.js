@@ -41,7 +41,7 @@ app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 
 			];
 
 			var path = $scope.model.projectPath;
-			path = Path.wrapDirectoryPath(path) + $scope.model.projectName + '/';
+			path = Path.wrapDirectoryPath(path) + $scope.model.projectName + Path.TRAILING_SLASH;
 
 			// call the interface to create the project:
 			ScarlettInterface.createProject(path, projectData, function(result) {

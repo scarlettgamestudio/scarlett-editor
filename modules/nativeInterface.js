@@ -16,6 +16,31 @@ function getOpenCommandLine() {
     }
 }
 
+NativeInterface.getSystemDirectorySlash = function() {
+    switch (process.platform) {
+        case 'win32' :
+        case 'win64':
+            return "\\";
+        default:
+            return "/";
+    }
+};
+
+NativeInterface.saveFileDialog = function(defaultPath, params, callback) {
+    params = params || {};
+    params.filters = params.filters || {};
+    dialog.showSaveDialog({
+        defaultPath: defaultPath,
+        filters: params.filters
+    }, function (result) {
+        if (result && result.length > 0) {
+            callback(result);
+        } else {
+            callback(false);
+        }
+    })
+};
+
 NativeInterface.openFileBrowser = function (defaultPath, params, callback) {
     params = params || {};
     params.filters = params.filters || {};

@@ -45,6 +45,11 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             return properties;
         }
 
+        /**
+         *
+         * @param object
+         * @returns {Array}
+         */
         function getObjectProperties(object) {
             var properties = [];
 
@@ -265,11 +270,19 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             return unifiedContainers
         }
 
+        /**
+         *
+         */
         $scope.$on(constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, (function (e, selected) {
             $scope.setTargets(selected, true);
 
         }).bind(this));
 
+
+        /**
+         *
+         * @returns {boolean}
+         */
         $scope.containsMultipleDefinitions = function () {
             if (!$scope.model.multipleTargets) {
                 return false;

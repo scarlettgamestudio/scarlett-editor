@@ -2,8 +2,8 @@
  * Created by John on 12/12/15.
  */
 
-app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', '$rootScope', '$translate', '$uibModal', '$http', '$compile', 'scarlettSvc', 'constants',
-	function ($scope, logSvc, soapSvc, config, userSvc, $rootScope, $translate, $uibModal, $http, $compile, scarlettSvc, constants) {
+app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', '$rootScope', '$translate', '$uibModal', '$http', '$compile', 'scarlettSvc', 'constants', 'sceneSvc',
+	function ($scope, logSvc, soapSvc, config, userSvc, $rootScope, $translate, $uibModal, $http, $compile, scarlettSvc, constants, sceneSvc) {
 
 		var myLayout = null;
 		var activeModal = null;
@@ -19,6 +19,14 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 				controller: "NewProjectModalCtrl",
 				size: 200
 			});
+		};
+
+		$scope.save = function() {
+			// save active scene:
+			sceneSvc.saveActiveScene();
+
+			// save project data:
+			scarlettSvc.saveProject();
 		};
 
 		$scope.logout = function () {

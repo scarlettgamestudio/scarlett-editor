@@ -14,7 +14,6 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
                 }],
                 [$translate.instant("CTX_SPRITE"), function ($itemScope) {
                     var gameObject = gameSvc.createSpriteObject(null);
-                    gameObject.setTextureSrc("C:\\Users\\Pc\\Pictures\\avatars\\image.jpg");
                     sceneSvc.addGameObjectToScene(gameObject);
                 }],
             ]],
@@ -67,12 +66,22 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
 
         }).bind(this));
 
+        $scope.$on(constants.EVENTS.GAME_SCENE_CHANGED, (function (e, scene) {
+            $scope.refresh();
+
+        }).bind(this));
+
         $scope.refresh = function () {
             if (!sceneSvc.getActiveGameScene()) {
                 return;
             }
 
             $scope.model.tree = mapTreeModel(sceneSvc.getActiveGameScene().getGameObjects());
+            $scope.safeDigest();
+        };
+
+        $scope.safeDigest = function () {
+            !$scope.$$phase && $scope.$digest();
         };
 
         $scope.onTreeSelectionChanged = function (selected) {
@@ -114,8 +123,6 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
         }
 
         (function init() {
-
-
             $scope.refresh();
         })();
     }

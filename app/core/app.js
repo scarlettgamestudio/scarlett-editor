@@ -41,7 +41,8 @@ var app = angular.module('scarlett', dependencies)
 	EVENTS: {
 		CONTAINER_RESIZE: "onContainerResize",
 		GAME_OBJECT_ADDED: "onGameObjectAdded",
-		GAME_OBJECT_SELECTION_CHANGED: "onGameObjectSelectionChange"
+		GAME_OBJECT_SELECTION_CHANGED: "onGameObjectSelectionChange",
+		GAME_SCENE_CHANGED: "onGameSceneChanged"
 	},
 	CONTAINERS: {
 		SCENE_VIEW: "sceneView"
@@ -84,7 +85,7 @@ var app = angular.module('scarlett', dependencies)
 
 .config(function (localStorageServiceProvider) {
 	// set a unique prefix for our app:
-	localStorageServiceProvider.setPrefix('LSBGH7X-003');
+	localStorageServiceProvider.setPrefix('LSBGH7X-004');
 })
 
 .config(function ($translateProvider) {

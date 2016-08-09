@@ -74,6 +74,17 @@
     color: map-get($default-colors, light-grey);
     font-size: 0.9em;
 
+    .button {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.89em;
+      cursor: pointer;
+
+      &.active {
+        background: darken(map-get($default-colors, grey-hound), 3%);
+      }
+    }
+
     .info {
       background: darken(map-get($default-colors, grey-hound), 3%);
       padding: 2px 6px;

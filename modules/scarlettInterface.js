@@ -4,6 +4,16 @@ const os = require('os');
 
 function ScarlettInterface() {}
 
+function getSystemDirectorySlash() {
+	switch (process.platform) {
+		case 'win32' :
+		case 'win64':
+			return "\\";
+		default:
+			return "/";
+	}
+}
+
 ScarlettInterface.setupApplicationFolder = function() {
 	var path = ScarlettInterface.getApplicationFolderPath();
 	fs.exists(path, function(result) {
@@ -37,7 +47,7 @@ ScarlettInterface.createProject = function(path, data, callback) {
 };
 
 ScarlettInterface.getApplicationFolderPath = function() {
-	return os.homedir() + "/" + pjson.settings.applicationFolderName;
+	return os.homedir() + getSystemDirectorySlash() + pjson.settings.applicationFolderName;
 };
 
 module.exports = ScarlettInterface;
