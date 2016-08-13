@@ -278,6 +278,13 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
 
         }).bind(this));
 
+        /**
+         *
+         */
+        $scope.$on(constants.EVENTS.GAME_SCENE_CHANGED, (function (e, scene) {
+            $scope.setTargets([], true);
+
+        }).bind(this));
 
         /**
          *

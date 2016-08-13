@@ -2,7 +2,7 @@
  * Created by John
  */
 
-app.factory("gameSvc", function () {
+app.factory("gameSvc", function ($rootScope, constants) {
 	var svc = {};
 
 	// this map holds all the games associated by a generated unique id (key)
@@ -73,6 +73,9 @@ app.factory("gameSvc", function () {
 
 		svc._gameMap[uid] = new Game(settings);
 		svc._gameMap[uid].init();
+
+		// broadcast the game initialize event
+		$rootScope.$broadcast(constants.EVENTS.GAME_INITIALIZE, svc._gameMap[uid]);
 
 		return true;
 	};

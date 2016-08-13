@@ -10020,37 +10020,38 @@ Color.Black = Color.fromRGB(0.0, 0.0, 0.0);;/**
  * GameScene class
  */
 function Game(params) {
-	params = params || {};
+    params = params || {};
 
-	var DEFAULT_VIRTUAL_WIDTH = 800,
-		DEFAULT_VIRTUAL_HEIGHT = 640;
+    var DEFAULT_VIRTUAL_WIDTH = 800,
+        DEFAULT_VIRTUAL_HEIGHT = 640;
 
-	// public properties:
+    // public properties:
 
 
-	// private properties:
-	this._renderContext = null;
-	this._logger = new Logger(arguments.callee.name);
-	this._initialized = false;
-	this._gameScene = params.scene;
-	this._totalElapsedTime = null;
-	this._virtualResolution = null;
-	this._shaderManager = null;
-	this._executionPhase = SCARLETT.EXECUTION_PHASES.WAITING;
-	this._physicsEngine = Matter.Engine.create();
-	this._physicsEngine.enableSleeping = true;
-	this._renderExtensions = {};
-	this._paused = false;
+    // private properties:
+    this._renderContext = null;
+    this._logger = new Logger(arguments.callee.name);
+    this._initialized = false;
+    this._gameScene = params.scene;
+    this._totalElapsedTime = null;
+    this._virtualResolution = null;
+    this._shaderManager = null;
+    this._executionPhase = SCARLETT.EXECUTION_PHASES.WAITING;
+    this._physicsEngine = Matter.Engine.create();
+    this._physicsEngine.enableSleeping = true;
+    this._renderExtensions = {};
+    this._paused = false;
+    this._swapScene = null; // used to contain a temporary scene before swapping
 
-	Matter.Engine.run(this._physicsEngine);
+    Matter.Engine.run(this._physicsEngine);
 
-	// set the default virtual resolution
-	this.setVirtualResolution(DEFAULT_VIRTUAL_WIDTH, DEFAULT_VIRTUAL_HEIGHT);
+    // set the default virtual resolution
+    this.setVirtualResolution(DEFAULT_VIRTUAL_WIDTH, DEFAULT_VIRTUAL_HEIGHT);
 
-	// the target container is defined?
-	if (isString(params.target)) {
-		this.setTarget(params.target);
-	}
+    // the target container is defined?
+    if (isString(params.target)) {
+        this.setTarget(params.target);
+    }
 }
 
 /**
@@ -10059,7 +10060,7 @@ function Game(params) {
  * @param extension
  */
 Game.prototype.addRenderExtension = function (name, extension) {
-	this._renderExtensions[name] = extension;
+    this._renderExtensions[name] = extension;
 };
 
 /**
@@ -10067,14 +10068,14 @@ Game.prototype.addRenderExtension = function (name, extension) {
  * @param name
  */
 Game.prototype.removeRenderExtension = function (name) {
-	delete this._renderExtensions[name];
+    delete this._renderExtensions[name];
 };
 
 /**
  *
  */
 Game.prototype.clearRenderExtensions = function () {
-	this._renderExtensions = [];
+    this._renderExtensions = [];
 };
 
 /**
@@ -10082,7 +10083,7 @@ Game.prototype.clearRenderExtensions = function () {
  * @returns {engine|*}
  */
 Game.prototype.getPhysicsEngine = function () {
-	return this._physicsEngine;
+    return this._physicsEngine;
 };
 
 /**
@@ -10090,181 +10091,201 @@ Game.prototype.getPhysicsEngine = function () {
  * @param timestamp
  */
 Game.prototype._onAnimationFrame = function (timestamp) {
-	// is this the first run?
-	if (this._totalElapsedTime === null) {
-		this._totalElapsedTime = timestamp;
-	}
+    // is this the first run?
+    if (this._totalElapsedTime === null) {
+        this._totalElapsedTime = timestamp;
+    }
 
-	// calculate the current delta time value:
-	var delta = timestamp - this._totalElapsedTime;
-	var self = this;
-	this._totalElapsedTime = timestamp;
+    // calculate the current delta time value:
+    var delta = timestamp - this._totalElapsedTime;
+    var self = this;
+    this._totalElapsedTime = timestamp;
 
-	if (!this._paused && isGameScene(this._gameScene)) {
-		// handle the active game scene interactions here:
+    // any scene waiting to be swapped?
+    if (this._swapScene) {
+        this.changeScene(this._swapScene);
+        this._swapScene = null;
+    }
 
-		// TODO: before release, add the try here..
-		//try {
-			// the user defined the game scene update function?
-			if (isFunction(this._gameScene.update)) {
-				// call user defined update function:
-				this._executionPhase = SC.EXECUTION_PHASES.UPDATE;
-				this._gameScene.update(delta);
-			}
+    if (!this._paused && isGameScene(this._gameScene)) {
+        // handle the active game scene interactions here:
 
-			if (isFunction(this._gameScene.lateUpdate)) {
-				// call user defined update function:
-				this._executionPhase = SC.EXECUTION_PHASES.LATE_UPDATE;
-				this._gameScene.lateUpdate(delta);
-			}
+        // TODO: before release, add the try here..
+        //try {
+        // the user defined the game scene update function?
+        if (isFunction(this._gameScene.update)) {
+            // call user defined update function:
+            this._executionPhase = SC.EXECUTION_PHASES.UPDATE;
+            this._gameScene.update(delta);
+        }
 
-			this._gameScene.sceneLateUpdate(delta);
+        if (isFunction(this._gameScene.lateUpdate)) {
+            // call user defined update function:
+            this._executionPhase = SC.EXECUTION_PHASES.LATE_UPDATE;
+            this._gameScene.lateUpdate(delta);
+        }
 
-			// prepare the webgl context for rendering:
-			this._gameScene.prepareRender();
+        this._gameScene.sceneLateUpdate(delta);
 
-			// render extensions?
-			var renderExtensions = Object.keys(this._renderExtensions);
-			renderExtensions.forEach(function (name) {
-				self._renderExtensions[name].render(delta);
-			});
+        // prepare the webgl context for rendering:
+        this._gameScene.prepareRender();
 
-			// the user defined the game scene early-render function?
-			if (isFunction(this._gameScene.render)) {
-				this._executionPhase = SC.EXECUTION_PHASES.RENDER;
-				this._gameScene.render(delta);
-			}
+        // render extensions?
+        var renderExtensions = Object.keys(this._renderExtensions);
+        renderExtensions.forEach(function (name) {
+            self._renderExtensions[name].render(delta);
+        });
 
-			// call internal scene render function:
-			this._executionPhase = SC.EXECUTION_PHASES.SCENE_RENDER;
-			this._gameScene.sceneRender(delta);
+        // the user defined the game scene early-render function?
+        if (isFunction(this._gameScene.render)) {
+            this._executionPhase = SC.EXECUTION_PHASES.RENDER;
+            this._gameScene.render(delta);
+        }
 
-			// the user defined the game scene pre-render function?
-			if (isFunction(this._gameScene.lateRender)) {
-				this._executionPhase = SC.EXECUTION_PHASES.LATE_RENDER;
-				this._gameScene.lateRender(delta);
-			}
+        // call internal scene render function:
+        this._executionPhase = SC.EXECUTION_PHASES.SCENE_RENDER;
+        this._gameScene.sceneRender(delta);
 
-		//} catch (ex) {
-		//	this._logger.error(ex);
-		//}
+        // the user defined the game scene pre-render function?
+        if (isFunction(this._gameScene.lateRender)) {
+            this._executionPhase = SC.EXECUTION_PHASES.LATE_RENDER;
+            this._gameScene.lateRender(delta);
+        }
 
-		this._executionPhase = SC.EXECUTION_PHASES.WAITING;
-	}
+        //} catch (ex) {
+        //	this._logger.error(ex);
+        //}
 
-	// request a new animation frame:
-	requestAnimationFrame(this._onAnimationFrame.bind(this));
+        this._executionPhase = SC.EXECUTION_PHASES.WAITING;
+    }
+
+    // request a new animation frame:
+    requestAnimationFrame(this._onAnimationFrame.bind(this));
 };
 
-Game.prototype.pauseGame = function() {
-	this._pause = true;
+Game.prototype.pauseGame = function () {
+    this._pause = true;
 };
 
-Game.prototype.resumeGame = function() {
-	this._pause = false;
+Game.prototype.resumeGame = function () {
+    this._pause = false;
 };
 
 Game.prototype.getShaderManager = function () {
-	return this._shaderManager;
+    return this._shaderManager;
 };
 
 Game.prototype.getActiveCamera = function () {
-	return this._gameScene.getCamera();
+    return this._gameScene ? this._gameScene.getCamera() : null;
 };
 
 Game.prototype.getExecutionPhase = function () {
-	return this._executionPhase;
+    return this._executionPhase;
 };
 
 Game.prototype.init = function () {
-	// context initialization
-	if (!isObjectAssigned(this._canvas)) {
-		this._logger.warn("Cannot initialize game, the render display target was not provided or is invalid.");
-		return;
-	}
+    // context initialization
+    if (!isObjectAssigned(this._canvas)) {
+        this._logger.warn("Cannot initialize game, the render display target was not provided or is invalid.");
+        return;
+    }
 
-	// request to begin the animation frame handling
-	this._onAnimationFrame(0);
+    // request to begin the animation frame handling
+    this._onAnimationFrame(0);
 
-	// set this as the active game:
-	GameManager.activeGame = this;
+    // set this as the active game:
+    GameManager.activeGame = this;
 
-	this._initalized = true;
+    this._initalized = true;
 };
 
 /**
  * Set this as the active game
  */
-Game.prototype.setActive = function() {
-	GameManager.activeGame = this;
+Game.prototype.setActive = function () {
+    GameManager.activeGame = this;
 };
 
 Game.prototype.setVirtualResolution = function (width, height) {
-	this._virtualResolution = {
-		width: width,
-		height: height
-	};
+    this._virtualResolution = {
+        width: width,
+        height: height
+    };
 
-	if (isObjectAssigned(this._renderContext)) {
-		this._renderContext.setVirtualResolution(width, height);
+    if (isObjectAssigned(this._renderContext)) {
+        this._renderContext.setVirtualResolution(width, height);
 
-		// update camera view size:
-		this.getActiveCamera().setViewSize(width, height);
-	}
+        // update camera view size:
+        this.getActiveCamera().setViewSize(width, height);
+    }
 };
 
 Game.prototype.refreshVirtualResolution = function () {
-	this._renderContext.setVirtualResolution(this._virtualResolution.width, this._virtualResolution.height);
+    this._renderContext.setVirtualResolution(this._virtualResolution.width, this._virtualResolution.height);
+
+    var camera = this.getActiveCamera();
+    if (camera) {
+        camera.setViewSize(this._virtualResolution.width, this._virtualResolution.height);
+    }
 };
 
 Game.prototype.getVirtualResolution = function () {
-	return this._virtualResolution;
+    return this._virtualResolution;
 };
 
 Game.prototype.getRenderContext = function () {
-	return this._renderContext;
+    return this._renderContext;
 };
 
 Game.prototype.setTarget = function (target) {
-	this._canvas = isString(target) ? document.getElementById(target) : null;
+    this._canvas = isString(target) ? document.getElementById(target) : null;
 
-	if (isObjectAssigned(this._canvas)) {
-		// OPTIONAL: for now there is only WebGL Context, add more if needed:
-		// assign the render context..
-		this._renderContext = new WebGLContext({
-			renderContainer: this._canvas
-		});
+    if (isObjectAssigned(this._canvas)) {
+        // OPTIONAL: for now there is only WebGL Context, add more if needed:
+        // assign the render context..
+        this._renderContext = new WebGLContext({
+            renderContainer: this._canvas
+        });
 
-		// setting the global active render as the one selected for this game:
-		GameManager.renderContext = this._renderContext;
-		this._shaderManager = new ShaderManager(this);
+        // setting the global active render as the one selected for this game:
+        GameManager.renderContext = this._renderContext;
+        this._shaderManager = new ShaderManager(this);
 
-		this.refreshVirtualResolution();
-	}
+        this.refreshVirtualResolution();
+    }
 };
 
 Game.prototype.changeScene = function (scene) {
-	if (isGameScene(scene)) {
-		if(this._gameScene) {
-			// unload the active scene:
-			this._gameScene.unload();
-		}
+    if (!isGameScene(scene)) {
+        return;
+    }
 
-		this._gameScene = scene;
-		this._gameScene.setGame(this);
+    if (this._executionPhase == SC.EXECUTION_PHASES.WAITING) {
+        if (this._gameScene) {
+            // unload the active scene:
+            this._gameScene.unload();
+        }
 
-		GameManager.activeScene = scene;
+        this._gameScene = scene;
+        this._gameScene.setGame(this);
 
-		// the user defined the game scene initialize function?
-		if (isFunction(this._gameScene.initialize)) {
-			// call user defined update function:
-			this._gameScene.initialize();
-		}
-	}
+        GameManager.activeScene = scene;
+        this.refreshVirtualResolution();
+
+        // the user defined the game scene initialize function?
+        if (isFunction(this._gameScene.initialize)) {
+            // call user defined update function:
+            this._gameScene.initialize();
+        }
+
+    } else {
+        // store this scene to change in the next animation frame end
+        this._swapScene = scene;
+    }
 };
 
 Game.prototype.getTotalElapsedTime = function () {
-	return this._totalElapsedTime;
+    return this._totalElapsedTime;
 };
 
 Game.prototype.unload = function () {
@@ -11527,11 +11548,17 @@ function Shader(vertexScript, fragmentScript, uniforms, attributes) {
  */
 Shader.prototype.setup = function () {
     if (this.compile()) {
-        this._gl.useProgram(this._program);
+        var shaderManager = GameManager.activeGame.getShaderManager();
+        if (shaderManager) {
+            shaderManager.useShader(this);
+        } else {
+            this._gl.useProgram(this._program);
+        }
 
         // cache some script locations:
         this.cacheUniformLocations(Object.keys(this.uniforms));
         this.cacheAttributeLocations(Object.keys(this.attributes));
+
     } else {
         debug.error("Shader setup failed");
     }
@@ -11558,7 +11585,7 @@ Shader.prototype.compile = function () {
 /**
  * Gets the unique id of this shader instance
  */
-Shader.prototype.getUID = function() {
+Shader.prototype.getUID = function () {
     return this._uid;
 };
 
@@ -11659,7 +11686,7 @@ Shader.prototype.syncUniform = function (uniform) {
 
             // the texture was already sampled?
             if (!isObjectAssigned(texture)) {
-
+                // TODO: do stuff here? :D
             }
 
             break;
@@ -11669,7 +11696,7 @@ Shader.prototype.syncUniform = function (uniform) {
     }
 };
 
-Shader.prototype.getProgram = function() {
+Shader.prototype.getProgram = function () {
     return this._program;
 };
 
@@ -11679,11 +11706,8 @@ Shader.prototype.initSampler2D = function (uniform) {
         return;
     }
 
-    var gl = this._gl;
     var imgData = uniform.value.getImageData();
-
     var texture = imgData.baseTexture;
-
 };
 
 Shader.prototype.unload = function () {

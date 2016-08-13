@@ -1,5 +1,5 @@
-app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scarlettSvc', 'gameSvc', 'sceneSvc',
-    function ($scope, $timeout, logSvc, config, scarlettSvc, gameSvc, sceneSvc) {
+app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scarlettSvc', 'gameSvc', 'sceneSvc', 'constants',
+    function ($scope, $timeout, logSvc, config, scarlettSvc, gameSvc, sceneSvc, constants) {
 
         $scope.model = {
             visualZoom: 100,
@@ -12,6 +12,11 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
                 debug: null
             }
         };
+
+        $scope.$on(constants.EVENTS.GAME_SCENE_CHANGED, (function (e, scene) {
+            $scope.model.scene = scene;
+
+        }).bind(this));
 
         $scope.getCanvasID = function () {
             return $scope.model.canvasID;
@@ -95,12 +100,16 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
             var game = gameSvc.getGame($scope.model.gameUID);
 
             // is there a valid project scene available?
-            if (!scarlettSvc.activeProject.editor.lastScene) {
+            if (!sceneSvc.getActiveGameScene()) {
                 // nope, let's create a new one:
                 $scope.model.scene = new EditorGameScene({
                     game: game,
                     backgroundColor: Color.fromRGB(39, 41, 42)
                 });
+                
+            } else {
+                $scope.model.scene = sceneSvc.getActiveGameScene();
+
             }
 
             game.changeScene($scope.model.scene);

@@ -4,10 +4,18 @@
 
 app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $q) {
     var svc = {};
+    var scope = $rootScope.$new();
 
     svc._activeGameScenePath = null;
     svc._activeGameScene = null; // the active game scene, all operations on the scene should be made with this consideration
     svc._selectedObjects = [];
+
+    scope.$on(constants.EVENTS.GAME_INITIALIZE, (function (e, project) {
+       if (project.editor && project.editor.lastScene) {
+           svc.loadSceneFromFile(scarlettSvc.getActiveProjectPath() +  project.editor.lastScene);
+       }
+
+    }).bind(this));
 
     /**
      * sets the active game scene
@@ -90,9 +98,9 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
             } else {
                 try {
                     // TODO: make this an editor game scene
-                    var gameScene = GameScene.restore(JSON.parse(result));
+                    var gameScene = EditorGameScene.restore(JSON.parse(result));
 
-                    svc.activeGameScenePath = path;
+                    svc._activeGameScenePath = path;
 
                     svc.setActiveGameScene(gameScene);
 

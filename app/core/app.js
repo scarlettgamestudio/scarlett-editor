@@ -41,8 +41,10 @@ var app = angular.module('scarlett', dependencies)
 	EVENTS: {
 		CONTAINER_RESIZE: "onContainerResize",
 		GAME_OBJECT_ADDED: "onGameObjectAdded",
+		PROJECT_LOADED: "onProjectLoaded",
 		GAME_OBJECT_SELECTION_CHANGED: "onGameObjectSelectionChange",
-		GAME_SCENE_CHANGED: "onGameSceneChanged"
+		GAME_SCENE_CHANGED: "onGameSceneChanged",
+		GAME_INITIALIZE: "onGameInitialize",
 	},
 	CONTAINERS: {
 		SCENE_VIEW: "sceneView"
@@ -56,7 +58,7 @@ var app = angular.module('scarlett', dependencies)
 
 .constant("config", {
 	API: {
-		ADDRESS: "http://anlagehub.com/scarlett_ws/service.php",
+		ADDRESS: "https://anlagehub.com/scarlett_ws/service.php",
 		ACTIONS: {
 			LOGIN: 0,
 			REGISTER: 1

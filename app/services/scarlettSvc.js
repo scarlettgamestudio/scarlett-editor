@@ -2,7 +2,7 @@
  * Created by John
  */
 
-app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q) {
+app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, constants) {
     var svc = {};
 
     svc.activeProject = null;
@@ -128,6 +128,9 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q) {
 
                     GameManager.activeProject = gameProject;
                     GameManager.activeProjectPath = Path.wrapDirectoryPath(Path.getDirectory(gamefilePath));
+
+                    // broadcast the event so other components know
+                    $rootScope.$broadcast(constants.EVENTS.PROJECT_LOADED, gameProject);
 
                     defer.resolve(gameProject);
 

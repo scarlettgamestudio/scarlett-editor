@@ -172,6 +172,15 @@ EditorGameScene.prototype._rectangleFromVectors = function (va, vb) {
     return new Rectangle(x, y, width, height);
 };
 
+EditorGameScene.restore = function(data) {
+    return new EditorGameScene({
+        game: GameManager.activeGame,
+        backgroundColor: Color.restore(data.backgroundColor),
+        camera: Camera2D.restore(data.camera),
+        gameObjects: Objectify.restoreArray(data.gameObjects),
+    });
+};
+
 /**
  * Calculates the world coordinates based on the screen position:
  * @param screenX
