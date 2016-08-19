@@ -9835,6 +9835,7 @@ function Camera2D(x, y, viewWidth, viewHeight, zoom) {
     this._lastY = null;
     this._lastZoom = null;
     this._matrix = mat4.create();
+    this._omatrix = mat4.create(); // used for temporary calculations
 }
 
 Camera2D.prototype.calculateMatrix = function () {
@@ -9862,6 +9863,14 @@ Camera2D.prototype.setViewSize = function (viewWidth, viewHeight) {
     this.calculateMatrix();
 };
 
+Camera2D.prototype.getViewWidth = function() {
+    return this.viewWidth;
+};
+
+Camera2D.prototype.getViewHeight = function() {
+    return this.viewHeight;
+};
+
 /**
  * Calculates (if necessary) and returns the transformation matrix of the camera
  * @returns {mat4|*}
@@ -9874,6 +9883,23 @@ Camera2D.prototype.getMatrix = function () {
 
     return this._matrix;
 };
+
+/**
+ * Gets the world coordinates based on the screen X and Y
+ * @param screenX
+ * @param screenY
+ */
+Camera2D.prototype.screenToWorldCoordinates = function(screenX, screenY) {
+    // first we normalize the screen position:
+    var x = (2.0 * screenX) / this.viewWidth - 1.0;
+    var y = 1.0 - (2.0 * screenY) / this.viewHeight;
+
+    // then we calculate and return the world coordinates:
+    mat4.invert(this._omatrix, this.getMatrix());
+
+    return Vector2.transformMat4(new Vector2(x, y), this._omatrix);
+};
+
 
 Camera2D.prototype.unload = function () {
 
@@ -10016,7 +10042,16 @@ Color.Red = Color.fromRGB(255.0, 0.0, 0.0);
 Color.Green = Color.fromRGB(0.0, 255.0, 0.0);
 Color.Blue = Color.fromRGB(0.0, 0.0, 255.0);
 Color.White = Color.fromRGB(255.0, 255.0, 255.0);
-Color.Black = Color.fromRGB(0.0, 0.0, 0.0);;/**
+Color.Black = Color.fromRGB(0.0, 0.0, 0.0);
+Color.Gray = Color.fromRGB(80.0, 80.0, 80.0);
+Color.Nephritis = Color.fromRGB(39.0, 174.0, 96.0);
+Color.Wisteria = Color.fromRGB(142.0, 68.0, 173.0);
+Color.Amethyst = Color.fromRGB(155.0, 89.0, 182.0);
+Color.Carrot = Color.fromRGB(230, 126, 34);
+Color.Pumpkin = Color.fromRGB(211, 84, 0);
+Color.Orange = Color.fromRGB(243, 156, 18);
+Color.SunFlower = Color.fromRGB(241, 196, 15);
+Color.Alizarin = Color.fromRGB(231, 76, 60);;/**
  * GameScene class
  */
 function Game(params) {
@@ -10042,6 +10077,7 @@ function Game(params) {
     this._renderExtensions = {};
     this._paused = false;
     this._swapScene = null; // used to contain a temporary scene before swapping
+    this._swappingScenes = false;
 
     Matter.Engine.run(this._physicsEngine);
 
@@ -10096,18 +10132,18 @@ Game.prototype._onAnimationFrame = function (timestamp) {
         this._totalElapsedTime = timestamp;
     }
 
+    // any scene waiting to be swapped?
+    if (this._swapScene && !this._swappingScenes) {
+        this.changeScene(this._swapScene);
+        this._swapScene = null;
+    }
+
     // calculate the current delta time value:
     var delta = timestamp - this._totalElapsedTime;
     var self = this;
     this._totalElapsedTime = timestamp;
 
-    // any scene waiting to be swapped?
-    if (this._swapScene) {
-        this.changeScene(this._swapScene);
-        this._swapScene = null;
-    }
-
-    if (!this._paused && isGameScene(this._gameScene)) {
+    if (!this._paused && isGameScene(this._gameScene) && !this._swappingScenes) {
         // handle the active game scene interactions here:
 
         // TODO: before release, add the try here..
@@ -10260,7 +10296,11 @@ Game.prototype.changeScene = function (scene) {
         return;
     }
 
+    // is it safe to swap scenes now?
     if (this._executionPhase == SC.EXECUTION_PHASES.WAITING) {
+        // flag the swapping state
+        this._swappingScenes = true;
+
         if (this._gameScene) {
             // unload the active scene:
             this._gameScene.unload();
@@ -10278,8 +10318,10 @@ Game.prototype.changeScene = function (scene) {
             this._gameScene.initialize();
         }
 
+        this._swappingScenes = false;
+
     } else {
-        // store this scene to change in the next animation frame end
+        // nope, store this scene to change in the next animation frame start
         this._swapScene = scene;
     }
 };
@@ -10325,6 +10367,8 @@ function GameObject(params) {
     this._parent = params.parent || null;
     this._children = params.children || [];
     this._components = params.components || [];
+    this._matrixDirty = true;
+    this._transformMatrix = mat4.create();
 }
 
 GameObject.prototype.getType = function () {
@@ -10336,11 +10380,24 @@ GameObject.prototype.getUID = function () {
 };
 
 GameObject.prototype.propagatePropertyUpdate = function (property, value) {
+    this._matrixDirty = true;
+
     for (var i = 0; i < this._components.length; ++i) {
         if (this._components[i]["onGameObject" + property + "Updated"]) {
             this._components[i]["onGameObject" + property + "Updated"](value);
         }
     }
+};
+
+GameObject.prototype.getMatrix = function () {
+    if (this._matrixDirty || !this._transformMatrix) {
+        mat4.identity(this._transformMatrix);
+        mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x, this.transform.getPosition().y, 0]);
+
+        this._matrixDirty = false;
+    }
+
+    return this._transformMatrix;
 };
 
 GameObject.prototype.getParent = function () {
@@ -10406,7 +10463,30 @@ GameObject.prototype.getComponents = function () {
     return this._components;
 };
 
-// functions:
+GameObject.prototype.getBoundaryVertices = function () {
+    var mat = this.getMatrix();
+
+    return {
+        topLeft: Vector2.transformMat4(new Vector2(0, 0), mat),
+        topRight: Vector2.transformMat4(new Vector2(1, 0), mat),
+        bottomLeft: Vector2.transformMat4(new Vector2(0, 1), mat),
+        bottomRight: Vector2.transformMat4(new Vector2(1, 1), mat)
+    }
+};
+
+GameObject.prototype.getBoundaries = function () {
+    var vertices = this.getBoundaryVertices();
+
+    // find the min and max width to form the rectangle boundary
+    var minX = Math.min(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
+    var maxX = Math.max(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
+    var minY = Math.min(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
+    var maxY = Math.max(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
+
+    // return the generated rectangle:
+    return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+};
+
 GameObject.prototype.objectify = function () {
     return {
         name: this.name,
@@ -10508,6 +10588,24 @@ GameScene.prototype.getGameObjects = function () {
 
 GameScene.prototype.removeEntity = function (entity) {
     // TODO: implement
+};
+
+/**
+ * Returns an array with all the game objects of this scene. All child game objects are included.
+ */
+GameScene.prototype.getAllGameObjects = function () {
+    var result = [];
+
+    function recursive(gameObjects) {
+        gameObjects.forEach(function (elem) {
+            result.push(elem);
+            recursive(elem.getChildren());
+        });
+    }
+
+    recursive(this._gameObjects);
+
+    return result;
 };
 
 GameScene.prototype.prepareRender = function () {
@@ -10669,12 +10767,12 @@ function PrimitiveRender(game) {
     this._vertexBuffer = this._gl.createBuffer();
     this._transformMatrix = mat4.create();
     this._rectangleData = new Float32Array([
-        0.0,  0.0,
-        1.0,  0.0,
-        0.0,  1.0,
-        0.0,  1.0,
-        1.0,  0.0,
-        1.0,  1.0
+        0.0, 0.0,
+        1.0, 0.0,
+        0.0, 1.0,
+        0.0, 1.0,
+        1.0, 0.0,
+        1.0, 1.0
     ]);
     this._pointData = new Float32Array([
         0.0, 0.0
@@ -10713,7 +10811,100 @@ PrimitiveRender.prototype.drawPoint = function (vector, size, color) {
     gl.drawArrays(gl.POINTS, 0, 1);
 };
 
-PrimitiveRender.prototype.drawRectangle = function (rectangle, color) {
+PrimitiveRender.prototype.drawTriangle = function (vectorA, vectorB, vectorC, color) {
+    var gl = this._gl;
+    var transformMatrix = this._transformMatrix;
+
+    this._game.getShaderManager().useShader(this._primitiveShader);
+
+    var triangleData = new Float32Array([
+        vectorA.x, vectorA.y,
+        vectorB.x, vectorB.y,
+        vectorC.x, vectorC.y
+    ]);
+
+    // position buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, triangleData, gl.STATIC_DRAW);
+
+    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+
+    // calculate transformation matrix (if not provided):
+    mat4.identity(transformMatrix);
+
+    // set uniforms
+    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix);
+    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+};
+
+PrimitiveRender.prototype.drawCircle = function (position, radius, iterations, color) {
+    var gl = this._gl;
+
+    this._game.getShaderManager().useShader(this._primitiveShader);
+
+    var triangleData = [];
+    for (var i = 0; i < iterations; i++) {
+        triangleData.push(position.x + (radius * Math.cos(i * MathHelper.PI2 / iterations)));
+        triangleData.push(position.y + (radius * Math.sin(i * MathHelper.PI2 / iterations)));
+    }
+    triangleData = new Float32Array(triangleData);
+
+    // position buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, triangleData, gl.STATIC_DRAW);
+
+    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
+
+    mat4.identity(this._transformMatrix);
+
+    // set uniforms
+    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix);
+    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, iterations);
+};
+
+PrimitiveRender.prototype.drawRectangle = function (rectangle, color, rotation) {
+    var gl = this._gl;
+    var transformMatrix = this._transformMatrix;
+
+    this._game.getShaderManager().useShader(this._primitiveShader);
+
+    // position buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
+
+    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+
+    // calculate transformation matrix (if not provided):
+    mat4.identity(transformMatrix);
+    mat4.translate(transformMatrix, transformMatrix, [rectangle.x, rectangle.y, 0]);
+
+    // rotate the rectangle?
+    if (rotation) {
+        mat4.translate(transformMatrix, transformMatrix, [rectangle.width / 2, rectangle.height / 2, 0]);
+        mat4.rotate(transformMatrix, transformMatrix, rotation, [0.0, 0.0, 1.0]);
+        mat4.translate(transformMatrix, transformMatrix, [-rectangle.width / 2, -rectangle.height / 2, 0]);
+    }
+
+    mat4.scale(transformMatrix, transformMatrix, [rectangle.width, rectangle.height, 0]);
+
+    // set uniforms
+    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix);
+    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+};
+
+PrimitiveRender.prototype.drawRectangleFromMatrix = function (matrix, color) {
     var gl = this._gl;
 
     this._game.getShaderManager().useShader(this._primitiveShader);
@@ -10723,16 +10914,11 @@ PrimitiveRender.prototype.drawRectangle = function (rectangle, color) {
     gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
 
     gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
-
-    // calculate transformation matrix:
-    mat4.identity(this._transformMatrix);
-    mat4.translate(this._transformMatrix, this._transformMatrix, [rectangle.x, rectangle.y, 0]);
-    mat4.scale(this._transformMatrix, this._transformMatrix, [rectangle.width, rectangle.height, 0]);
+    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
 
     // set uniforms
     gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix);
+    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, matrix);
     gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -10781,9 +10967,46 @@ function Sprite(params) {
     this._texture = params.texture;
     this._textureSrc = "";
     this._tint = params.tint || Color.fromRGB(255, 255, 255);
+    this._textureWidth = 0;
+    this._textureHeight = 0;
+    this._origin = new Vector2(0.5, 0.5);
 }
 
 inheritsFrom(Sprite, GameObject);
+
+Sprite.prototype.getTextureWidth = function() {
+    return this._textureWidth;
+};
+
+Sprite.prototype.getTextureHeight = function() {
+    return this._textureHeight;
+};
+
+Sprite.prototype.getMatrix = function () {
+    if (this._matrixDirty || !this._transformMatrix) {
+        var width = this._textureWidth * this.transform.getScale().x;
+        var height = this._textureHeight * this.transform.getScale().y;
+
+        mat4.identity(this._transformMatrix);
+        mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x - this._textureWidth * this._origin.x, this.transform.getPosition().y - this._textureHeight * this._origin.y, 0]);
+        mat4.translate(this._transformMatrix, this._transformMatrix, [width / 2, height / 2, 0]);
+        mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
+        mat4.translate(this._transformMatrix, this._transformMatrix, [-width / 2, -height / 2, 0]);
+        mat4.scale(this._transformMatrix, this._transformMatrix, [width, height, 0]);
+
+        this._matrixDirty = false;
+    }
+
+    return this._transformMatrix;
+};
+
+Sprite.prototype.setOrigin = function (origin) {
+    this._origin = origin;
+};
+
+Sprite.prototype.getOrigin = function () {
+    return this._origin;
+};
 
 Sprite.prototype.setTint = function (color) {
     this._tint = color;
@@ -10820,7 +11043,17 @@ Sprite.prototype.getTexture = function () {
 };
 
 Sprite.prototype.setTexture = function (texture) {
+    // is this a ready texture?
+    if (!texture || !texture.isReady()) {
+        return;
+    }
+
     this._texture = texture;
+    this._matrixDirty = true;
+
+    // cache the dimensions
+    this._textureWidth = this._texture.getWidth();
+    this._textureHeight = this._texture.getHeight();
 };
 
 Sprite.prototype.render = function (delta, spriteBatch) {
@@ -10841,10 +11074,12 @@ Sprite.prototype.objectify = function () {
 };
 
 Sprite.restore = function (data) {
-    var gameObject = GameObject.restore(data);
-    var sprite = new Sprite();
-
-    Objectify.extend(sprite, gameObject);
+    var sprite = new Sprite({
+        name: data.name,
+        transform: Transform.restore(data.transform),
+        children: Objectify.restoreArray(data.children),
+        components: Objectify.restoreArray(data.components)
+    });
 
     sprite.setTextureSrc(data.src);
 
@@ -10858,6 +11093,109 @@ Sprite.prototype.unload = function () {
  * SpriteBatch class
  */
 function SpriteBatch(game) {
+    if (!isGame(game)) {
+        throw error("Cannot create sprite render, the Game object is missing from the parameters");
+    }
+
+    // public properties:
+
+
+    // private properties:
+    this._game = game;
+    this._gl = game.getRenderContext().getContext();
+    this._vertexBuffer = this._gl.createBuffer();
+    this._texBuffer = this._gl.createBuffer();
+    this._textureShader = new TextureShader();
+    this._lastTexUID = -1;
+    this._sprites = [];
+    this._rectangleData = new Float32Array([
+        0.0, 0.0,
+        1.0, 0.0,
+        0.0, 1.0,
+        0.0, 1.0,
+        1.0, 0.0,
+        1.0, 1.0
+    ]);
+    this._textureData = new Float32Array([
+        0.0, 0.0,
+        1.0, 0.0,
+        0.0, 1.0,
+        0.0, 1.0,
+        1.0, 0.0,
+        1.0, 1.0
+    ]);
+}
+
+SpriteBatch.prototype.clear = function () {
+    this._sprites = [];
+};
+
+SpriteBatch.prototype.storeSprite = function (sprite) {
+    this._sprites.push(sprite);
+};
+
+SpriteBatch.prototype.flush = function () {
+    if (this._sprites.length == 0) {
+        return;
+    }
+
+    var gl = this._gl;
+    var cameraMatrix = this._game.getActiveCamera().getMatrix();
+
+    this._game.getShaderManager().useShader(this._textureShader);
+
+    // position buffer attribute
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
+
+    gl.enableVertexAttribArray(this._textureShader.attributes.aVertexPosition);
+    gl.vertexAttribPointer(this._textureShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+
+    // texture attribute
+    gl.bindBuffer(gl.ARRAY_BUFFER, this._texBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, this._textureData, gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(this._textureShader.attributes.aTextureCoord);
+    gl.vertexAttribPointer(this._textureShader.attributes.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+
+    // set uniforms
+    gl.uniformMatrix4fv(this._textureShader.uniforms.uMatrix._location, false, cameraMatrix);
+
+    var texture, tint;
+    for (var i = 0; i < this._sprites.length; i++) {
+        texture = this._sprites[i].getTexture();
+
+        if (texture && texture.isReady()) {
+            tint = this._sprites[i].getTint();
+
+            // for performance sake, consider if the texture is the same so we don't need to bind again
+            // TODO: maybe it's a good idea to group the textures somehow (depth should be considered)
+            if (this._lastTexUID != texture.getUID()) {
+                texture.bind();
+                this._lastTexUID = texture.getUID();
+            }
+
+            gl.uniformMatrix4fv(this._textureShader.uniforms.uTransform._location, false, this._sprites[i].getMatrix());
+
+            if (tint) {
+                gl.uniform4f(this._textureShader.uniforms.uColor._location, tint.r, tint.g, tint.b, tint.a);
+            }
+
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+        }
+    }
+
+    this.clear();
+};
+
+SpriteBatch.prototype.unload = function () {
+    gl.deleteBuffer(this._vertexBuffer);
+    gl.deleteBuffer(this._texBuffer);
+
+    this._textureShader.unload();
+};;/**
+ * SpriteBatch class
+ */
+function SpriteBatchOld(game) {
     if (!isGame(game)) {
         throw error("Cannot create sprite render, the Game object is missing from the parameters");
     }
@@ -10892,11 +11230,11 @@ function SpriteBatch(game) {
     ]);
 }
 
-SpriteBatch.prototype.clear = function () {
+SpriteBatchOld.prototype.clear = function () {
     this._drawData = [];
 };
 
-SpriteBatch.prototype.storeSprite = function (sprite) {
+SpriteBatchOld.prototype.storeSprite = function (sprite) {
     this._drawData.push({
         texture: sprite.getTexture(),
         x: sprite.transform.getPosition().x,
@@ -10908,7 +11246,7 @@ SpriteBatch.prototype.storeSprite = function (sprite) {
     });
 };
 
-SpriteBatch.prototype.store = function (texture, x, y, scaleX, scaleY, rotation) {
+SpriteBatchOld.prototype.store = function (texture, x, y, scaleX, scaleY, rotation) {
     this._drawData.push({
         texture: texture,
         x: x,
@@ -10919,7 +11257,7 @@ SpriteBatch.prototype.store = function (texture, x, y, scaleX, scaleY, rotation)
     });
 };
 
-SpriteBatch.prototype.flush = function () {
+SpriteBatchOld.prototype.flush = function () {
     if (this._drawData.length == 0) {
         return;
     }
@@ -10968,7 +11306,7 @@ SpriteBatch.prototype.flush = function () {
             mat4.rotate(this._transformMatrix, this._transformMatrix, this._drawData[i].rotation, [0.0, 0.0, 1.0]);
             mat4.translate(this._transformMatrix, this._transformMatrix, [-width / 2, -height / 2, 0]);
             mat4.scale(this._transformMatrix, this._transformMatrix, [width, height, 0]);
-
+            
             gl.uniformMatrix4fv(this._textureShader.uniforms.uTransform._location, false, this._transformMatrix);
 
             if (this._drawData[i].tint) {
@@ -10982,7 +11320,7 @@ SpriteBatch.prototype.flush = function () {
     this.clear();
 };
 
-SpriteBatch.prototype.unload = function () {
+SpriteBatchOld.prototype.unload = function () {
     gl.deleteBuffer(this._vertexBuffer);
     gl.deleteBuffer(this._texBuffer);
 
@@ -11094,14 +11432,6 @@ function Transform(params) {
     this._overrideRotationFunction = null;
     this._overrideScaleFunction = null;
 }
-
-Transform.prototype.calculateMatrix = function () {
-
-};
-
-Transform.prototype.getMatrix = function () {
-
-};
 
 Transform.prototype.clearPositionGetter = function () {
     this._overridePositionFunction = null;
@@ -11298,6 +11628,24 @@ GridExt.prototype.render = function (delta) {
 var MathHelper = function () {};
 
 /**
+ * PI value
+ * @type {number}
+ */
+MathHelper.PI = Math.PI;
+
+/**
+ * PI multiplied by two
+ * @type {number}
+ */
+MathHelper.PI2 = MathHelper.PI * 2.0;
+
+/**
+ * PI multiplied by four
+ * @type {number}
+ */
+MathHelper.PI4 = MathHelper.PI * 4.0;
+
+/**
  * Clamp a value between a min and max value
  * @param value
  * @param min
@@ -11305,7 +11653,24 @@ var MathHelper = function () {};
  */
 MathHelper.clamp = function (value, min, max) {
     return (value < min ? min : value > max ? max : value);
-};;/**
+};
+
+/**
+ * Converts degree to radians
+ * @param degrees
+ */
+MathHelper.degToRad = function (degrees) {
+    return degrees * 0.0174532925;
+};
+
+/**
+ * Converts radians to degrees
+ * @param radians
+ */
+MathHelper.radToDeg = function(radians) {
+    return radians * 57.295779513;
+};
+;/**
  * Rectangle class
  */
 /**
@@ -11327,11 +11692,15 @@ Ray.prototype.set = function(origin, direction) {
     this.direction = direction;
 };
 
-Ray.prototype.toJSON = function() {
+Ray.prototype.objectify = function() {
     return {
         origin: this.origin,
         direction: this.direction
     };
+};
+
+Ray.restore = function(data) {
+    return new Ray(data.origin, data.direction);
 };
 
 Ray.prototype.equals = function(obj) {
@@ -11359,14 +11728,59 @@ function Rectangle(x, y, width, height) {
 
 }
 
-Rectangle.prototype.set = function(x, y, width, height) {
+// static methods
+
+Rectangle.fromVectors = function (va, vb) {
+    var x, y, width, height;
+
+    if (va.x > vb.x) {
+        x = vb.x;
+        width = Math.abs(va.x - vb.x);
+    } else {
+        x = va.x;
+        width = Math.abs(vb.x - va.x);
+    }
+
+    if (va.y > vb.y) {
+        y = vb.y;
+        height = Math.abs(va.y - vb.y);
+    } else {
+        y = va.y;
+        height = Math.abs(vb.y - va.y);
+    }
+
+    return new Rectangle(x, y, width, height);
+};
+
+// instance methods
+
+/**
+ * Checks if the rectangle is intersecting another given rectangle
+ * @param rectangle
+ * @returns {boolean}
+ */
+Rectangle.prototype.intersects = function (rectangle) {
+    return (rectangle.x <= this.x + this.width && this.x <= rectangle.x + rectangle.width &&
+    rectangle.y <= this.y + this.height && this.y <= rectangle.y + rectangle.height);
+};
+
+/**
+ * Checks if the given rectangle is contained by the instance
+ * @param rectangle
+ */
+Rectangle.prototype.contains = function (rectangle) {
+    return (rectangle.x >= this.x && rectangle.x + rectangle.width <= this.x + this.width &&
+    rectangle.y >= this.y && rectangle.y + rectangle.height <= this.y + this.height);
+};
+
+Rectangle.prototype.set = function (x, y, width, height) {
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
 };
 
-Rectangle.prototype.toJSON = function() {
+Rectangle.prototype.objectify = function () {
     return {
         x: this.x,
         y: this.y,
@@ -11375,7 +11789,11 @@ Rectangle.prototype.toJSON = function() {
     };
 };
 
-Rectangle.prototype.equals = function(obj) {
+Rectangle.restore = function (data) {
+    return new Rectangle(data.x, data.y, data.width, data.height);
+};
+
+Rectangle.prototype.equals = function (obj) {
     return (obj.x === this.x && obj.y === this.y && obj.width === this.width && obj.height === this.height);
 };
 
@@ -11466,6 +11884,10 @@ Vector3.prototype.objectify = function() {
 	};
 };
 
+Vector3.restore = function(data) {
+	return new Vector3(data.x, data.y, data.z);
+};
+
 Vector3.prototype.equals = function(obj) {
 	return (obj.x === this.x && obj.y === this.y && obj.z === this.z);
 };
@@ -11504,6 +11926,10 @@ Vector4.prototype.objectify = function() {
 		z: this.z,
 		w: this.w
 	};
+};
+
+Vector4.restore = function(data) {
+	return new Vector4(data.x, data.y, data.z, data.w);
 };
 
 Vector4.prototype.equals = function(obj) {
