@@ -25,9 +25,9 @@ app.controller('PropertyEditorHandlerCtrl', ['$scope', 'logSvc', 'config',
             $scope.syncValue($scope.container, $scope.property, subPropertyName, $scope.model.value);
         };
 
-        (function init() {
+        $scope.syncFromOrigin = function() {
             // we don't want to change the original, so we need to clone first to ensure that
-            $scope.model.value = (JSON.parse(JSON.stringify($scope.getPropertyValue($scope.container, $scope.property))));
+            $scope.model.value = $scope.getPropertyValue($scope.container, $scope.property);
 
             // the property has multiple assignments? (multi-selection)
             // if true, we shall only assign to the binder the properties that are equal in all of the selected targets
@@ -48,7 +48,10 @@ app.controller('PropertyEditorHandlerCtrl', ['$scope', 'logSvc', 'config',
                 // no reason to make the bind any different :)
                 $scope.model.bind = $scope.model.value;
             }
+        };
 
+        (function init() {
+            $scope.syncFromOrigin();
         })();
     }
 ]);

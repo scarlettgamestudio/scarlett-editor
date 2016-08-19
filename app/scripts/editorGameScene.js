@@ -14,14 +14,32 @@ function EditorGameScene(params) {
     this._mat = mat4.create(); // temporary matrix that can be used in multiple situations
     this._startCameraPosition = null;
     this._selectedObjects = [];
+    this._subjectsMethod = null;
     this._mouseState = {
         startPosition: null,
         lastPosition: null,
         startScreenPosition: null,
         button: null,
-        dragging: false
+        dragging: false,
+        cursor: "default"
     };
 }
+
+EditorGameScene.TRANSFORM_STATE = {
+    MOVE: 1,
+    MOVE_X: 2,
+    MOVE_Y: 3,
+    SCALE: 4,
+    SCALE_X: 5,
+    SCALE_Y: 6,
+    ROTATE: 7
+};
+
+EditorGameScene.CURSOR_TYPES = {
+    GRAB: "-webkit-grab",
+    DEFAULT: "default",
+    MOVE: "move"
+};
 
 inheritsFrom(EditorGameScene, GameScene);
 
@@ -51,10 +69,30 @@ EditorGameScene.prototype.onMouseDown = function (evt) {
     //console.log(this._mouseState.startPosition.x + ":" + this._mouseState.startPosition.y);
 
     switch (evt.button) {
+        // left button:
+        case 0:
+            if (this._selectedObjects.length > 0) {
+                var method = this._handleMouseArtifactCollision(evt);
+                // is there something that we should take care of?
+                if (method) {
+                    this._subjectsMethod = method;
+                    this._refreshSelectedObjectsData();
+                }
+            }
+            break;
+
+        // middle button:
         case 1:
-            document.body.style.cursor = '-webkit-grab';
+            this._mouseState.cursor = EditorGameScene.CURSOR_TYPES.GRAB;
+            break;
+
+        default:
+            this._mouseState.cursor = EditorGameScene.CURSOR_TYPES.DEFAULT;
             break;
     }
+
+    // update the cursor graphic
+    this._updateCursorGraphic();
 
     // store the current camera position
     this._setStartCameraPosition();
@@ -76,8 +114,21 @@ EditorGameScene.prototype.onMouseMove = function (evt) {
 
         // left button?
         if (this._mouseState.button == 0) {
-            this._handleSelection(false);
+            if (this._subjectsMethod == null) {
+                // handle selection
+                this._handleSelection(false);
+
+            } else {
+                // update any necessary selected subjects:
+                this._updateSubjects(evt);
+
+            }
         }
+    }
+
+    // test for editor artifact collisions?
+    if (this._selectedObjects.length > 0 && this._subjectsMethod == null) {
+        this._handleMouseArtifactCollision(evt);
     }
 };
 
@@ -91,7 +142,9 @@ EditorGameScene.prototype.onMouseOut = function (evt) {
         this._mouseState.dragging = false;
     }
 
-    document.body.style.cursor = "default";
+    this._mouseState.cursor = EditorGameScene.CURSOR_TYPES.DEFAULT;
+    this._updateCursorGraphic();
+    this._clearSubjectsMethod();
 };
 
 /**
@@ -99,13 +152,15 @@ EditorGameScene.prototype.onMouseOut = function (evt) {
  * @param evt
  */
 EditorGameScene.prototype.onMouseUp = function (evt) {
-    if (this._mouseState.button == 0  && this._mouseState.lastPosition == this._mouseState.startPosition) {
+    if (this._mouseState.button == 0 && this._mouseState.lastPosition == this._mouseState.startPosition) {
         this._handleSelection(true);
     }
 
     this._mouseState.dragging = false;
 
-    document.body.style.cursor = "default";
+    this._mouseState.cursor = EditorGameScene.CURSOR_TYPES.DEFAULT;
+    this._updateCursorGraphic();
+    this._clearSubjectsMethod();
 };
 
 /**
@@ -125,7 +180,80 @@ EditorGameScene.prototype.lateRender = function (delta) {
     this._renderSelectedObjectsArtifacts(delta);
 };
 
+EditorGameScene.prototype.setSelectedObjects = function (gameObjects) {
+    var selected = [];
+    gameObjects.forEach(function (elem) {
+        selected.push({
+            gameObject: elem,
+            originalTransform: elem.transform.clone()
+        })
+    });
+
+    this._selectedObjects = selected;
+};
+
 /** private functions **/
+
+EditorGameScene.prototype._updateSubjects = function (evt) {
+    this._selectedObjects.forEach((function (subject) {
+        switch (this._subjectsMethod) {
+            case EditorGameScene.TRANSFORM_STATE.MOVE:
+                subject.gameObject.transform.setPosition(
+                    Math.round(subject.originalTransform.getPosition().x - ((this._mouseState.startScreenPosition.x - evt.offsetX) * this._camera.zoom)),
+                    Math.round(subject.originalTransform.getPosition().y - ((this._mouseState.startScreenPosition.y - evt.offsetY) * this._camera.zoom)));
+                AngularHelper.refresh();
+                break;
+                break;
+        }
+    }).bind(this));
+};
+
+EditorGameScene.prototype._clearSubjectsMethod = function () {
+    this._subjectsMethod = null;
+};
+
+/**
+ * Handles the cursor interaction with the selected game objects transform artifacts
+ * @param evt
+ * @private
+ */
+EditorGameScene.prototype._handleMouseArtifactCollision = function (evt) {
+    var worldPosition = this._camera.screenToWorldCoordinates(evt.offsetX, evt.offsetY);
+    var method = null;
+
+    // let's check on all the game scene game objects if there is a selection collision detected:
+    this._selectedObjects.forEach(function (selected) {
+        if (selected.gameObject.collidesWith(worldPosition)) {
+
+            // TODO: prioritize the method based on the selection target
+            method = EditorGameScene.TRANSFORM_STATE.MOVE;
+
+        }
+    });
+
+    if (method != null) {
+        // update the cursor based on the selected target:
+        switch (method) {
+            case EditorGameScene.TRANSFORM_STATE.MOVE:
+                this._mouseState.cursor = EditorGameScene.CURSOR_TYPES.MOVE;
+                break;
+            default:
+                this._mouseState.cursor = EditorGameScene.CURSOR_TYPES.DEFAULT;
+        }
+
+        this._updateCursorGraphic();
+
+    } else {
+        this._mouseState.cursor = EditorGameScene.CURSOR_TYPES.DEFAULT;
+        this._updateCursorGraphic();
+    }
+
+    return method;
+};
+
+EditorGameScene.prototype._updateCursorGraphic = function () {
+    document.body.style.cursor = this._mouseState.cursor;
+};
 
 EditorGameScene.prototype._renderSelectedObjectsArtifacts = function (delta) {
     if (this._selectedObjects.length == 0) {
@@ -150,12 +278,13 @@ EditorGameScene.prototype._renderSelectedObjectsArtifacts = function (delta) {
 
     // TODO: Handle small objects. Depending on the selected game object size, show different artifacts.
 
-    this._selectedObjects.forEach((function (elem) {
-        var vertices = elem.getBoundaryVertices();
+    this._selectedObjects.forEach((function (selected) {
+        var elem = selected.gameObject;
+        var vertices = elem.getBoundary();
         var position = elem.transform.getPosition();
         var rotation = elem.transform.getRotation();
 
-        if (isSprite(elem) && elem.getTexture().isReady()) {
+        if (isSprite(elem) && elem.getTexture() && elem.getTexture().isReady()) {
             // draw main lines:
             this._primitiveRender.drawLine(vertices.topLeft, vertices.topRight, 1, boundaryColor);
             this._primitiveRender.drawLine(vertices.topRight, vertices.bottomRight, 1, boundaryColor);
@@ -193,7 +322,6 @@ EditorGameScene.prototype._renderSelectedObjectsArtifacts = function (delta) {
             // draw origin rectangle:
             this._primitiveRender.drawCircle(position, 6, 16, Color.SunFlower);
 
-
             //this._primitiveRender.drawRectangle(new Rectangle(position.x - rectangleHalfBulk - borderHalfThickness, position.y - rectangleHalfBulk - borderHalfThickness, rectangleBulk + borderThickness, rectangleBulk + borderThickness), Color.Gray, rotation);
             //this._primitiveRender.drawRectangle(new Rectangle(position.x - rectangleHalfBulk, position.y - rectangleHalfBulk, rectangleBulk, rectangleBulk), Color.White, rotation);
 
@@ -207,9 +335,12 @@ EditorGameScene.prototype._handleMouseUpdate = function (delta) {
 
 };
 
-EditorGameScene.prototype._setSelectedObjects = function (gameObjects) {
-    this._selectedObjects = gameObjects;
+EditorGameScene.prototype._refreshSelectedObjectsData = function() {
+    this._selectedObjects.forEach(function (elem) {
+        elem.originalTransform = elem.gameObject.transform.clone()
+    });
 };
+
 
 /**
  *
@@ -221,15 +352,15 @@ EditorGameScene.prototype._handleSelection = function (intersection) {
     var selected = [];
 
     // let's check on all the game scene game objects if there is a selection collision detected:
-    gameObjects.forEach(function (obj) {
-        var add = intersection ? selectionRectangle.intersects(obj.getBoundaries()) : selectionRectangle.contains(obj.getBoundaries());
+    gameObjects.forEach((function (obj) {
+        var add = intersection ? obj.collidesWith(this._mouseState.startPosition) : selectionRectangle.contains(obj.getRectangleBoundary());
         if (add) {
             // the object is contained within the selection rectangle, let's add it!
             selected.push(obj);
         }
-    });
+    }).bind(this));
 
-    this._setSelectedObjects(selected);
+    this.setSelectedObjects(selected);
 };
 
 /**
@@ -247,9 +378,9 @@ EditorGameScene.prototype._setStartCameraPosition = function () {
  */
 EditorGameScene.prototype._renderMouse = function (delta) {
     // is the mouse being dragged?
-    if (this._mouseState.dragging) {
+    if (this._mouseState.dragging && this._mouseState.startPosition != this._mouseState.lastPosition) {
         // cool, is this a selection (left button)?
-        if (this._mouseState.button === 0) {
+        if (this._mouseState.button === 0 && this._subjectsMethod == null) {
             var rectangle = Rectangle.fromVectors(this._mouseState.startPosition, this._mouseState.lastPosition);
             this._primitiveRender.drawRectangle(rectangle, this._colors.selection);
         }

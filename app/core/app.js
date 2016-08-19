@@ -30,7 +30,10 @@ var app = angular.module('scarlett', dependencies)
 	window.onbeforeunload = function () {
 		// clear all handlers from the native emitter has they will be invalid after page close
 		NativeEmitter.clear();
-	}
+	};
+
+	// set the global root scope:
+	AngularHelper.rootScope = $rootScope;
 })
 
 .constant("constants", {

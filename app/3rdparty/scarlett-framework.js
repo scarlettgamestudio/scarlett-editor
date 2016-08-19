@@ -10367,9 +10367,9 @@ function GameObject(params) {
     this._parent = params.parent || null;
     this._children = params.children || [];
     this._components = params.components || [];
-    this._matrixDirty = true;
     this._transformMatrix = mat4.create();
 }
+
 
 GameObject.prototype.getType = function () {
     return "GameObject";
@@ -10380,8 +10380,6 @@ GameObject.prototype.getUID = function () {
 };
 
 GameObject.prototype.propagatePropertyUpdate = function (property, value) {
-    this._matrixDirty = true;
-
     for (var i = 0; i < this._components.length; ++i) {
         if (this._components[i]["onGameObject" + property + "Updated"]) {
             this._components[i]["onGameObject" + property + "Updated"](value);
@@ -10390,12 +10388,8 @@ GameObject.prototype.propagatePropertyUpdate = function (property, value) {
 };
 
 GameObject.prototype.getMatrix = function () {
-    if (this._matrixDirty || !this._transformMatrix) {
-        mat4.identity(this._transformMatrix);
-        mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x, this.transform.getPosition().y, 0]);
-
-        this._matrixDirty = false;
-    }
+    mat4.identity(this._transformMatrix);
+    mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x, this.transform.getPosition().y, 0]);
 
     return this._transformMatrix;
 };
@@ -10463,28 +10457,73 @@ GameObject.prototype.getComponents = function () {
     return this._components;
 };
 
-GameObject.prototype.getBoundaryVertices = function () {
+GameObject.prototype.getBoundary = function () {
     var mat = this.getMatrix();
 
-    return {
-        topLeft: Vector2.transformMat4(new Vector2(0, 0), mat),
-        topRight: Vector2.transformMat4(new Vector2(1, 0), mat),
-        bottomLeft: Vector2.transformMat4(new Vector2(0, 1), mat),
-        bottomRight: Vector2.transformMat4(new Vector2(1, 1), mat)
-    }
+    return new Boundary(
+        Vector2.transformMat4(new Vector2(0, 0), mat),
+        Vector2.transformMat4(new Vector2(1, 0), mat),
+        Vector2.transformMat4(new Vector2(1, 1), mat),
+        Vector2.transformMat4(new Vector2(0, 1), mat)
+    );
 };
 
-GameObject.prototype.getBoundaries = function () {
-    var vertices = this.getBoundaryVertices();
+/**
+ * Fast boundary mapping without taking in consideration rotation
+ * @param bulk
+ * @returns {Rectangle}
+ */
+GameObject.prototype.getRectangleBoundary = function (bulk) {
+    var vertices = this.getBoundary();
+    bulk = bulk || 0;
 
     // find the min and max width to form the rectangle boundary
-    var minX = Math.min(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
-    var maxX = Math.max(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
-    var minY = Math.min(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
-    var maxY = Math.max(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
+    var minX = Math.min(vertices.topLeft.x - bulk, vertices.topRight.x + bulk, vertices.bottomLeft.x - bulk, vertices.bottomRight.x + bulk);
+    var maxX = Math.max(vertices.topLeft.x - bulk, vertices.topRight.x + bulk, vertices.bottomLeft.x - bulk, vertices.bottomRight.x + bulk);
+    var minY = Math.min(vertices.topLeft.y - bulk, vertices.topRight.y - bulk, vertices.bottomLeft.y + bulk, vertices.bottomRight.y + bulk);
+    var maxY = Math.max(vertices.topLeft.y - bulk, vertices.topRight.y - bulk, vertices.bottomLeft.y + bulk, vertices.bottomRight.y + bulk);
 
     // return the generated rectangle:
     return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+};
+
+/**
+ * Tests collision with a point
+ * @param point
+ */
+GameObject.prototype.collidesWith = function (point) {
+    // the following collision detection is based on the separating axis theorem:
+    // http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
+    var boundaryA = this.getBoundary();
+    var boundaryB = new Boundary(new Vector2(point.x, point.y), new Vector2(point.x + 1, point.y), new Vector2(point.x + 1, point.y + 1), new Vector2(point.x, point.y + 1));
+    var normA = this.getBoundary().getNormals();
+    var normB = boundaryB.getNormals();
+
+    function getMinMax (boundary, norm) {
+        var probeA = boundary.topRight.dot(norm);
+        var probeB = boundary.bottomRight.dot(norm);
+        var probeC = boundary.bottomLeft.dot(norm);
+        var probeD = boundary.topLeft.dot(norm);
+
+        return {
+            max: Math.max(probeA, probeB, probeC, probeD),
+            min: Math.min(probeA, probeB, probeC, probeD)
+        }
+    }
+
+    var p1, p2, normNode, norm;
+    for(var i = 0; i < 4; i++) {
+        normNode = i >= 2 ? normB : normA;
+        norm = i % 2 == 0 ? normNode.bottom : normNode.right;
+        p1 = getMinMax(boundaryA, norm);
+        p2 = getMinMax(boundaryB, norm);
+
+        if (p1.max < p2.min || p2.max < p1.min) {
+            return false;
+        }
+    }
+
+    return true;
 };
 
 GameObject.prototype.objectify = function () {
@@ -10974,28 +11013,24 @@ function Sprite(params) {
 
 inheritsFrom(Sprite, GameObject);
 
-Sprite.prototype.getTextureWidth = function() {
+Sprite.prototype.getTextureWidth = function () {
     return this._textureWidth;
 };
 
-Sprite.prototype.getTextureHeight = function() {
+Sprite.prototype.getTextureHeight = function () {
     return this._textureHeight;
 };
 
 Sprite.prototype.getMatrix = function () {
-    if (this._matrixDirty || !this._transformMatrix) {
-        var width = this._textureWidth * this.transform.getScale().x;
-        var height = this._textureHeight * this.transform.getScale().y;
+    var width = this._textureWidth * this.transform.getScale().x;
+    var height = this._textureHeight * this.transform.getScale().y;
 
-        mat4.identity(this._transformMatrix);
-        mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x - this._textureWidth * this._origin.x, this.transform.getPosition().y - this._textureHeight * this._origin.y, 0]);
-        mat4.translate(this._transformMatrix, this._transformMatrix, [width / 2, height / 2, 0]);
-        mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
-        mat4.translate(this._transformMatrix, this._transformMatrix, [-width / 2, -height / 2, 0]);
-        mat4.scale(this._transformMatrix, this._transformMatrix, [width, height, 0]);
-
-        this._matrixDirty = false;
-    }
+    mat4.identity(this._transformMatrix);
+    mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x - this._textureWidth * this._origin.x, this.transform.getPosition().y - this._textureHeight * this._origin.y, 0]);
+    mat4.translate(this._transformMatrix, this._transformMatrix, [width * this._origin.x, height * this._origin.y, 0]);
+    mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
+    mat4.translate(this._transformMatrix, this._transformMatrix, [-width * this._origin.x, -height * this._origin.y, 0]);
+    mat4.scale(this._transformMatrix, this._transformMatrix, [width, height, 0]);
 
     return this._transformMatrix;
 };
@@ -11049,7 +11084,6 @@ Sprite.prototype.setTexture = function (texture) {
     }
 
     this._texture = texture;
-    this._matrixDirty = true;
 
     // cache the dimensions
     this._textureWidth = this._texture.getWidth();
@@ -11496,6 +11530,10 @@ Transform.prototype.getScale = function () {
     return this._scale;
 };
 
+Transform.prototype.clone = function() {
+    return Transform.restore(this.objectify());
+};
+
 Transform.prototype.objectify = function () {
     return {
         position: this._position.objectify(),
@@ -11622,6 +11660,32 @@ GridExt.prototype.render = function (delta) {
         }
 	}
 };;/**
+ * Boundary structure
+ * @param topLeft
+ * @param topRight
+ * @param bottomRight
+ * @param bottomLeft
+ * @constructor
+ */
+function Boundary(topLeft, topRight, bottomRight, bottomLeft) {
+    // public properties:
+    this.topLeft = topLeft || 0;
+    this.topRight = topRight || 0;
+    this.bottomRight = bottomRight || 0;
+    this.bottomLeft = bottomLeft || 0;
+}
+
+/**
+ * Calculate the normals of each boundary side and returns a object mapped with the values of each side
+ */
+Boundary.prototype.getNormals = function() {
+    return {
+        top: new Vector2(this.topRight.x - this.topLeft.x, this.topRight.y - this.topLeft.y).normalLeft(),
+        right: new Vector2(this.bottomRight.x - this.topRight.x, this.bottomRight.y - this.topRight.y).normalLeft(),
+        bottom: new Vector2(this.bottomLeft.x - this.bottomRight.x, this.bottomLeft.y - this.bottomRight.y).normalLeft(),
+        left: new Vector2(this.topRight.x - this.bottomLeft.x, this.topRight.y - this.bottomLeft.y).normalLeft()
+    }
+};;/**
  * Math helper utility class
  * @constructor
  */
@@ -11669,8 +11733,7 @@ MathHelper.degToRad = function (degrees) {
  */
 MathHelper.radToDeg = function(radians) {
     return radians * 57.295779513;
-};
-;/**
+};;/**
  * Rectangle class
  */
 /**
@@ -11755,6 +11818,19 @@ Rectangle.fromVectors = function (va, vb) {
 // instance methods
 
 /**
+ * Get the rectangle vertices based on the position and width/height
+ * @returns {{topLeft: Vector2, topRight: Vector2, bottomRight: Vector2, bottomLeft: Vector2}}
+ */
+Rectangle.prototype.getVertices = function () {
+    return {
+        topLeft: new Vector2(this.x, this.y),
+        topRight: new Vector2(this.x + this.width, this.y),
+        bottomRight: new Vector2(this.x + this.width, this.y + this.height),
+        bottomLeft: new Vector2(this.x, this.y + this.height)
+    }
+};
+
+/**
  * Checks if the rectangle is intersecting another given rectangle
  * @param rectangle
  * @returns {boolean}
@@ -11830,7 +11906,28 @@ Vector2.prototype.objectify = function () {
     };
 };
 
-Vector2.restore = function(data) {
+Vector2.prototype.normalLeft = function () {
+    return new Vector2(this.y, -1 * this.x);
+};
+
+Vector2.prototype.normalRight = function () {
+    return new Vector2(-1 * this.y, this.x);
+};
+
+Vector2.prototype.dot = function (vector) {
+    return this.x * vector.x + this.y * vector.y;
+};
+
+Vector2.prototype.multiply = function (vector) {
+    this.x *= vector.x;
+    this.y *= vector.y;
+};
+
+Vector2.multiply = function (vectorA, vectorB) {
+    return new Vector2(vectorA.x * vectorB.x, vectorA.y * vectorB.y);
+};
+
+Vector2.restore = function (data) {
     return new Vector2(data.x, data.y);
 };
 
