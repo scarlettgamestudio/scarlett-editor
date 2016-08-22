@@ -153,7 +153,7 @@ EditorGameScene.prototype.onMouseOut = function (evt) {
  */
 EditorGameScene.prototype.onMouseUp = function (evt) {
     if (this._mouseState.button == 0 && this._mouseState.lastPosition == this._mouseState.startPosition) {
-        this._handleSelection(true);
+        this._handleSelection(true, true);
     }
 
     this._mouseState.dragging = false;
@@ -203,7 +203,6 @@ EditorGameScene.prototype._updateSubjects = function (evt) {
                 subject.gameObject.transform.setPosition(
                     Math.round(subject.originalTransform.getPosition().x - ((this._mouseState.startScreenPosition.x - evt.offsetX) * this._camera.zoom)),
                     Math.round(subject.originalTransform.getPosition().y - ((this._mouseState.startScreenPosition.y - evt.offsetY) * this._camera.zoom)));
-                AngularHelper.refresh();
                 break;
                 break;
         }
@@ -337,7 +336,7 @@ EditorGameScene.prototype._handleMouseUpdate = function (delta) {
 
 };
 
-EditorGameScene.prototype._refreshSelectedObjectsData = function() {
+EditorGameScene.prototype._refreshSelectedObjectsData = function () {
     this._selectedObjects.forEach(function (elem) {
         elem.originalTransform = elem.gameObject.transform.clone()
     });
@@ -348,7 +347,7 @@ EditorGameScene.prototype._refreshSelectedObjectsData = function() {
  *
  * @private
  */
-EditorGameScene.prototype._handleSelection = function (intersection) {
+EditorGameScene.prototype._handleSelection = function (intersection, topLevelOnly) {
     var selectionRectangle = Rectangle.fromVectors(this._mouseState.startPosition, this._mouseState.lastPosition);
     var gameObjects = this.getAllGameObjects();
     var selected = [];
@@ -356,9 +355,19 @@ EditorGameScene.prototype._handleSelection = function (intersection) {
     // let's check on all the game scene game objects if there is a selection collision detected:
     gameObjects.forEach((function (obj) {
         var add = intersection ? obj.collidesWith(this._mouseState.startPosition) : selectionRectangle.contains(obj.getRectangleBoundary());
+
+        // collision was detected?
         if (add) {
             // the object is contained within the selection rectangle, let's add it!
-            selected.push(obj);
+            if (topLevelOnly) {
+                // since the collisions are checked sequentially we know for sure that the latest being tested
+                // is actually the top level in terms of rendering
+                selected.splice(0, 1, obj);
+
+            } else {
+                selected.push(obj);
+
+            }
         }
     }).bind(this));
 

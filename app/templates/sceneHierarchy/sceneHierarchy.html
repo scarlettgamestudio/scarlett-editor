@@ -14,7 +14,7 @@
 
         <!-- sub nodes -->
         <div ng-class="{'hidden': collapsed}">
-            <div ng-repeat="node in node.nodes" cz-tree-node attachment="{{node.gameObject.getUID()}}" ng-include="'hierarchyNodeTemplate.html'"></div>
+            <div ng-repeat="node in node.nodes" cz-tree-node uid="{{node.id}}" attachment="{{node.gameObject.getUID()}}" ng-include="'hierarchyNodeTemplate.html'"></div>
         </div>
 
     </script>
@@ -22,7 +22,7 @@
     <div>
         <!-- tree root node -->
         <cz-tree on-selection-change="onTreeSelectionChanged(selected)"> <!--node.gameObject.getUID()-->
-            <div ng-repeat="node in model.tree" cz-tree-node attachment="{{node.gameObject.getUID()}}" ng-include="'hierarchyNodeTemplate.html'"></div>
+            <div ng-repeat="node in model.tree" cz-tree-node uid="{{node.id}}" attachment="{{node.gameObject.getUID()}}" ng-include="'hierarchyNodeTemplate.html'"></div>
         </cz-tree>
     </div>
 

@@ -71,6 +71,17 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
 
         }).bind(this));
 
+        $scope.$on(constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, (function (e, selected) {
+            var targetUIDs = [];
+            selected.forEach(function (obj) {
+                targetUIDs.push(obj.getUID());
+            });
+
+            $scope.$broadcast(CZC.EVENTS.SELECT_NODES_BY_UID, targetUIDs, false);
+            $scope.safeDigest();
+
+        }).bind(this));
+
         $scope.refresh = function () {
             if (!sceneSvc.getActiveGameScene()) {
                 return;
@@ -118,6 +129,7 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
                 name: name,
                 type: type,
                 gameObject: gameObject,
+                id: gameObject.getUID(),
                 nodes: []
             }
         }

@@ -10495,7 +10495,11 @@ GameObject.prototype.collidesWith = function (point) {
     // the following collision detection is based on the separating axis theorem:
     // http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
     var boundaryA = this.getBoundary();
-    var boundaryB = new Boundary(new Vector2(point.x, point.y), new Vector2(point.x + 1, point.y), new Vector2(point.x + 1, point.y + 1), new Vector2(point.x, point.y + 1));
+    var boundaryB = new Boundary(
+        new Vector2(point.x, point.y),
+        new Vector2(point.x + 1, point.y),
+        new Vector2(point.x + 1, point.y + 1),
+        new Vector2(point.x, point.y + 1));
     var normA = this.getBoundary().getNormals();
     var normB = boundaryB.getNormals();
 

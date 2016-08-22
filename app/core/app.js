@@ -48,6 +48,7 @@ var app = angular.module('scarlett', dependencies)
 		GAME_OBJECT_SELECTION_CHANGED: "onGameObjectSelectionChange",
 		GAME_SCENE_CHANGED: "onGameSceneChanged",
 		GAME_INITIALIZE: "onGameInitialize",
+
 	},
 	CONTAINERS: {
 		SCENE_VIEW: "sceneView"
