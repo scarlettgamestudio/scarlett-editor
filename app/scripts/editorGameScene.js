@@ -190,6 +190,8 @@ EditorGameScene.prototype.setSelectedObjects = function (gameObjects) {
     });
 
     this._selectedObjects = selected;
+
+    AngularHelper.rootScope.$broadcast(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, gameObjects);
 };
 
 /** private functions **/

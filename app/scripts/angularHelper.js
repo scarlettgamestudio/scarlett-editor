@@ -3,6 +3,8 @@ function AngularHelper() {
 
 AngularHelper.rootScope = null;
 
+AngularHelper.constants = null;
+
 AngularHelper.refresh = function () {
     if (!AngularHelper.rootScope) {
         return;

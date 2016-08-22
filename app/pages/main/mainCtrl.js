@@ -8,6 +8,8 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 		var myLayout = null;
 		var activeModal = null;
 
+		AngularHelper.constants = constants;
+
 		$scope.model = {
 			onlineMode: userSvc.isLoggedIn()
 		};

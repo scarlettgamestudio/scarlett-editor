@@ -105,8 +105,12 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                                         propertyModel.displayName = splitCamelCase(capitalName);
                                     }
 
+                                    // for the getter we want to bind the object so we keep targeting the same instance
                                     propertyModel.getter = object['get' + capitalName].bind(object);
-                                    propertyModel.setter = object['set' + capitalName].bind(object);
+
+                                    // important: in the setter, we will later only apply the function based on the
+                                    // selection (custom context), so we don't really want/can't bind it here!
+                                    propertyModel.setter = object['set' + capitalName];
                                 }
                             }
                         }
@@ -338,8 +342,8 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                         // yes, it means the setter will be made using the user defined order
                         var args = [];
                         rule.forEach(function (entry) {
-                            if (isObjectAssigned(value[entry])) {
-                                args.push(value[entry]);
+                            if (isObjectAssigned(targetValue[entry])) {
+                                args.push(targetValue[entry]);
                             }
                         });
 
@@ -347,7 +351,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                         targetContainer.target[property.name].set.apply(targetContainer.target[property.name], args);
                     } else {
                         // this doesn't have any rules so we are supposing it's a single value setter:
-                        property.setter.apply(targetContainer.target, [targetValue]);
+                        property.setter.call(targetContainer.target, targetValue);
                     }
 
                 } else {

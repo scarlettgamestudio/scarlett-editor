@@ -10499,7 +10499,7 @@ GameObject.prototype.collidesWith = function (point) {
     var normA = this.getBoundary().getNormals();
     var normB = boundaryB.getNormals();
 
-    function getMinMax (boundary, norm) {
+    function getMinMax(boundary, norm) {
         var probeA = boundary.topRight.dot(norm);
         var probeB = boundary.bottomRight.dot(norm);
         var probeC = boundary.bottomLeft.dot(norm);
@@ -10512,7 +10512,7 @@ GameObject.prototype.collidesWith = function (point) {
     }
 
     var p1, p2, normNode, norm;
-    for(var i = 0; i < 4; i++) {
+    for (var i = 0; i < 4; i++) {
         normNode = i >= 2 ? normB : normA;
         norm = i % 2 == 0 ? normNode.bottom : normNode.right;
         p1 = getMinMax(boundaryA, norm);
