@@ -10370,6 +10370,13 @@ function GameObject(params) {
     this._transformMatrix = mat4.create();
 }
 
+GameObject.prototype.getBaseWidth = function() {
+    return 1;
+};
+
+GameObject.prototype.getBaseHeight = function() {
+    return 1;
+};
 
 GameObject.prototype.getType = function () {
     return "GameObject";
@@ -10457,15 +10464,33 @@ GameObject.prototype.getComponents = function () {
     return this._components;
 };
 
-GameObject.prototype.getBoundary = function () {
+/**
+ * Gets the boundary of this game object with added bulk if needed
+ * @param bulk
+ * @returns {Boundary}
+ */
+GameObject.prototype.getBoundary = function (bulk) {
     var mat = this.getMatrix();
 
-    return new Boundary(
+    var boundary = new Boundary(
         Vector2.transformMat4(new Vector2(0, 0), mat),
         Vector2.transformMat4(new Vector2(1, 0), mat),
         Vector2.transformMat4(new Vector2(1, 1), mat),
         Vector2.transformMat4(new Vector2(0, 1), mat)
     );
+
+    if (bulk) {
+        boundary.topLeft.x -= bulk;
+        boundary.topLeft.y -= bulk;
+        boundary.topRight.x += bulk;
+        boundary.topRight.y -= bulk;
+        boundary.bottomRight.x += bulk;
+        boundary.bottomRight.y += bulk;
+        boundary.bottomLeft.x -= bulk;
+        boundary.bottomLeft.y += bulk;
+    }
+
+    return boundary;
 };
 
 /**
@@ -10474,60 +10499,47 @@ GameObject.prototype.getBoundary = function () {
  * @returns {Rectangle}
  */
 GameObject.prototype.getRectangleBoundary = function (bulk) {
-    var vertices = this.getBoundary();
-    bulk = bulk || 0;
+    var vertices = this.getBoundary(bulk);
 
     // find the min and max width to form the rectangle boundary
-    var minX = Math.min(vertices.topLeft.x - bulk, vertices.topRight.x + bulk, vertices.bottomLeft.x - bulk, vertices.bottomRight.x + bulk);
-    var maxX = Math.max(vertices.topLeft.x - bulk, vertices.topRight.x + bulk, vertices.bottomLeft.x - bulk, vertices.bottomRight.x + bulk);
-    var minY = Math.min(vertices.topLeft.y - bulk, vertices.topRight.y - bulk, vertices.bottomLeft.y + bulk, vertices.bottomRight.y + bulk);
-    var maxY = Math.max(vertices.topLeft.y - bulk, vertices.topRight.y - bulk, vertices.bottomLeft.y + bulk, vertices.bottomRight.y + bulk);
+    var minX = Math.min(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
+    var maxX = Math.max(vertices.topLeft.x, vertices.topRight.x, vertices.bottomLeft.x, vertices.bottomRight.x);
+    var minY = Math.min(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
+    var maxY = Math.max(vertices.topLeft.y, vertices.topRight.y, vertices.bottomLeft.y, vertices.bottomRight.y);
 
     // return the generated rectangle:
     return new Rectangle(minX, minY, maxX - minX, maxY - minY);
 };
 
 /**
+ *
+ * @param gameObject
+ * @param bulk
+ * @param bulkOther
+ * @returns {boolean}
+ */
+GameObject.prototype.collidesWith = function (gameObject, bulk, bulkOther) {
+    var boundaryA = this.getBoundary(bulk);
+    var boundaryB = gameObject.getBoundary(bulkOther);
+
+    return Boundary.overlap(boundaryA, boundaryB);
+};
+
+/**
  * Tests collision with a point
  * @param point
+ * @param bulk
+ * @returns {boolean}
  */
-GameObject.prototype.collidesWith = function (point) {
-    // the following collision detection is based on the separating axis theorem:
-    // http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
-    var boundaryA = this.getBoundary();
+GameObject.prototype.collidesWithPoint = function (point, bulk) {
+    var boundaryA = this.getBoundary(bulk);
     var boundaryB = new Boundary(
         new Vector2(point.x, point.y),
         new Vector2(point.x + 1, point.y),
         new Vector2(point.x + 1, point.y + 1),
         new Vector2(point.x, point.y + 1));
-    var normA = this.getBoundary().getNormals();
-    var normB = boundaryB.getNormals();
 
-    function getMinMax(boundary, norm) {
-        var probeA = boundary.topRight.dot(norm);
-        var probeB = boundary.bottomRight.dot(norm);
-        var probeC = boundary.bottomLeft.dot(norm);
-        var probeD = boundary.topLeft.dot(norm);
-
-        return {
-            max: Math.max(probeA, probeB, probeC, probeD),
-            min: Math.min(probeA, probeB, probeC, probeD)
-        }
-    }
-
-    var p1, p2, normNode, norm;
-    for (var i = 0; i < 4; i++) {
-        normNode = i >= 2 ? normB : normA;
-        norm = i % 2 == 0 ? normNode.bottom : normNode.right;
-        p1 = getMinMax(boundaryA, norm);
-        p2 = getMinMax(boundaryB, norm);
-
-        if (p1.max < p2.min || p2.max < p1.min) {
-            return false;
-        }
-    }
-
-    return true;
+    return Boundary.overlap(boundaryA, boundaryB);
 };
 
 GameObject.prototype.objectify = function () {
@@ -11017,11 +11029,11 @@ function Sprite(params) {
 
 inheritsFrom(Sprite, GameObject);
 
-Sprite.prototype.getTextureWidth = function () {
+Sprite.prototype.getBaseWidth = function() {
     return this._textureWidth;
 };
 
-Sprite.prototype.getTextureHeight = function () {
+Sprite.prototype.getBaseHeight = function() {
     return this._textureHeight;
 };
 
@@ -11030,7 +11042,7 @@ Sprite.prototype.getMatrix = function () {
     var height = this._textureHeight * this.transform.getScale().y;
 
     mat4.identity(this._transformMatrix);
-    mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x - this._textureWidth * this._origin.x, this.transform.getPosition().y - this._textureHeight * this._origin.y, 0]);
+    mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x - width * this._origin.x, this.transform.getPosition().y - height * this._origin.y, 0]);
     mat4.translate(this._transformMatrix, this._transformMatrix, [width * this._origin.x, height * this._origin.y, 0]);
     mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
     mat4.translate(this._transformMatrix, this._transformMatrix, [-width * this._origin.x, -height * this._origin.y, 0]);
@@ -11673,22 +11685,97 @@ GridExt.prototype.render = function (delta) {
  */
 function Boundary(topLeft, topRight, bottomRight, bottomLeft) {
     // public properties:
-    this.topLeft = topLeft || 0;
-    this.topRight = topRight || 0;
-    this.bottomRight = bottomRight || 0;
-    this.bottomLeft = bottomLeft || 0;
+    this.topLeft = topLeft || new Vector2();
+    this.topRight = topRight || new Vector2();
+    this.bottomRight = bottomRight || new Vector2();
+    this.bottomLeft = bottomLeft || new Vector2();
 }
+
+/**
+ * Returns all vertices in an array
+ */
+Boundary.prototype.getVertices = function () {
+    return [
+        this.topLeft,
+        this.topRight,
+        this.bottomRight,
+        this.bottomLeft
+    ];
+};
 
 /**
  * Calculate the normals of each boundary side and returns a object mapped with the values of each side
  */
-Boundary.prototype.getNormals = function() {
+Boundary.prototype.getNormals = function () {
     return {
         top: new Vector2(this.topRight.x - this.topLeft.x, this.topRight.y - this.topLeft.y).normalLeft(),
         right: new Vector2(this.bottomRight.x - this.topRight.x, this.bottomRight.y - this.topRight.y).normalLeft(),
         bottom: new Vector2(this.bottomLeft.x - this.bottomRight.x, this.bottomLeft.y - this.bottomRight.y).normalLeft(),
-        left: new Vector2(this.topRight.x - this.bottomLeft.x, this.topRight.y - this.bottomLeft.y).normalLeft()
+        left: new Vector2(this.topLeft.x - this.bottomLeft.x, this.topLeft.y - this.bottomLeft.y).normalLeft()
     }
+};
+
+/**
+ * Tests if the boundary is overlapping another
+ * @param other
+ * @returns {boolean}
+ */
+Boundary.prototype.overlapsWith = function (other) {
+    return Boundary.overlap(this, other);
+};
+
+/**
+ * Tests if two boundaries are overlapping each other
+ * @param boundaryA
+ * @param boundaryB
+ * @returns {boolean}
+ */
+Boundary.overlap = function (boundaryA, boundaryB) {
+    // the following collision detection is based on the separating axis theorem:
+    // http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
+    var normA = boundaryA.getNormals();
+    var normB = boundaryB.getNormals();
+
+    function getMinMax(boundary, norm) {
+        var probeA = boundary.topRight.dot(norm);
+        var probeB = boundary.bottomRight.dot(norm);
+        var probeC = boundary.bottomLeft.dot(norm);
+        var probeD = boundary.topLeft.dot(norm);
+
+        return {
+            max: Math.max(probeA, probeB, probeC, probeD),
+            min: Math.min(probeA, probeB, probeC, probeD)
+        }
+    }
+
+    var p1, p2, normNode, norm;
+    for (var i = 0; i < 4; i++) {
+        normNode = i >= 2 ? normB : normA;
+        norm = i % 2 == 0 ? normNode.bottom : normNode.right;
+        p1 = getMinMax(boundaryA, norm);
+        p2 = getMinMax(boundaryB, norm);
+
+        if (p1.max < p2.min || p2.max < p1.min) {
+            return false;
+        }
+    }
+
+    return true;
+};
+
+/**
+ * Creates a boundary object based on a given vector and adds the specified bulk dimension
+ * @param vec
+ * @param bulk
+ */
+Boundary.fromVector2 = function (vec, bulk) {
+    var halfBulk = bulk / 2.0;
+    return new Boundary(
+        new Vector2(vec.x - halfBulk, vec.y - halfBulk),
+        new Vector2(vec.x + halfBulk, vec.y - halfBulk),
+        new Vector2(vec.x + halfBulk, vec.y + halfBulk),
+        new Vector2(vec.x - halfBulk, vec.y + halfBulk)
+    )
 };;/**
  * Math helper utility class
  * @constructor
@@ -11712,6 +11799,22 @@ MathHelper.PI2 = MathHelper.PI * 2.0;
  * @type {number}
  */
 MathHelper.PI4 = MathHelper.PI * 4.0;
+
+/**
+ * PI divided by two
+ * @type {number}
+ */
+MathHelper.PIo2 = MathHelper.PI / 2.0;
+
+/**
+ * PI divided by four
+ * @type {number}
+ */
+MathHelper.PIo4 = MathHelper.PI / 4.0;
+
+
+
+
 
 /**
  * Clamp a value between a min and max value
@@ -11927,6 +12030,14 @@ Vector2.prototype.multiply = function (vector) {
     this.y *= vector.y;
 };
 
+Vector2.prototype.equals = function (obj) {
+    return (obj.x === this.x && obj.y === this.y);
+};
+
+Vector2.prototype.unload = function () {
+
+};
+
 Vector2.multiply = function (vectorA, vectorB) {
     return new Vector2(vectorA.x * vectorB.x, vectorA.y * vectorB.y);
 };
@@ -11935,12 +12046,16 @@ Vector2.restore = function (data) {
     return new Vector2(data.x, data.y);
 };
 
-Vector2.prototype.equals = function (obj) {
-    return (obj.x === this.x && obj.y === this.y);
+Vector2.distance = function (vectorA, vectorB) {
+    var v1 = vectorA.x - vectorB.x;
+    var v2 = vectorA.y - vectorB.y;
+    return Math.sqrt((v1 * v1) + (v2 * v2));
 };
 
-Vector2.prototype.unload = function () {
-
+Vector2.sqrDistance = function (vectorA, vectorB) {
+    var v1 = vectorA.x - vectorB.x;
+    var v2 = vectorA.y - vectorB.y;
+    return (v1 * v1) + (v2 * v2);
 };
 
 // static functions:

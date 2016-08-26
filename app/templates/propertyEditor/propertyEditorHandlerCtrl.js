@@ -1,8 +1,22 @@
-app.controller('PropertyEditorHandlerCtrl', ['$scope', 'logSvc', 'config',
-    function ($scope, logSvc, config) {
+app.controller('PropertyEditorHandlerCtrl', ['$scope', 'logSvc', 'config', 'constants',
+    function ($scope, logSvc, config, constants) {
         $scope.model = {
             value: null,         // the value of the property which is attached to the object
             bind: null           // this is the object used by the visual editor before applying the changes to the value
+        };
+
+        /**
+         *
+         */
+        $scope.$on(constants.EVENTS.GAME_OBJECT_UPDATED, (function (e) {
+            // re-sync the values from origin:
+            $scope.syncFromOrigin();
+            $scope.safeDigest();
+
+        }).bind(this));
+
+        $scope.safeDigest = function () {
+            !$scope.$$phase && $scope.$digest();
         };
 
         $scope.hasMultipleDefinitions = function (propertyName) {

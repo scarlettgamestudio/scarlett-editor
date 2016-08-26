@@ -46,6 +46,7 @@ var app = angular.module('scarlett', dependencies)
 		GAME_OBJECT_ADDED: "onGameObjectAdded",
 		PROJECT_LOADED: "onProjectLoaded",
 		GAME_OBJECT_SELECTION_CHANGED: "onGameObjectSelectionChange",
+		GAME_OBJECT_UPDATED: "onGameObjectUpdated",
 		GAME_SCENE_CHANGED: "onGameSceneChanged",
 		GAME_INITIALIZE: "onGameInitialize",
 

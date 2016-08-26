@@ -114,7 +114,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 									resize: function() {
 										console.log("resized!!");
 									}
-								},
+								}/*,
 								{
 									type: 'component',
 									componentName: 'template',
@@ -124,7 +124,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 									},
 									height: 25,
 									title: $translate.instant("EDITOR_CONSOLE")
-								}
+								}*/
 							]
 						}, {
 							type: 'component',

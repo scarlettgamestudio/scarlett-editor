@@ -35,7 +35,7 @@ app.on('ready', function () {
 	});
 
 	// remove the menu (also removes debug console)
-	//mainWindow.setMenu(null);
+	mainWindow.setMenu(null);
 
 	// emmited when the window is shown:
 	mainWindow.on('show', function() {
@@ -45,6 +45,7 @@ app.on('ready', function () {
 
 	// set window maximized
 	mainWindow.maximize();
+	mainWindow.setFullScreen(true);
 
 	// and load the index.html of the app.
 	mainWindow.loadURL(`file://${__dirname}/app/index.html`);
