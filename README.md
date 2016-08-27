@@ -22,6 +22,7 @@ npm install
 ```
 #!javascript
 
+npm install grunt
 grunt watch
 
 
