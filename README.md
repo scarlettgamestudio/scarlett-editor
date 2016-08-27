@@ -10,11 +10,6 @@ This README would normally document whatever steps are necessary to get your app
 
 ### How do I get set up? ###
 
-» grunt watch 
-» npm start
-
-* Summary of set up
-* Configuration
 * Dependencies
 
 ```
@@ -22,10 +17,27 @@ This README would normally document whatever steps are necessary to get your app
 
 npm install
 ```
+* Summary of set up
 
-* Database configuration
-* How to run tests
-* Deployment instructions
+```
+#!javascript
+
+grunt watch
+
+
+```
+
+* Building
+
+
+```
+#!javascript
+
+npm start
+
+
+```
+
 
 ### Contribution guidelines ###
 
