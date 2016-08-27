@@ -34,8 +34,11 @@ app.on('ready', function () {
 		title: pjson.title
 	});
 
-	// remove the menu (also removes debug console)
-	mainWindow.setMenu(null);
+	// remove the menu (also removes debug console and other dev shortcuts)
+	//mainWindow.setMenu(null);
+
+	// start in full screen
+	//mainWindow.setFullScreen(true);
 
 	// emmited when the window is shown:
 	mainWindow.on('show', function() {
@@ -45,7 +48,6 @@ app.on('ready', function () {
 
 	// set window maximized
 	mainWindow.maximize();
-	mainWindow.setFullScreen(true);
 
 	// and load the index.html of the app.
 	mainWindow.loadURL(`file://${__dirname}/app/index.html`);

@@ -62,6 +62,7 @@ app.config(function ($translateProvider) {
 		CTX_CUT: "Cut",
 		CTX_PASTE: "Paste",
 		CTX_REFRESH: "Refresh",
+		CTX_DELETE: "Delete",
 
 		NAVBAR_FILE: 'File',
 		NAVBAR_NEW_PROJECT: "New Project",

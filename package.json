@@ -8,17 +8,18 @@
   },
   "dependencies": {
     "angular": "~1.4.8",
-    "angular-bootstrap-contextmenu": "^0.9.7",
-    "angular-local-storage": "^0.2.2",
+    "angular-bootstrap-contextmenu": "0.9.7",
+    "angular-local-storage": "0.2.2",
+    "angular-perfect-scrollbar-2": "1.2.4",
     "angular-route": "1.4.x",
-    "angular-translate": "^2.8.1",
-    "angular-ui-bootstrap": "^0.14.3",
-    "angular-validation-match": "^1.5.2",
-    "bootstrap": "^3.3.6",
+    "angular-translate": "2.8.1",
+    "angular-ui-bootstrap": "~0.14.3",
+    "angular-validation-match": "~1.5.2",
+    "bootstrap": "~3.3.6",
     "electron-prebuilt": "^1.0.1",
     "fs-extra": "^0.30.0",
-    "golden-layout": "^1.5.1",
-    "jquery": "^2.2.3"
+    "golden-layout": "~1.5.1",
+    "jquery": "~2.2.3"
   },
   "scripts": {
     "start": "electron main.js",

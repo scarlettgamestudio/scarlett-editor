@@ -5,7 +5,7 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             tree: []	// visual object hierarchy tree
         };
 
-        $scope.contextMenuOptions = [
+        $scope.addGameObjectContextMenuOptions =
             ['<i class="fa fa-plus-square"></i>' + $translate.instant("CTX_ADD_GAME_OBJECT"), [
                 [$translate.instant("CTX_EMPTY"), function ($itemScope) {
                     // create empty game object and add it to the scene:
@@ -16,7 +16,29 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
                     var gameObject = gameSvc.createSpriteObject(null);
                     sceneSvc.addGameObjectToScene(gameObject);
                 }],
-            ]],
+            ]];
+
+        $scope.itemContextMenuOptions = [
+            $scope.addGameObjectContextMenuOptions,
+            null,
+            ['<i class="fa fa-cut"></i>' + $translate.instant("CTX_CUT"), function ($itemScope) {
+
+            }],
+            ['<i class="fa fa-copy"></i>' + $translate.instant("CTX_COPY"), function ($itemScope) {
+
+            }],
+            ['<i class="fa fa-paste"></i>' + $translate.instant("CTX_PASTE"), function ($itemScope) {
+
+            }],
+            null,
+            ['<i class="fa fa-trash"></i>' + $translate.instant("CTX_DELETE"), function ($itemScope) {
+                // order to remove from scene:
+                sceneSvc.removeGameObjectsFromScene(sceneSvc.getSelectedObjects());
+            }]
+        ];
+
+        $scope.contextMenuOptions = [
+            $scope.addGameObjectContextMenuOptions,
             null,
             ['<i class="fa fa-paste"></i>' + $translate.instant("CTX_PASTE"), function ($itemScope) {
 
@@ -26,6 +48,51 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
                 $scope.refresh();
             }]
         ];
+
+        $scope.clearSelection = function () {
+            sceneSvc.setSelectedObjects([]);
+            //$scope.$broadcast(CZC.EVENTS.SELECT_NODES_BY_UID, [], false);
+            $scope.safeDigest();
+        };
+
+        $scope.baseContainerClick = function () {
+            $scope.clearSelection();
+        };
+
+        $scope.removeNodes = function (uids) {
+            var recursive = function (nodes, uids) {
+                for (var i = nodes.length - 1; i >= 0; i--) {
+                    // lets check if this UID belongs in the uids list:
+                    var idx = uids.indexOf(nodes[i].gameObject.getUID());
+
+                    // found a valid match?
+                    if (idx >= 0) {
+                        // remove the node from the scope model:
+                        nodes.splice(i, 1);
+
+                        // remove from the uids selection:
+                        uids.splice(idx, 1);
+
+                        // any more to look for?
+                        if (uids.length == 0) {
+                            return true;
+                        }
+
+                    } else {
+                        // let's check on the child nodes though:
+                        if (nodes[i].nodes) {
+                            var end = recursive(nodes[i].nodes, uids);
+
+                            if (end) {
+                                return end;
+                            }
+                        }
+                    }
+                }
+            };
+
+            recursive($scope.model.tree, uids)
+        };
 
         $scope.getNodeByGameObjectUID = function (uid) {
             var recursive = function (nodes, uid) {
@@ -46,6 +113,16 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
 
             return recursive($scope.model.tree, uid);
         };
+
+        /**
+         *
+         */
+        $scope.$on(constants.EVENTS.GAME_OBJECT_REMOVED, (function (e, gameObject) {
+            // remove visually from the tree view:
+            $scope.removeNodes([gameObject.getUID()]);
+            $scope.safeDigest();
+
+        }).bind(this));
 
         /**
          * Game Object added to scene event bind
@@ -100,7 +177,7 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             var selectedGameObjects = [], uid, node;
 
             for (var i = 0; i < selected.length; i++) {
-                uid = selected[i].attachment;
+                uid = selected[i].id;
                 node = $scope.getNodeByGameObjectUID(uid);
 
                 if (node) {

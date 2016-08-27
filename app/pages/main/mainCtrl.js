@@ -2,8 +2,8 @@
  * Created by John on 12/12/15.
  */
 
-app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', '$rootScope', '$translate', '$uibModal', '$http', '$compile', 'scarlettSvc', 'constants', 'sceneSvc',
-	function ($scope, logSvc, soapSvc, config, userSvc, $rootScope, $translate, $uibModal, $http, $compile, scarlettSvc, constants, sceneSvc) {
+app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', '$rootScope', '$translate', '$uibModal', '$http', '$compile', 'scarlettSvc', 'constants', 'sceneSvc', '$timeout',
+	function ($scope, logSvc, soapSvc, config, userSvc, $rootScope, $translate, $uibModal, $http, $compile, scarlettSvc, constants, sceneSvc, $timeout) {
 
 		var myLayout = null;
 		var activeModal = null;
@@ -61,7 +61,8 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 			myLayout = new GoldenLayout({
 				settings: {
 					hasHeaders: true,
-					showPopoutIcon: false
+					showPopoutIcon: false,
+					popoutWholeStack: true
 				},
 				labels: {
 					close: $translate.instant("ACTION_CLOSE"),
@@ -70,7 +71,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 					popout: $translate.instant("ACTION_POPOUT")
 				},
 				dimensions: {
-					borderWidth: 5,
+					borderWidth: 4,
 					headerHeight: 20
 				},
 				content: [{
@@ -137,7 +138,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 							title: $translate.instant("EDITOR_INSPECTOR")
 						}]
 				}]
-			});
+			}, "#editor-container");
 
 			myLayout.registerComponent('template', function (container, state) {
 				if(state.url && state.url.length > 0) {
@@ -152,16 +153,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 						});
 
 						if (state.templateId == "inspector") {
-
-							// TODO: remove this:
-							/*setTimeout(function () {
-								var objA = new GameObject({name:'ImL33T3'});
-								var objB = new GameObject({name:'ImL33T'});
-								objB.transform.setPosition(10, 1);
-								objB.transform.setRotation(5);
-
-							}, 100);*/
-
+							// do stuff here?
 						}
 					});
 				}
@@ -171,7 +163,17 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 
 			});
 
-			myLayout.init();
+			$timeout(function() {
+				// running this under the $timeout guarantees that the controller will be initialized only when the base
+				// html is rendered, therefore having correct size calculations (important).
+				myLayout.init();
+
+				window.onresize = function() {
+					// for some reason when operating under a container the layout is not refreshed automatically,
+					// so we force it here :)
+					myLayout.updateSize();
+				}
+			}, 10);
 
 		})();
 	}]

@@ -1,28 +1,30 @@
-<div ng-controller="ProjectExplorerCtrl">
+<perfect-scrollbar class="scroll-wrapper">
+    <div id="projectExplorer" ng-controller="ProjectExplorerCtrl">
 
-    <!-- tree node template -->
-    <script type="text/ng-template" id="nodeTemplate.html">
+        <!-- tree node template -->
+        <script type="text/ng-template" id="nodeTemplate.html">
 
-        <!-- node header -->
-        <div ng-class="{'selected' : isSelected()}">
-            <div cz-tree-node-header>
-                <span class="fa clickable" ng-click="toggleCollapse()" ng-if="node.type === 'directory'" ng-class="{'fa-folder-open' : !collapsed, 'fa-folder' : collapsed}"></span>
-                <span><i class="fa" ng-class="getFileIcon(node.name)" aria-hidden="true" ng-if="node.type === 'file'"></i> {{node.name}}</span>
+            <!-- node header -->
+            <div ng-class="{'selected' : isSelected()}">
+                <div cz-tree-node-header>
+                    <span class="fa clickable" ng-click="toggleCollapse()" ng-if="node.type === 'directory'" ng-class="{'fa-folder-open' : !collapsed, 'fa-folder' : collapsed}"></span>
+                    <span><i class="fa" ng-class="getFileIcon(node.name)" aria-hidden="true" ng-if="node.type === 'file'"></i> {{node.name}}</span>
+                </div>
             </div>
+
+            <!-- sub nodes -->
+            <div cz-tree-nodes ng-class="{'hidden': collapsed}">
+                <cz-tree-node ng-repeat="node in node.nodes" attachment="{{node.attributes}}" ng-include="'nodeTemplate.html'"></cz-tree-node>
+            </div>
+
+        </script>
+
+        <div>
+            <!-- tree root node -->
+            <cz-tree on-double-click="onTreeDoubleClick(selected)">
+                <cz-tree-node ng-repeat="node in model.tree" attachment="{{node.attributes}}" ng-include="'nodeTemplate.html'"></cz-tree-node>
+            </cz-tree>
         </div>
 
-        <!-- sub nodes -->
-        <div cz-tree-nodes ng-class="{'hidden': collapsed}">
-            <cz-tree-node ng-repeat="node in node.nodes" attachment="{{node.attributes}}" ng-include="'nodeTemplate.html'"></cz-tree-node>
-        </div>
-
-    </script>
-
-    <div>
-        <!-- tree root node -->
-        <cz-tree on-double-click="onTreeDoubleClick(selected)">
-            <cz-tree-node ng-repeat="node in model.tree" attachment="{{node.attributes}}" ng-include="'nodeTemplate.html'"></cz-tree-node>
-        </cz-tree>
     </div>
-
-</div>
+</perfect-scrollbar>

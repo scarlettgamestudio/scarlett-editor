@@ -8,7 +8,8 @@ var dependencies = [
 	'ui.bootstrap',
 	'LocalStorageModule',
 	'cz-tree',
-	'ui.bootstrap.contextMenu'
+	'ui.bootstrap.contextMenu',
+	'angular-perfect-scrollbar-2'
 ];
 
 var app = angular.module('scarlett', dependencies)
@@ -44,6 +45,7 @@ var app = angular.module('scarlett', dependencies)
 	EVENTS: {
 		CONTAINER_RESIZE: "onContainerResize",
 		GAME_OBJECT_ADDED: "onGameObjectAdded",
+		GAME_OBJECT_REMOVED: "onGameObjectRemoved",
 		PROJECT_LOADED: "onProjectLoaded",
 		GAME_OBJECT_SELECTION_CHANGED: "onGameObjectSelectionChange",
 		GAME_OBJECT_UPDATED: "onGameObjectUpdated",

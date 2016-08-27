@@ -11,9 +11,22 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
     svc._selectedObjects = [];
 
     scope.$on(constants.EVENTS.GAME_INITIALIZE, (function (e, project) {
-       if (project.editor && project.editor.lastScene) {
-           svc.loadSceneFromFile(scarlettSvc.getActiveProjectPath() + project.editor.lastScene);
-       }
+        if (project.editor && project.editor.lastScene) {
+            svc.loadSceneFromFile(scarlettSvc.getActiveProjectPath() + project.editor.lastScene);
+        }
+
+    }).bind(this));
+
+    scope.$on(constants.EVENTS.GAME_OBJECT_REMOVED, (function (e, gameObject) {
+        // remove from the selected objects if the case:
+        var idx = svc._selectedObjects.indexOfObject(gameObject);
+        if (idx >= 0) {
+            // remove from the selected objects:
+            svc._selectedObjects.splice(idx, 1);
+
+            // broadcast the event so other components know
+            $rootScope.$broadcast(constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, svc._selectedObjects);
+        }
 
     }).bind(this));
 
@@ -88,7 +101,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
      * loads a scene from a given path
      * @param path
      */
-    svc.loadSceneFromFile = function(path) {
+    svc.loadSceneFromFile = function (path) {
         var defer = $q.defer();
 
         NativeInterface.readFile(path, function (result) {
@@ -147,6 +160,66 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
 
         // finally, broadcast this so other components know the game object was added to the scene:
         $rootScope.$broadcast(constants.EVENTS.GAME_OBJECT_ADDED, gameObject, parent);
+    };
+
+    /**
+     * removes all the given game objects from the scene
+     * @param gameObjects
+     */
+    svc.removeGameObjectsFromScene = function (gameObjects) {
+        function recursive(array, toDelete) {
+            for (var i = array.length - 1; i >= 0; i--) {
+                var idx = toDelete.indexOfObject(array[i]);
+
+                if (idx >= 0) {
+                    // announce the removal:
+                    $rootScope.$broadcast(constants.EVENTS.GAME_OBJECT_REMOVED, array[i]);
+
+                    // remove the game object from the current array:
+                    array.splice(i, 1);
+
+                    // remove from the selection:
+                    toDelete.splice(idx, 1);
+
+                    // any more to look for?
+                    if (toDelete.length == 0) {
+                        return true;
+                    }
+                } else {
+                    // let's check on the child nodes though:
+                    var end = recursive(array[i].getChildren(), toDelete);
+
+                    if (end) {
+                        return end;
+                    }
+                }
+            }
+        }
+
+        recursive(svc._activeGameScene.getGameObjects(), gameObjects);
+    };
+
+    /**
+     * gets the selected game objects
+     */
+    svc.getSelectedObjects = function () {
+        return svc._selectedObjects;
+    };
+
+    /**
+     * gets an array of the selected game objects uid values
+     */
+    svc.getSelectedObjectsUIDs = function () {
+        if (!svc._selectedObjects || svc._selectedObjects.length == 0) {
+            return [];
+        }
+
+        var arr = [];
+        svc._selectedObjects.forEach(function (obj) {
+            arr.push(obj.getUID());
+        });
+
+        return arr;
     };
 
     /**

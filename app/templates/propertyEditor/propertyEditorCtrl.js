@@ -411,8 +411,12 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             }
 
             if (forceRefresh) {
-                $scope.$digest();
+                $scope.safeDigest();
             }
+        };
+
+        $scope.safeDigest = function () {
+            !$scope.$$phase && $scope.$digest();
         };
 
         $scope.toggleVisibility = function (target) {

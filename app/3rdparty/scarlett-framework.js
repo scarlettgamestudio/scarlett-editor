@@ -9457,7 +9457,18 @@ if (!Array.isArray) {
 		return Object.prototype.toString.call(arg) === '[object Array]';
 	};
 }
-;/**
+
+/**
+ * Adds index of object to arrays, uses the object "equals()" function if available
+ * @param search
+ * @returns {number}
+ */
+Array.prototype.indexOfObject = function arrayObjectIndexOf(search) {
+	for (var i = 0, len = this.length; i < len; i++) {
+		if (isEqual(this[i], search)) return i;
+	}
+	return -1;
+};;/**
  * Image Loader static class
  */
 var ImageLoader = function () {
@@ -10369,6 +10380,14 @@ function GameObject(params) {
     this._components = params.components || [];
     this._transformMatrix = mat4.create();
 }
+
+GameObject.prototype.equals = function (other) {
+    if (other.getUID) {
+        return this._uid === other.getUID();
+    }
+
+    return this === other;
+};
 
 GameObject.prototype.getBaseWidth = function() {
     return 1;
@@ -11811,10 +11830,6 @@ MathHelper.PIo2 = MathHelper.PI / 2.0;
  * @type {number}
  */
 MathHelper.PIo4 = MathHelper.PI / 4.0;
-
-
-
-
 
 /**
  * Clamp a value between a min and max value

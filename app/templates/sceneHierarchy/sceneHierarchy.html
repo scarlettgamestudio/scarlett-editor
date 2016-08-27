@@ -1,29 +1,36 @@
-<div ng-controller="SceneHierarchyCtrl" context-menu="contextMenuOptions" class="fill-parent">
+<perfect-scrollbar class="scroll-wrapper">
+    <div ng-controller="SceneHierarchyCtrl" context-menu="contextMenuOptions" ng-click="baseContainerClick()"
+         class="fill-parent">
 
-    <script type="text/ng-template" id="hierarchyNodeTemplate.html">
+        <script type="text/ng-template" id="hierarchyNodeTemplate.html">
 
-        <!-- node header -->
-        <div ng-class="{'selected' : isSelected()}">
-            <div cz-tree-node-header>
+            <!-- node header -->
+            <div ng-class="{'selected' : isSelected()}">
+                <div cz-tree-node-header context-menu="itemContextMenuOptions">
                 <span>
-                    <i ng-if="node.nodes.length > 0" class="fa clickable" ng-class="{'fa-angle-down' : !collapsed, 'fa-angle-right' : collapsed}" ng-click="toggleCollapse()" aria-hidden="true"></i>
+                    <i ng-if="node.nodes.length > 0" class="fa clickable"
+                       ng-class="{'fa-angle-down' : !collapsed, 'fa-angle-right' : collapsed}"
+                       ng-click="toggleCollapse()" aria-hidden="true"></i>
                     {{node.gameObject.name}}
                 </span>
+                </div>
             </div>
+
+            <!-- sub nodes -->
+            <div ng-class="{'hidden': collapsed}">
+                <div ng-repeat="node in node.nodes" cz-tree-node uid="{{node.id}}"
+                     attachment="{{node.gameObject.getUID()}}" ng-include="'hierarchyNodeTemplate.html'"></div>
+            </div>
+
+        </script>
+
+        <div>
+            <!-- tree root node -->
+            <cz-tree on-selection-change="onTreeSelectionChanged(selected)"> <!--node.gameObject.getUID()-->
+                <div ng-repeat="node in model.tree" cz-tree-node uid="{{node.id}}"
+                     attachment="{{node.gameObject.getUID()}}" ng-include="'hierarchyNodeTemplate.html'"></div>
+            </cz-tree>
         </div>
 
-        <!-- sub nodes -->
-        <div ng-class="{'hidden': collapsed}">
-            <div ng-repeat="node in node.nodes" cz-tree-node uid="{{node.id}}" attachment="{{node.gameObject.getUID()}}" ng-include="'hierarchyNodeTemplate.html'"></div>
-        </div>
-
-    </script>
-
-    <div>
-        <!-- tree root node -->
-        <cz-tree on-selection-change="onTreeSelectionChanged(selected)"> <!--node.gameObject.getUID()-->
-            <div ng-repeat="node in model.tree" cz-tree-node uid="{{node.id}}" attachment="{{node.gameObject.getUID()}}" ng-include="'hierarchyNodeTemplate.html'"></div>
-        </cz-tree>
     </div>
-
-</div>
+</perfect-scrollbar>

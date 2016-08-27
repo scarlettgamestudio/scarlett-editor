@@ -145,6 +145,7 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 
 		(function init() {
 			$scope.refresh();
+
 		})();
 	}
 
