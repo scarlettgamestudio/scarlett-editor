@@ -1,5 +1,6 @@
 app.controller('PropertyEditorHandlerCtrl', ['$scope', 'logSvc', 'config', 'constants',
     function ($scope, logSvc, config, constants) {
+
         $scope.model = {
             value: null,         // the value of the property which is attached to the object
             bind: null           // this is the object used by the visual editor before applying the changes to the value
@@ -62,6 +63,8 @@ app.controller('PropertyEditorHandlerCtrl', ['$scope', 'logSvc', 'config', 'cons
                 // no reason to make the bind any different :)
                 $scope.model.bind = $scope.model.value;
             }
+
+            $scope.$broadcast(constants.EVENTS.MODEL_UPDATED);
         };
 
         (function init() {

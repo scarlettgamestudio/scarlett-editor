@@ -15,7 +15,7 @@
                 <input
                         type="number" class="form-control sc-input input-night center-text"
                         ng-class="{'inconclusive' : hasMultipleDefinitions('r')}"
-                        ng-change="onValueChange('r')" ng-model="model.bind.r" placeholder="">
+                        ng-change="prepareChange('r')" ng-model="color.r" placeholder="">
             </span>
         </div>
         <div class="col-md-3">
@@ -24,7 +24,7 @@
                 <input
                         type="number" class="form-control sc-input input-night center-text"
                         ng-class="{'inconclusive' : hasMultipleDefinitions('g')}"
-                        ng-change="onValueChange('g')" ng-model="model.bind.g" placeholder="">
+                        ng-change="prepareChange('g')" ng-model="color.g" placeholder="">
             </span>
         </div>
         <div class="col-md-3">
@@ -33,7 +33,7 @@
                 <input
                         type="number" class="form-control sc-input input-night center-text"
                         ng-class="{'inconclusive' : hasMultipleDefinitions('b')}"
-                        ng-change="onValueChange('b')" ng-model="model.bind.b" placeholder="">
+                        ng-change="prepareChange('b')" ng-model="color.b" placeholder="">
             </span>
         </div>
         <div class="col-md-3">

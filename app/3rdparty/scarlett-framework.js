@@ -11711,7 +11711,7 @@ function Boundary(topLeft, topRight, bottomRight, bottomLeft) {
 }
 
 /**
- * Returns all vertices in an array
+ * Returns all vertices in an array (topLeft, topRight, bottomRight, bottomLeft)
  */
 Boundary.prototype.getVertices = function () {
     return [
