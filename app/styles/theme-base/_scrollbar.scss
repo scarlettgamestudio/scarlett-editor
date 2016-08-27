@@ -9,3 +9,11 @@
     height: 100%;
   }
 }
+
+.ps-active-x > .ps-scrollbar-x-rail,
+.ps-active-y > .ps-scrollbar-y-rail,
+.ps-container.ps-in-scrolling.ps-y>.ps-scrollbar-y-rail,
+.ps-container.ps-in-scrolling.ps-x>.ps-scrollbar-x-rail {
+  background-color: darken(map-get($default-colors, grey-hound), 5%) !important;
+  opacity:.9
+}

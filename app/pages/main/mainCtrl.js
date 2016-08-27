@@ -61,8 +61,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 			myLayout = new GoldenLayout({
 				settings: {
 					hasHeaders: true,
-					showPopoutIcon: false,
-					popoutWholeStack: true
+					showPopoutIcon: false
 				},
 				labels: {
 					close: $translate.instant("ACTION_CLOSE"),
