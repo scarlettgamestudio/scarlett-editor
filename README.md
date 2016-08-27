@@ -22,7 +22,7 @@ npm install
 ```
 #!javascript
 
-npm install grunt
+npm install grunt-cli
 grunt watch
 
 
