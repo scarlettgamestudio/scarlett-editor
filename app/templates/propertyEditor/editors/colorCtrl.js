@@ -38,9 +38,9 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
         };
 
         $scope.updateFromOrigin = function() {
-            $scope.color.r = $scope.model.bind.r * 255;
-            $scope.color.g = $scope.model.bind.g * 255;
-            $scope.color.b = $scope.model.bind.b * 255;
+            $scope.color.r = $scope.hasMultipleDefinitions("r") ? null : $scope.model.bind.r * 255;
+            $scope.color.g = $scope.hasMultipleDefinitions("g") ? null : $scope.model.bind.g * 255;
+            $scope.color.b = $scope.hasMultipleDefinitions("b") ? null : $scope.model.bind.b * 255;
         };
 
         (function init() {
