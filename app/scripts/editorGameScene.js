@@ -5,6 +5,8 @@ function EditorGameScene(params) {
     GameScene.call(this, params);
 
     // public properties:
+    this.snapToGrid = false;
+    this.snapGridSize = 24;
 
     // private properties:
     this._primitiveRender = new PrimitiveRender(this._game);
@@ -234,6 +236,11 @@ EditorGameScene.prototype._scaleSubject = function (subject, mx, my, scaleX, sca
     var baseHeight = subject.gameObject.getBaseHeight();
     var origin = subject.gameObject.getOrigin();
 
+    if (this.snapToGrid) {
+        mx -= mx % this.snapGridSize;
+        my -= my % this.snapGridSize;
+    }
+
     // invert the axis ?
     if (Math.abs(normDirection) > MathHelper.PIo2 && Math.abs(normDirection) < MathHelper.PI + MathHelper.PIo2) {
         // the rectangle is rotated between 180º and 360º which means we have to invert the axis to match the
@@ -340,9 +347,16 @@ EditorGameScene.prototype._updateSubjects = function (evt) {
                 break;
 
             case EditorGameScene.TRANSFORM_STATE.MOVE:
-                subject.gameObject.transform.setPosition(
-                    Math.round(subject.originalTransform.getPosition().x - ((this._mouseState.startScreenPosition.x - evt.offsetX) * this._camera.zoom)),
-                    Math.round(subject.originalTransform.getPosition().y - ((this._mouseState.startScreenPosition.y - evt.offsetY) * this._camera.zoom)));
+                var newX = Math.round(subject.originalTransform.getPosition().x - ((this._mouseState.startScreenPosition.x - evt.offsetX) * this._camera.zoom));
+                var newY = Math.round(subject.originalTransform.getPosition().y - ((this._mouseState.startScreenPosition.y - evt.offsetY) * this._camera.zoom));
+
+                if (this.snapToGrid) {
+                    newX -= newX % this.snapGridSize;
+                    newY -= newY % this.snapGridSize;
+                }
+
+                subject.gameObject.transform.setPosition(newX, newY);
+
                 broadcastChange = true;
                 break;
         }

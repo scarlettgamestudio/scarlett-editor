@@ -3,7 +3,8 @@
     <!-- Toolbar info -->
     <div class="toolbar clearfix">
         <!-- aligned to left -->
-        <div class="button align-left" ng-click="toggleGrid()" ng-class="{'active' : model.extensions.gridExtension.enabled}"><i class="fa fa-th" aria-hidden="true"></i></div>
+        <div title="Toggle Grid" class="button align-left" ng-click="toggleGrid()" ng-class="{'active' : model.extensions.gridExtension.enabled}"><i class="fa fa-th" aria-hidden="true"></i></div>
+        <div title="Snap to Grid" class="button align-left" ng-click="toggleSnapToGrid()" ng-class="{'active' : model.scene.snapToGrid}"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></div>
 
         <!-- aligned to right -->
         <div class="info align-right"><i class="fa fa-search" aria-hidden="true"></i> {{model.visualZoom}}%</div>

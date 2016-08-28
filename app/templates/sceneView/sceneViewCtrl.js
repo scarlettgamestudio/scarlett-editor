@@ -57,6 +57,15 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
             $scope.model.extensions.gridExtension.enabled = !$scope.model.extensions.gridExtension.enabled;
         };
 
+        $scope.toggleSnapToGrid = function() {
+            $scope.model.scene.snapToGrid = !$scope.model.scene.snapToGrid;
+
+            if ($scope.model.scene.snapToGrid) {
+                // update the grid size to guarantee the size is the same:
+                $scope.model.scene.snapGridSize = $scope.model.extensions.gridExtension.getGridSize();
+            }
+        };
+
         $scope.updateVisualZoom = function () {
             $scope.model.visualZoom = Math.ceil(1 / $scope.model.scene.getCamera().zoom * 100);
             $scope.safeDigest();

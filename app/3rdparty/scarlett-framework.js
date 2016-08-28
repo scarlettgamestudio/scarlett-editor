@@ -11592,21 +11592,21 @@ Transform.prototype.unload = function () {
  * GridExt class
  */
 function GridExt(params) {
-	params = params || {};
+    params = params || {};
 
-	if (!params.game) {
-		throw "cannot create debug extension without game parameter";
-	}
+    if (!params.game) {
+        throw "cannot create debug extension without game parameter";
+    }
 
-	// public properties:
-	this.enabled = true;
+    // public properties:
+    this.enabled = true;
 
-	// private properties:
-	this._game = params.game || null;
-	this._gridSize = 24;
-	this._gridColor = Color.Red;
+    // private properties:
+    this._game = params.game || null;
+    this._gridSize = 24;
+    this._gridColor = Color.Red;
     this._originLines = true;
-	this._primitiveRender = new PrimitiveRender(params.game); // maybe get a batch here?
+    this._primitiveRender = new PrimitiveRender(params.game); // maybe get a batch here?
 }
 
 /**
@@ -11622,7 +11622,14 @@ GridExt.prototype.setOriginLines = function (enable) {
  * @param value
  */
 GridExt.prototype.setGridSize = function (value) {
-	this._gridSize = value;
+    this._gridSize = value;
+};
+
+/**
+ *
+ */
+GridExt.prototype.getGridSize = function () {
+    return this._gridSize;
 };
 
 /**
@@ -11630,7 +11637,7 @@ GridExt.prototype.setGridSize = function (value) {
  * @param color
  */
 GridExt.prototype.setGridColor = function (color) {
-	this._gridColor = color;
+    this._gridColor = color;
 };
 
 /**
@@ -11638,41 +11645,44 @@ GridExt.prototype.setGridColor = function (color) {
  * @param delta
  */
 GridExt.prototype.render = function (delta) {
-	// render a grid?
-	if (this.enabled) {
-	    // I have an idea that can be great here..
+    // render a grid?
+    if (this.enabled) {
+        // I have an idea that can be great here..
         // create a global event for whenever the camera properties change (aka, calculate matrix is called), and store
         // the following calculations on event:
-		var screenResolution = this._game.getVirtualResolution();
-		var offsetX = this._game.getActiveCamera().x - (this._game.getActiveCamera().x % this._gridSize);
-		var offsetY = this._game.getActiveCamera().y - (this._game.getActiveCamera().y % this._gridSize);
+        var screenResolution = this._game.getVirtualResolution();
+        var offsetX = this._game.getActiveCamera().x - (this._game.getActiveCamera().x % this._gridSize);
+        var offsetY = this._game.getActiveCamera().y - (this._game.getActiveCamera().y % this._gridSize);
         var zoom = this._game.getActiveCamera().zoom;
         var zoomDifX = (zoom * screenResolution.width) * 2.0;
         var zoomDifY = (zoom * screenResolution.height) * 2.0;
         var howManyX = (screenResolution.width + zoomDifX) / this._gridSize + 2;
         var howManyY = (screenResolution.height + zoomDifY) / this._gridSize + 2;
-		var left = -(screenResolution.width + zoomDifX) / 2;
-		var right = (screenResolution.width + zoomDifX) / 2;
-		var top = -(screenResolution.height + zoomDifY) / 2;
-		var bottom = (screenResolution.height + zoomDifY) / 2;
+        var left = -(screenResolution.width + zoomDifX) / 2;
+        var right = (screenResolution.width + zoomDifX) / 2;
+        var top = -(screenResolution.height + zoomDifY) / 2;
+        var bottom = (screenResolution.height + zoomDifY) / 2;
 
-		// horizontal shift ||||||||
-		for (var x = 0; x < howManyX; x++) {
-			this._primitiveRender.drawLine(
-				{x: x * this._gridSize + left - (left % this._gridSize) + offsetX, y: bottom + this._gridSize + offsetY},
-				{x: x * this._gridSize + left - (left % this._gridSize) + offsetX, y: top - this._gridSize + offsetY},
-				1, this._gridColor);
-		}
+        // horizontal shift ||||||||
+        for (var x = 0; x < howManyX; x++) {
+            this._primitiveRender.drawLine(
+                {
+                    x: x * this._gridSize + left - (left % this._gridSize) + offsetX,
+                    y: bottom + this._gridSize + offsetY
+                },
+                {x: x * this._gridSize + left - (left % this._gridSize) + offsetX, y: top - this._gridSize + offsetY},
+                1, this._gridColor);
+        }
 
-		// vertical shift _ _ _ _ _
-		for (var y = 0; y < howManyY; y++) {
-			this._primitiveRender.drawLine(
-				{x: right + this._gridSize + offsetX, y: y * this._gridSize + top - (top % this._gridSize) + offsetY},
-				{x: left - this._gridSize + offsetX, y: y * this._gridSize + top - (top % this._gridSize) + offsetY},
-				1, this._gridColor);
-		}
+        // vertical shift _ _ _ _ _
+        for (var y = 0; y < howManyY; y++) {
+            this._primitiveRender.drawLine(
+                {x: right + this._gridSize + offsetX, y: y * this._gridSize + top - (top % this._gridSize) + offsetY},
+                {x: left - this._gridSize + offsetX, y: y * this._gridSize + top - (top % this._gridSize) + offsetY},
+                1, this._gridColor);
+        }
 
-		// main "lines" (origin)
+        // main "lines" (origin)
         if (this._originLines) {
             // vertical
             this._primitiveRender.drawRectangle(
@@ -11684,7 +11694,7 @@ GridExt.prototype.render = function (delta) {
                 new Rectangle(left - this._gridSize + offsetX, -2, screenResolution.width + zoomDifX, 4),
                 this._gridColor);
         }
-	}
+    }
 };;/**
  * Boundary structure
  * @param topLeft
