@@ -152,6 +152,10 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
         return Path.wrapDirectoryPath(svc.activeProjectPath);
     };
 
+    svc.setActiveProjectPath = function(path) {
+        svc.activeProjectPath = path;
+    };
+
     svc.setActiveProject = function (project) {
         svc.activeProject = project;
     };

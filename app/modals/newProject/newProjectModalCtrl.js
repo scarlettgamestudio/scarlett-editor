@@ -33,8 +33,7 @@ app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 
 			// create the game project object
 			var gameProject = scarlettSvc.generateProject($scope.model.projectName);
 
-			var projectData = [
-				{
+			var projectData = [{
 					filename: "project.sc",
 					content: JSON.stringify(gameProject, null, 4)
 				}
@@ -52,6 +51,8 @@ app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 
 
 					// set the active project
 					scarlettSvc.setActiveProject(gameProject);
+					scarlettSvc.setActiveProjectPath(path);
+					scarlettSvc.updateActiveProjectFileMap();
 
 					// show the main view
 					$rootScope.changeView('main');
