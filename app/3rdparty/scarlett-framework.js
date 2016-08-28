@@ -11599,10 +11599,10 @@ function GridExt(params) {
 	}
 
 	// public properties:
+	this.enabled = true;
 
 	// private properties:
 	this._game = params.game || null;
-	this._renderGrid = true;
 	this._gridSize = 24;
 	this._gridColor = Color.Red;
     this._originLines = true;
@@ -11615,15 +11615,6 @@ function GridExt(params) {
  */
 GridExt.prototype.setOriginLines = function (enable) {
     this._originLines = enable;
-};
-
-
-/**
- *
- * @param enable
- */
-GridExt.prototype.setGridRender = function (enable) {
-	this._renderGrid = enable;
 };
 
 /**
@@ -11648,7 +11639,7 @@ GridExt.prototype.setGridColor = function (color) {
  */
 GridExt.prototype.render = function (delta) {
 	// render a grid?
-	if (this._renderGrid) {
+	if (this.enabled) {
 	    // I have an idea that can be great here..
         // create a global event for whenever the camera properties change (aka, calculate matrix is called), and store
         // the following calculations on event:

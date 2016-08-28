@@ -2,8 +2,10 @@
 
     <!-- Toolbar info -->
     <div class="toolbar clearfix">
-        <div class="button align-left"><i class="fa fa-th" aria-hidden="true"></i></div>
+        <!-- aligned to left -->
+        <div class="button align-left" ng-click="toggleGrid()" ng-class="{'active' : model.extensions.gridExtension.enabled}"><i class="fa fa-th" aria-hidden="true"></i></div>
 
+        <!-- aligned to right -->
         <div class="info align-right"><i class="fa fa-search" aria-hidden="true"></i> {{model.visualZoom}}%</div>
         <div class="info right-margin align-right">
             <i class="fa fa-video-camera" aria-hidden="true"></i>

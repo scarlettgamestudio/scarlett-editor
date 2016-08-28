@@ -75,13 +75,14 @@
     font-size: 0.9em;
 
     .button {
-      padding: 2px 6px;
+      padding: 0px 4px;
+      margin: 2px;
       border-radius: 4px;
       font-size: 0.89em;
       cursor: pointer;
 
       &.active {
-        background: darken(map-get($default-colors, grey-hound), 3%);
+        background: lighten(map-get($default-colors, grey-hound), 5%);
       }
     }
 

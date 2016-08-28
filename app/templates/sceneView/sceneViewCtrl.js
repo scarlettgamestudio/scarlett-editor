@@ -9,7 +9,7 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
             lastWidth: null,
             lastHeight: null,
             extensions: {
-                debug: null
+                gridExtension: null
             }
         };
 
@@ -51,6 +51,10 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
                     x: 0, y: 0
                 }
             }
+        };
+
+        $scope.toggleGrid = function () {
+            $scope.model.extensions.gridExtension.enabled = !$scope.model.extensions.gridExtension.enabled;
         };
 
         $scope.updateVisualZoom = function () {
@@ -120,7 +124,7 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
 
             game.addRenderExtension("debug", gridExtension);
 
-            $scope.model.extensions.debug = gridExtension;
+            $scope.model.extensions.gridExtension = gridExtension;
 
             // to be safe, if the last width/height was set, let's use them :)
             if ($scope.lastWidth != null && $scope.lastHeight != null) {
