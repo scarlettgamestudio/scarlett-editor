@@ -29,6 +29,7 @@ app.config(function ($translateProvider) {
 
 		COMMON_MULTIPLE: 'Multiple',
 		COMMON_SELECTED: 'Selected',
+		COMMON_SEARCH: 'Search',
 
 		EDITOR_GAME_VIEW: "Game View",
 		EDITOR_SCENE_VIEW: "Scene View",
@@ -49,8 +50,15 @@ app.config(function ($translateProvider) {
 		LABEL_HUB: "Hub",
 
 		BUTTON_CREATE: "Create",
+		BUTTON_IMPORT: "Import",
 		BUTTON_CANCEL: "Cancel",
 		BUTTON_OK: "OK",
+		BUTTON_CLOSE: "Close",
+
+		CONTENT_ALL: "Everything",
+		CONTENT_TEXTURE: "Texture",
+		CONTENT_TEXTURE_ATLAS: "Texture Atlas",
+		CONTENT_SCRIPT: "Script",
 
 		TOOLBAR_TOOLTIP_HUB: 'Hub',
 		TOOLBAR_TOOLTIP_PROJECTS: 'Projects',
@@ -77,6 +85,7 @@ app.config(function ($translateProvider) {
 		NAVBAR_PASTE: "Paste",
 		NAVBAR_HELP: "Help",
 		NAVBAR_TUTORIALS: "Tutorials",
+		NAVBAR_CONTENT_BROWSER: "Content Browser",
 		NAVBAR_ABOUT: "About",
 		NAVBAR_WINDOW: "Window",
 		NAVBAR_LOGIN: "Go to Login Page"

@@ -61,6 +61,11 @@ var app = angular.module('scarlett', dependencies)
 		LEFT: 0,
 		MIDDLE: 1,
 		RIGHT: 2
+	},
+	CONTENT_TYPES: {
+		TEXTURE_ATLAS: "texture_atlas",
+		TEXTURE: "texture",
+		SCRIPT: "script"
 	}
 })
 

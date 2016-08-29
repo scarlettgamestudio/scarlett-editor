@@ -37,7 +37,8 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
             settings: {},
             editor: {
                 lastScene: null
-            }
+            },
+            content: {}
         }
     };
 
@@ -81,6 +82,10 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
 
         if (!project.hasOwnProperty("editor")) {
             project["editor"] = {};
+        }
+
+        if (!project.hasOwnProperty("content")) {
+            project["content"] = {};
         }
 
         // the project already has files assigned?

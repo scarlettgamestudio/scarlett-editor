@@ -1,0 +1,13 @@
+<div class="modal-header">
+    <h3 class="modal-title text-bold">
+        <i class="fa fa-archive" aria-hidden="true"></i>
+        {{'NAVBAR_CONTENT_BROWSER' | translate}}
+    </h3>
+</div>
+<div class="modal-body">
+    <!-- content browser include -->
+    <ng-include src="'templates/contentBrowser/contentBrowser.html'"></ng-include>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-grey" type="button" ng-click="close()">{{'BUTTON_CLOSE' | translate}}</button>
+</div>

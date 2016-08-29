@@ -2,8 +2,8 @@
  * Created by John on 12/12/15.
  */
 
-app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', '$rootScope', '$translate', '$uibModal', '$http', '$compile', 'scarlettSvc', 'constants', 'sceneSvc', '$timeout',
-	function ($scope, logSvc, soapSvc, config, userSvc, $rootScope, $translate, $uibModal, $http, $compile, scarlettSvc, constants, sceneSvc, $timeout) {
+app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', '$rootScope', '$translate', '$uibModal', '$http', '$compile', 'scarlettSvc', 'constants', 'sceneSvc', '$timeout', 'modalSvc',
+	function ($scope, logSvc, soapSvc, config, userSvc, $rootScope, $translate, $uibModal, $http, $compile, scarlettSvc, constants, sceneSvc, $timeout, modalSvc) {
 
 		var myLayout = null;
 		var activeModal = null;
@@ -12,6 +12,10 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 
 		$scope.model = {
 			onlineMode: userSvc.isLoggedIn()
+		};
+
+		$scope.openContentBrowser = function() {
+			modalSvc.showModal("contentBrowser", {}, "md");
 		};
 
 		$scope.openNewProjectModal = function () {

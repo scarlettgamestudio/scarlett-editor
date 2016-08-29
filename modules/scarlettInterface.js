@@ -30,6 +30,7 @@ ScarlettInterface.createProject = function(path, data, callback) {
 	if(!pathExists) {
 		// doesn't exist, create!
 		fs.mkdir(path);
+		fs.mkdir(path + getSystemDirectorySlash() + "content");
 
 		data.forEach(function(entry) {
 			fs.writeFile((path + entry.filename), entry.content, function (err) {
@@ -40,6 +41,7 @@ ScarlettInterface.createProject = function(path, data, callback) {
 		});
 
 		callback(true);
+
 	} else {
 		// folder already exists...
 		callback(1);
