@@ -379,29 +379,7 @@ EditorGameScene.prototype._clearSubjectsMethod = function () {
 EditorGameScene.prototype._generateGameObjectArtifactData = function (gameObject, asArray) {
     var artifacts = asArray ? [] : {};
     var bulk = EditorGameScene.DIMENSIONS.ARTIFACT_RECTANGLE_BULK * this._camera.zoom;
-    //var tmpBoundary = gameObject.getBoundary();
     var boundary = gameObject.getBoundary();
-    //var normalizedRotation = gameObject.transform.getRotation() % MathHelper.PI2;
-
-    // now we get the real "topRight/Left/.." taking in consideration their positions:
-    /*if (normalizedRotation > MathHelper.PI2 + MathHelper.PIo4) {
-     boundary.topLeft = tmpBoundary.topRight;
-     boundary.topRight = tmpBoundary.bottomRight;
-     boundary.bottomRight = tmpBoundary.bottomLeft;
-     boundary.bottomLeft = tmpBoundary.topLeft;
-     } else if (normalizedRotation > MathHelper.PI2) {
-     boundary.topLeft = tmpBoundary.bottomRight;
-     boundary.topRight = tmpBoundary.bottomLeft;
-     boundary.bottomRight = tmpBoundary.topLeft;
-     boundary.bottomLeft = tmpBoundary.topRight;
-     } else if (normalizedRotation > MathHelper.PIo4) {
-     boundary.topLeft = tmpBoundary.bottomLeft;
-     boundary.topRight = tmpBoundary.topLeft;
-     boundary.bottomRight = tmpBoundary.topRight;
-     boundary.bottomLeft = tmpBoundary.bottomRight;
-     } else {
-     boundary = tmpBoundary;
-     }*/
 
     var topMiddlePosition = new Vector2((boundary.topLeft.x + boundary.topRight.x) / 2.0, (boundary.topLeft.y + boundary.topRight.y) / 2.0);
     var leftMiddlePosition = new Vector2((boundary.topLeft.x + boundary.bottomLeft.x) / 2.0, (boundary.topLeft.y + boundary.bottomLeft.y) / 2.0);
@@ -494,7 +472,6 @@ EditorGameScene.prototype._handleMouseArtifactCollision = function (evt) {
     var worldPosition = this._camera.screenToWorldCoordinates(evt.offsetX, evt.offsetY);
     var mouseBoundary = Boundary.fromVector2(worldPosition, EditorGameScene.DIMENSIONS.MOUSE_COLLISION_BULK);
     var bulk = EditorGameScene.DIMENSIONS.ARTIFACT_RECTANGLE_BULK * this._camera.zoom;
-    var halfBulk = bulk / 2.0;
     var method = null;
 
     // let's check on all the game scene game objects if there is a selection collision detected:
