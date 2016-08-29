@@ -104,7 +104,6 @@
           padding: 1px 2px;
           font-size: 0.96em;
 
-
           &.inconclusive {
             //background: #544E45;
             //border-color: #544E45;
@@ -116,6 +115,20 @@
                             map-get($default-colors, grey-hound) 12px
             );
           }
+        }
+
+        input[type="checkbox"] {
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          box-sizing: border-box;
+          width: 15px;
+          height: 15px;
+          cursor: pointer;
+          outline: none;
+        }
+
+        input[type="checkbox"]:checked {
+          background: map-get($default-colors, bright-grey);
         }
 
         .color-preview {

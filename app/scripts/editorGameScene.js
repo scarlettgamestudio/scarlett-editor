@@ -575,6 +575,11 @@ EditorGameScene.prototype._renderSelectedObjectsArtifacts = function (delta) {
 
     this._selectedObjects.forEach((function (selected) {
         var elem = selected.gameObject;
+
+        if (!elem.enabled) {
+            return;
+        }
+
         var vertices = elem.getBoundary();
         var position = elem.transform.getPosition();
         var rotation = elem.transform.getRotation();
@@ -647,19 +652,22 @@ EditorGameScene.prototype._handleSelection = function (intersection, topLevelOnl
 
     // let's check on all the game scene game objects if there is a selection collision detected:
     gameObjects.forEach((function (obj) {
-        var add = intersection ? obj.collidesWithPoint(this._mouseState.startPosition) : selectionRectangle.contains(obj.getRectangleBoundary());
+        // is the object enabled ?
+        if (obj.enabled) {
+            var add = intersection ? obj.collidesWithPoint(this._mouseState.startPosition) : selectionRectangle.contains(obj.getRectangleBoundary());
 
-        // collision was detected?
-        if (add) {
-            // the object is contained within the selection rectangle, let's add it!
-            if (topLevelOnly) {
-                // since the collisions are checked sequentially we know for sure that the latest being tested
-                // is actually the top level in terms of rendering
-                selected.splice(0, 1, obj);
+            // collision was detected?
+            if (add) {
+                // the object is contained within the selection rectangle, let's add it!
+                if (topLevelOnly) {
+                    // since the collisions are checked sequentially we know for sure that the latest being tested
+                    // is actually the top level in terms of rendering
+                    selected.splice(0, 1, obj);
 
-            } else {
-                selected.push(obj);
+                } else {
+                    selected.push(obj);
 
+                }
             }
         }
     }).bind(this));

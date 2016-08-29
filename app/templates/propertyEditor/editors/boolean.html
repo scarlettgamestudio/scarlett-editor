@@ -1,0 +1,9 @@
+<div class="peEditorDisplayName">
+    {{::property.displayName}}
+</div>
+<div class="peEditorValues">
+    <input
+            type="checkbox" class="form-control sc-input input-night checkbox-nice"
+            ng-class="{'inconclusive' : hasMultipleDefinitions()}"
+            ng-model="model.bind" ng-change="onValueChange()">
+</div>

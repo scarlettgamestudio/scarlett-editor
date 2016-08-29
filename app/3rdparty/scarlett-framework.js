@@ -10366,6 +10366,7 @@ function GameObject(params) {
 
     // public properties:
     this.name = params.name || "GameObject";
+    this.enabled = true;
 
     if (params.transform) {
         params.transform.gameObject = this;
@@ -10462,6 +10463,10 @@ GameObject.prototype.addComponent = function (component) {
 };
 
 GameObject.prototype.update = function (delta) {
+    if (!this.enabled) {
+        return;
+    }
+
     // update children:
     this._children.forEach(function (elem) {
         if (elem.update) {
@@ -10471,6 +10476,10 @@ GameObject.prototype.update = function (delta) {
 };
 
 GameObject.prototype.render = function (delta, spriteBatch) {
+    if (!this.enabled) {
+        return;
+    }
+
     // render children:
     this._children.forEach(function (elem) {
         if (elem.render) {
@@ -11030,6 +11039,7 @@ PrimitiveRender.prototype.drawLine = function (vectorA, vectorB, thickness, colo
 AttributeDictionary.inherit("sprite", "gameobject");
 AttributeDictionary.addRule("sprite", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
 AttributeDictionary.addRule("sprite", "_tint", {displayName: "Tint"});
+AttributeDictionary.addRule("sprite", "_texture", {visible: false});
 
 function Sprite(params) {
     params = params || {};
@@ -11126,6 +11136,10 @@ Sprite.prototype.setTexture = function (texture) {
 };
 
 Sprite.prototype.render = function (delta, spriteBatch) {
+    if (!this.enabled) {
+        return;
+    }
+
     // just store the sprite to render on flush:
     spriteBatch.storeSprite(this);
 
@@ -12645,18 +12659,19 @@ function WebGLContext(params) {
     }
 }
 
-WebGLContext.prototype.setVirtualResolution = function(width, height) {
-    if(isObjectAssigned(this._gl)) {
-        this._canvas.width  = width;
+WebGLContext.prototype.setVirtualResolution = function (width, height) {
+    if (isObjectAssigned(this._gl)) {
+        this._canvas.width = width;
         this._canvas.height = height;
 
         this._gl.viewport(0, 0, width, height);
     }
 };
 
-WebGLContext.prototype.assignContextFromContainer = function(canvas) {
+WebGLContext.prototype.assignContextFromContainer = function (canvas) {
     // let's try to get the webgl context from the given container:
-    var gl = this._gl = canvas.getContext("experimental-webgl") || canvas.getContext("webgl");
+    var gl = this._gl = canvas.getContext("experimental-webgl") || canvas.getContext("webgl") ||
+        canvas.getContext("webkit-3d") || canvas.getContext("moz-webgl");
 
     if (!isObjectAssigned(this._gl)) {
         this._logger.warn("WebGL not supported, find a container that does (eg. Chrome, Firefox)");
@@ -12674,11 +12689,11 @@ WebGLContext.prototype.assignContextFromContainer = function(canvas) {
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 };
 
-WebGLContext.prototype.getName = function() {
+WebGLContext.prototype.getName = function () {
     return SCARLETT.WEBGL;
 };
 
-WebGLContext.prototype.getContext = function() {
+WebGLContext.prototype.getContext = function () {
     return this._gl;
 };
 
