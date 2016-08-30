@@ -23,6 +23,34 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
             $scope.rgbaPicker.color = 'rgba(' + $scope.color.r + ',' + $scope.color.g + ',' + $scope.color.b + ',' + $scope.color.a + ')';
         };
 
+        $scope.$on("colorpicker-selected", function(color) {
+           console.log(color.value);
+        });
+
+        /**
+         * Color picker on input changed event. Received color as an array of values
+         */
+        $scope.$on("onInputChanged", function(event, color){
+           if (!color || color.length == 0)
+               return
+
+            // parse string to float and store color individual values
+            $scope.color.r = parseFloat(color[0]);
+            $scope.color.g = parseFloat(color[1]);
+            $scope.color.b = parseFloat(color[2]);
+
+            // normalize rgb (0 - 1) and store them
+            $scope.model.bind.r = $scope.color.r / 255.0;
+            $scope.model.bind.g = $scope.color.g / 255.0;
+            $scope.model.bind.b = $scope.color.b / 255.0;
+
+            // since we don't always have alpha (e.g., #fff), we should check if we have more than 3 elements
+            if (color.length > 3) {
+                $scope.color.a = parseFloat(color[3]);
+                $scope.model.bind.a = $scope.color.a;
+            }
+        });
+
         // called when the color picker selected color changes
         $scope.onColorChanged = function(color) {
 

@@ -132,11 +132,18 @@ angular.module('colorpicker.module', [])
                         var match = parser.re.exec(val),
                             values = match && parser.parse(match);
                         if (values) {
+
+                            // trigger event with new values
+                            //$scope.$emit("onColorValueChanged", {
+                            //    color: values
+                            //});
+
                             this.value = this.RGBtoHSB.apply(null, values);
-                            return false;
+                            return values;
                         }
                     }
                 }
+                return null;
             },
 
             setHue: function (h) {
@@ -449,10 +456,17 @@ angular.module('colorpicker.module', [])
                 }
 
                 function update(omitInnerInput) {
-                    pickerColor.setColor(elem.val());
+                    var values = pickerColor.setColor(elem.val());
+
+                    // if values is not null
+                    if (values != null) {
+                        $scope.$emit("onInputChanged", values);
+                    }
+
                     if (withInput && !omitInnerInput) {
                         pickerColorInput.val(elem.val());
                     }
+
                     pickerColorPointers.eq(0).css({
                         left: pickerColor.value.s * componentSize + 'px',
                         top: componentSize - pickerColor.value.b * componentSize + 'px'
@@ -460,7 +474,7 @@ angular.module('colorpicker.module', [])
                     pickerColorPointers.eq(1).css('top', componentSize * (1 - pickerColor.value.h) + 'px');
                     pickerColorPointers.eq(2).css('top', componentSize * (1 - pickerColor.value.a) + 'px');
                     previewColor();
-                }
+                };
 
                 function getColorpickerTemplatePosition() {
                     var
