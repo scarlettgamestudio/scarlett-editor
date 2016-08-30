@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "angular": "~1.4.8",
+    "angular-bootstrap-colorpicker": "^3.0.25",
     "angular-bootstrap-contextmenu": "0.9.7",
     "angular-local-storage": "0.2.2",
     "angular-perfect-scrollbar-2": "1.2.4",
