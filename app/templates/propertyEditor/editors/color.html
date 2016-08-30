@@ -3,7 +3,7 @@
 </div>
 <div class="peEditorValues" ng-controller="ColorCtrl">
     <!-- color preview -->
-    <div class="form-control sc-input input-night color-preview" ng-class="{'inconclusive' : hasMultipleDefinitions()}" ng-style="getPreviewStyle()" style="margin-bottom: 6px">
+    <div class="form-control sc-input input-night color-preview" colorpicker="rgba" ng-change="onColorChanged(rgbaPicker.color)" colorpicker-with-input="true" ng-model="rgbaPicker.color" ng-class="{'inconclusive' : hasMultipleDefinitions()}"  style="margin-bottom: 6px; background-color:{{rgbaPicker.color}};">
         <div class="color-preview-alpha" ng-style="getPreviewStyleNoAlpha()"></div>
     </div>
 
@@ -42,7 +42,7 @@
                 <input
                         type="number" class="form-control sc-input input-night center-text"
                         ng-class="{'inconclusive' : hasMultipleDefinitions('a')}"
-                        ng-change="onValueChange('a')" ng-model="model.bind.a" placeholder="">
+                        ng-change="prepareChange('a')" ng-model="color.a" placeholder="">
             </span>
         </div>
     </div>
