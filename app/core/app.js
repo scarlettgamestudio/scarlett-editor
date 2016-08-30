@@ -9,7 +9,8 @@ var dependencies = [
 	'LocalStorageModule',
 	'cz-tree',
 	'ui.bootstrap.contextMenu',
-	'angular-perfect-scrollbar-2'
+	'angular-perfect-scrollbar-2',
+	'colorpicker.module'
 ];
 
 var app = angular.module('scarlett', dependencies)
