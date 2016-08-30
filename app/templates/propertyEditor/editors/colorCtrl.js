@@ -22,11 +22,7 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
             // picker selected color
             $scope.rgbaPicker.color = 'rgba(' + $scope.color.r + ',' + $scope.color.g + ',' + $scope.color.b + ',' + $scope.color.a + ')';
         };
-
-        $scope.$on("colorpicker-selected", function(color) {
-           console.log(color.value);
-        });
-
+        
         /**
          * Color picker on input changed event. Received color as an array of values
          */
