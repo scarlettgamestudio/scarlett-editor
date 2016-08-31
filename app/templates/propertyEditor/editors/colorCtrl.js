@@ -23,10 +23,17 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
         };
 
         /**
+         *
+         */
+        $scope.safeDigest = function() {
+            !$scope.$$phase && $scope.$digest();
+        };
+
+        /**
          * Color picker on input changed event. Received color as an array of values
          */
         $scope.$on("onInputChanged", function (event, color) {
-            if (!color || color.length == 0) {
+            if (!color || color["length"] == 0) {
                 return;
             }
 
@@ -41,10 +48,16 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
             $scope.model.bind.b = $scope.color.b / 255.0;
 
             // since we don't always have alpha (e.g., #fff), we should check if we have more than 3 elements
-            if (color.length > 3) {
+            if (color["length"] > 3) {
                 $scope.color.a = parseFloat(color[3]);
                 $scope.model.bind.a = $scope.color.a;
+            } else {
+                $scope.color.a = 1;
+                $scope.model.bind.a = 1;
             }
+
+            $scope.onValueChange();
+            $scope.safeDigest();
         });
 
         // called when the color picker selected color changes
@@ -70,6 +83,8 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
                 $scope.model.bind.g = $scope.color.g / 255.0;
                 $scope.model.bind.b = $scope.color.b / 255.0;
                 $scope.model.bind.a = $scope.color.a;
+
+                $scope.onValueChange();
             }
         };
 
@@ -114,9 +129,9 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
         $scope.getPreviewStyleNoAlpha = function () {
             return {
                 "background-color": "rgb(" +
-                Math.round($scope.model.bind.r * 255) + "," +
-                Math.round($scope.model.bind.g * 255) + "," +
-                Math.round($scope.model.bind.b * 255) + ")"
+                Math.round($scope.color.r) + "," +
+                Math.round($scope.color.g) + "," +
+                Math.round($scope.color.b) + ")"
             }
         };
 
