@@ -3,17 +3,17 @@
   overflow: hidden;
   height: 100%;
   width: 100%;
-
-  div:first-child {
-    width: 100%;
-    height: 100%;
-  }
 }
 
 .ps-active-x > .ps-scrollbar-x-rail,
 .ps-active-y > .ps-scrollbar-y-rail,
-.ps-container.ps-in-scrolling.ps-y>.ps-scrollbar-y-rail,
-.ps-container.ps-in-scrolling.ps-x>.ps-scrollbar-x-rail {
+.ps-container.ps-in-scrolling.ps-y > .ps-scrollbar-y-rail,
+.ps-container.ps-in-scrolling.ps-x > .ps-scrollbar-x-rail {
   background-color: darken(map-get($default-colors, grey-hound), 5%) !important;
-  opacity:.9
+  opacity: .9
+}
+
+.ps-transclude {
+  width: 100%;
+  height: 100%;
 }

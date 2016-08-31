@@ -30,17 +30,22 @@
             </div>
 
             <!-- search box -->
-            <input class="sc-input input-night" placeholder="{{'COMMON_SEARCH' | translate}}.." type="text">
+            <input ng-model="model.search" class="sc-input input-night" placeholder="{{'COMMON_SEARCH' | translate}}.." type="text">
 
         </div>
-
 
     </div>
 
     <!-- middle content -->
-    <perfect-scrollbar class="scroll-wrapper">
+    <perfect-scrollbar class="scroll-wrapper dark-background">
         <div class="tool-container-body">
-            <div class="content-item" ng-repeat="item in model.contentView">b</div>
+            <div ng-repeat="item in model.contentView | filter:model.search">
+                <div class="content-item {{getTypeFromContentObject(item)}}"
+                     ng-style="{'background-image': 'url(' + getBackgroundImage(item) + ')'}"></div>
+                <div class="content-item-description {{getTypeFromContentObject(item)}}">
+                    {{item.name}}
+                </div>
+            </div>
         </div>
     </perfect-scrollbar>
 

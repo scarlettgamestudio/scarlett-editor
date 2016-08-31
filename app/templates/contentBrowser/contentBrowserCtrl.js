@@ -22,8 +22,22 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             }
         };
 
+        $scope.getBackgroundImage = function(obj) {
+            return ("img/luis.png")
+        };
+
         $scope.getSelectedFilterName = function () {
             return $scope.getFilterDisplayName($scope.model.filter);
+        };
+
+        $scope.getTypeFromContentObject = function(obj) {
+            if (obj instanceof ContentTexture) {
+                return constants.CONTENT_TYPES.TEXTURE;
+            } else if (obj instanceof ContentTextureAtlas) {
+                return constants.CONTENT_TYPES.TEXTURE_ATLAS;
+            }  else if (obj instanceof ContentScript) {
+                return constants.CONTENT_TYPES.SCRIPT;
+            }
         };
 
         $scope.createContentObject = function (type) {
@@ -51,9 +65,10 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
 
                 // add to the current content view?
                 // note: this only matters if there is no filter applied because filtered views are already synced
-                if (!$scope.model.filter) {
+                $scope.refreshContentView();
+                /*if (!$scope.model.filter) {
                     $scope.model.contentView.push(obj);
-                }
+                }*/
             }
         };
 
@@ -63,20 +78,22 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
         };
 
         $scope.refreshContentView = function() {
-            $scope.model.contentView = [];
+            var newContentView = [];
 
             // no filter?
             if (!$scope.model.filter) {
                 // gather all the content in a single array:
                 Object.keys($scope.model.content).forEach(function (key) {
-                    $scope.model.contentView = $scope.model.contentView.concat($scope.model.content[key]);
+                    newContentView = newContentView.concat($scope.model.content[key]);
                 });
 
             } else {
                 // use the content array using the filter type
-                $scope.model.contentView = $scope.model.content[$scope.model.filter];
+                newContentView = $scope.model.content[$scope.model.filter];
 
             }
+
+            $scope.model.contentView = newContentView;
         };
 
         function generateUniqueName(baseName, type) {

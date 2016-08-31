@@ -75,4 +75,3 @@ app.controller('LoginCtrl', ['$rootScope', '$scope', 'logSvc', 'userSvc', 'confi
 		};
 	}]
 );
-

@@ -11,24 +11,24 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
             color: ''
         };
 
-        var updateColor = function(property, colorValue) {
-
-            // TODO: check for null?
-            if ($scope.color[property] == undefined || colorValue == undefined)
+        var updateColor = function (property, colorValue) {
+            if ($scope.color[property] == undefined || colorValue == undefined) {
                 return;
+            }
 
             $scope.color[property] = colorValue;
 
             // picker selected color
             $scope.rgbaPicker.color = 'rgba(' + $scope.color.r + ',' + $scope.color.g + ',' + $scope.color.b + ',' + $scope.color.a + ')';
         };
-        
+
         /**
          * Color picker on input changed event. Received color as an array of values
          */
-        $scope.$on("onInputChanged", function(event, color){
-           if (!color || color.length == 0)
-               return
+        $scope.$on("onInputChanged", function (event, color) {
+            if (!color || color.length == 0) {
+                return;
+            }
 
             // parse string to float and store color individual values
             $scope.color.r = parseFloat(color[0]);
@@ -48,11 +48,9 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
         });
 
         // called when the color picker selected color changes
-        $scope.onColorChanged = function(color) {
-
+        $scope.onColorChanged = function (color) {
             // rgba string pattern
             var pattern = /rgba?\(\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*\)/;
-
             var result;
 
             // execute regex pattern and check for matches
@@ -72,16 +70,15 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
                 $scope.model.bind.g = $scope.color.g / 255.0;
                 $scope.model.bind.b = $scope.color.b / 255.0;
                 $scope.model.bind.a = $scope.color.a;
-
             }
         };
 
-        $scope.resetRBGAColor = function() {
+        $scope.resetRBGAColor = function () {
             $scope.rgbaPicker.color = 'rgb(0.0, 0.0, 0.0, 1.0)';
-            $scope.color = { r: 0, g: 0, b: 0, a: 1}
+            $scope.color = {r: 0, g: 0, b: 0, a: 1}
         };
 
-        $scope.$on(constants.EVENTS.MODEL_UPDATED, function() {
+        $scope.$on(constants.EVENTS.MODEL_UPDATED, function () {
             $scope.updateFromOrigin();
         });
 
@@ -95,16 +92,18 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
             // color value ranging from 0 to 255
             var value255 = $scope.color[property];
 
-            if (value255 == undefined || value255 == null)
+            if (value255 == undefined || value255 == null) {
                 value255 = 0;
+            }
 
             // set property value
             $scope.model.bind[property] = value255;
 
             // if it is not alpha colour
-            if (property != 'a')
+            if (property != 'a') {
                 // normalize (0 - 1)
                 $scope.model.bind[property] /= 255.0;
+            }
 
             // update picker's selected colour
             updateColor(property, value255);
@@ -121,13 +120,11 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
             }
         };
 
-        $scope.updateFromOrigin = function() {
+        $scope.updateFromOrigin = function () {
             $scope.color.r = $scope.hasMultipleDefinitions("r") ? null : $scope.model.bind.r * 255;
             $scope.color.g = $scope.hasMultipleDefinitions("g") ? null : $scope.model.bind.g * 255;
             $scope.color.b = $scope.hasMultipleDefinitions("b") ? null : $scope.model.bind.b * 255;
             $scope.color.a = $scope.hasMultipleDefinitions("a") ? null : $scope.model.bind.a;
-
-            // TODO: which value should we use when the property is null?
 
             // set initial color picker values
             $scope.rgbaPicker.color = 'rgba(' + $scope.color.r + ',' + $scope.color.g + ',' + $scope.color.b + ',' + $scope.color.a + ')';

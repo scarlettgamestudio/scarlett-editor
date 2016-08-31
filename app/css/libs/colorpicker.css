@@ -42,9 +42,11 @@ colorpicker-alpha {
 colorpicker-hue i,
 colorpicker-alpha i {
     display: block;
-    height: 2px;
-    background: #000;
-    border-top: 1px solid #fff;
+    height: 3px;
+    background: #fff;
+    border-top: 1px solid #444;
+    border-bottom: 1px solid #444;
+    border-radius: 6px;
     position: absolute;
     top: 0;
     left: 0;
@@ -73,12 +75,16 @@ colorpicker-alpha,
 .colorpicker colorpicker-alpha,
 .colorpicker colorpicker-saturation {
     position: relative;
+    border: 1px solid #666;
+    border-radius: 2px;
 }
 .colorpicker input {
     width: 100px;
     font-size: 0.96em;
     color: #707070;
     background-color: #fff;
+    border-radius: 2px;
+    border: 1px solid #666;
 }
 .colorpicker.alpha {
     min-width: 140px;

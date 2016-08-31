@@ -146,6 +146,45 @@
   .tool-container-body {
     min-height: 320px;
     max-height: 320px;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+
+    .content-item {
+      width: 80px;
+      height: 80px;
+      margin: 4px 4px 0px;
+      border-bottom: 3px solid;
+      background: #fff;
+      display: block;
+      overflow: hidden;
+
+      &.texture {
+        border-color: map-get($default-colors, sunflower);
+        background-color: darken(map-get($default-colors, sunflower), 5);
+      }
+
+      &.texture_atlas {
+        border-color: map-get($default-colors, emerald);
+        background-color: darken(map-get($default-colors, emerald), 5);
+      }
+
+      &.script {
+        border-color: map-get($default-colors, river);
+        background-color: darken(map-get($default-colors, river), 5);
+      }
+    }
+
+    .content-item-description {
+      font-size: 0.8em;
+      text-align: center;
+      overflow: hidden;
+      padding: 0 1px;
+      margin: 4px;
+      box-sizing: border-box;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.12);
+    }
   }
 
 }

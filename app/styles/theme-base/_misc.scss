@@ -54,6 +54,19 @@
   text-align: right;
 }
 
+.clearfix:before,
+.clearfix:after {
+  content: "";
+  display: table;
+}
+
+.clearfix:after {
+  clear: both;
+}
+
+.clearfix {
+  zoom: 1; /* ie 6/7 */
+}
 .horizontal-space {
   width: 40px;
   height: 1px;
@@ -62,6 +75,10 @@
 .gutter {
   width: 5px !important;
   background-color: lighten(map_get($default-colors, grey-hound), 2%);
+}
+
+.dark-background {
+  background-color: darken(map-get($default-colors, dim-grey), 4);
 }
 
 .noselect {
