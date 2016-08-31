@@ -285,15 +285,16 @@ angular.module('colorpicker.module', [])
                     withInput = angular.isDefined(attrs.colorpickerWithInput) ? attrs.colorpickerWithInput : false,
                     componentSize = angular.isDefined(attrs.colorpickerSize) ? attrs.colorpickerSize : 100,
                     componentSizePx = componentSize + 'px',
+                    nopreview = angular.isDefined(attrs.colorpickerNoPreview) ? attrs.colorpickerNoPreview : false,
                     inputTemplate = withInput ? '<input type="text" name="colorpicker-input" spellcheck="false">' : '',
-                    closeButton = !inline ? '<button type="button" class="close close-colorpicker">&times;</button>' : '',
+                    closeButton = !inline ? '<button type="button" class="close close-colorpicker" style="border:outset transparent; ">&times;</button>' : '',
                     template =
                         '<div class="colorpicker dropdown">' +
                         '<div class="dropdown-menu">' +
                         '<colorpicker-saturation><i></i></colorpicker-saturation>' +
                         '<colorpicker-hue><i></i></colorpicker-hue>' +
                         '<colorpicker-alpha><i></i></colorpicker-alpha>' +
-                        '<colorpicker-preview></colorpicker-preview>' +
+                        (nopreview ? '<div style="display: block; height:0px"></div>' : '<colorpicker-preview></colorpicker-preview>') +
                         inputTemplate +
                         closeButton +
                         '</div>' +
@@ -309,6 +310,7 @@ angular.module('colorpicker.module', [])
 
                 $compile(colorpickerTemplate)($scope);
                 colorpickerTemplate.css('min-width', parseInt(componentSize) + 29 + 'px');
+
                 sliderSaturation.css({
                     'width' : componentSizePx,
                     'height' : componentSizePx
@@ -412,10 +414,13 @@ angular.module('colorpicker.module', [])
                 });
 
                 function previewColor() {
-                    try {
-                        colorpickerPreview.css('backgroundColor', pickerColor[thisFormat]());
-                    } catch (e) {
-                        colorpickerPreview.css('backgroundColor', pickerColor.toHex());
+                    // if preview (default)
+                    if (!nopreview) {
+                        try {
+                            colorpickerPreview.css('backgroundColor', pickerColor[thisFormat]());
+                        } catch (e) {
+                            colorpickerPreview.css('backgroundColor', pickerColor.toHex());
+                        }
                     }
                     sliderSaturation.css('backgroundColor', pickerColor.toHex(pickerColor.value.h, 1, 1, 1));
                     if (thisFormat === 'rgba') {

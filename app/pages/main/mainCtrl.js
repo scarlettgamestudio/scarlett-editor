@@ -75,7 +75,8 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 				},
 				dimensions: {
 					borderWidth: 4,
-					headerHeight: 20
+					headerHeight: 20,
+					minItemWidth: 330
 				},
 				content: [{
 					type: 'row',
