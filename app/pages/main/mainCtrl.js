@@ -76,7 +76,6 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 				dimensions: {
 					borderWidth: 4,
 					headerHeight: 20,
-					minItemWidth: 330
 				},
 				content: [{
 					type: 'row',
@@ -117,7 +116,6 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 									},
 									title: $translate.instant("EDITOR_SCENE_VIEW"),
 									resize: function() {
-										console.log("resized!!");
 									}
 								}/*,
 								{
@@ -134,6 +132,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 						}, {
 							type: 'component',
 							width: 20,
+							minWidth: 340,
 							componentName: 'template',
 							componentState: {
 								templateId: 'inspector',
