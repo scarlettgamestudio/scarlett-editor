@@ -287,7 +287,7 @@ angular.module('colorpicker.module', [])
                     componentSizePx = componentSize + 'px',
                     nopreview = angular.isDefined(attrs.colorpickerNoPreview) ? attrs.colorpickerNoPreview : false,
                     inputTemplate = withInput ? '<input type="text" name="colorpicker-input" spellcheck="false">' : '',
-                    closeButton = !inline ? '<button type="button" class="close close-colorpicker" style="border:outset transparent; ">&times;</button>' : '',
+                    closeButton = !inline ? '<button type="button" class="close close-colorpicker" style="width: 34px; height: 23px;">&times;</button>' : '',
                     template =
                         '<div class="colorpicker dropdown">' +
                         '<div class="dropdown-menu">' +
