@@ -7,6 +7,8 @@ AngularHelper.constants = null;
 
 AngularHelper.commandHistory = new Undo.Stack();
 
+AngularHelper.sceneSvc = null;
+
 AngularHelper.refresh = function () {
     if (!AngularHelper.rootScope) {
         return;

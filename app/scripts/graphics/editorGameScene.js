@@ -17,6 +17,7 @@ function EditorGameScene(params) {
     this._startCameraPosition = null;
     this._selectedObjects = [];
     this._subjectsMethod = null;
+    this._lastKeyboardState = Keyboard.getState();
     this._mouseState = {
         startPosition: null,
         lastPosition: null,
@@ -25,9 +26,6 @@ function EditorGameScene(params) {
         dragging: false,
         cursor: "default"
     };
-
-    // event binding:
-    AngularHelper.rootScope.$on(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, (this._gameObjectsSelectionChanged).bind(this));
 }
 
 inheritsFrom(EditorGameScene, GameScene);
@@ -74,12 +72,29 @@ EditorGameScene.DIMENSIONS = {
     MOUSE_COLLISION_BULK: 2
 };
 
+EditorGameScene.CONSTANTS = {
+    KEYBOARD_MOVE_INTENSITY: 0.8
+};
+
 /** static variables **/
 EditorGameScene.activeTransformTool = EditorGameScene.TRANSFORM_TOOL_OPTIONS.SELECT;
 
 /** static functions **/
 
 /** public functions **/
+
+EditorGameScene.prototype.initialize = function() {
+    // add subscriptions:
+    EventManager.subscribe(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, this._gameObjectsSelectionChanged, this);
+};
+
+EditorGameScene.prototype.unload = function() {
+    // remove subscriptions:
+    EventManager.removeSubscription(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, this._gameObjectsSelectionChanged);
+
+    // call parent unload
+    GameScene.prototype.unload.call(this);
+};
 
 /**
  * Mouse wheel event
@@ -156,7 +171,7 @@ EditorGameScene.prototype.onMouseMove = function (evt) {
         if (!handled && this._mouseState.button == 0) {
             if (this._subjectsMethod == null) {
                 // handle selection
-                this._handleSelection(false);
+                this._handleSelection(false, false, true);
 
             } else {
                 // update any necessary selected subjects:
@@ -216,6 +231,7 @@ EditorGameScene.prototype.onMouseUp = function (evt) {
  * @param delta
  */
 EditorGameScene.prototype.update = function (delta) {
+    this._handleKeyboardInput(delta);
     this._handleMouseUpdate(delta);
 };
 
@@ -228,26 +244,72 @@ EditorGameScene.prototype.lateRender = function (delta) {
     this._renderSelectedObjectsArtifacts(delta);
 };
 
-EditorGameScene.prototype.setSelectedObjects = function (gameObjects, broadcast) {
+EditorGameScene.prototype.setSelectedObjects = function (gameObjects, broadcast, disableSelectionHistory) {
     var selected = [];
     gameObjects.forEach(function (elem) {
         selected.push({
             gameObject: elem,
-            originalTransform: elem.transform.clone()
+            originalTransform: elem.transform.clone(),
+            equals: function (other) {
+                return other.gameObject && other.gameObject.getUID() == this.gameObject.getUID();
+            }
         })
     });
 
-    this._selectedObjects = selected;
+    // add to current selection (ctrl key is being pressed) ?
+    if (Keyboard.isKeyDown(Keys.Ctrl)) {
+        selected.forEach((function (node) {
+            // now we need to verify if the node is already selected, if so, we must toggle it (remove it)
+            var idx = this._selectedObjects.indexOfObject(node);
+            console.log(node);
+            if (idx >= 0) {
+                this._selectedObjects.splice(idx, 1);
+            } else {
+                this._selectedObjects.push(node);
+            }
+        }).bind(this));
+
+        // also, we need to add to convert with the old ones so they are also in the broadcast:
+        gameObjects = [];
+        this._selectedObjects.forEach(function (node) {
+           gameObjects.push(node.gameObject);
+        });
+
+    } else {
+        // nope, simply set:
+        this._selectedObjects = selected;
+    }
 
     if (broadcast) {
-        AngularHelper.rootScope.$broadcast(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, gameObjects);
+        AngularHelper.sceneSvc.setSelectedObjects(gameObjects, true, disableSelectionHistory);
+        EventManager.emit(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, gameObjects, this.getUID());
     }
 };
 
 /** private functions **/
 
-EditorGameScene.prototype._gameObjectsSelectionChanged = function (evt, selected) {
-    this.setSelectedObjects(selected);
+EditorGameScene.prototype._handleKeyboardInput = function (delta) {
+    var keyboardState = Keyboard.getState();
+
+    if (keyboardState.isKeyDown(Keys.W)) {
+        this._camera.y -= Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
+    } else if (keyboardState.isKeyDown(Keys.S)) {
+        this._camera.y += Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
+    }
+
+    if (keyboardState.isKeyDown(Keys.A)) {
+        this._camera.x -= Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
+    } else if (keyboardState.isKeyDown(Keys.D)) {
+        this._camera.x += Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
+    }
+
+    this._lastKeyboardState = Keyboard.getState();
+};
+
+EditorGameScene.prototype._gameObjectsSelectionChanged = function (selected, origin) {
+    if (!origin || origin != this.getUID()) {
+        this.setSelectedObjects(selected);
+    }
 };
 
 EditorGameScene.prototype._scaleSubject = function (subject, mx, my, scaleX, scaleY, invertX, invertY) {
@@ -705,7 +767,7 @@ EditorGameScene.prototype._refreshSelectedObjectsData = function () {
  *
  * @private
  */
-EditorGameScene.prototype._handleSelection = function (intersection, topLevelOnly) {
+EditorGameScene.prototype._handleSelection = function (intersection, topLevelOnly, disableSelectionHistory) {
     var selectionRectangle = Rectangle.fromVectors(this._mouseState.startPosition, this._mouseState.lastPosition);
     var gameObjects = this.getAllGameObjects();
     var selected = [];
@@ -732,7 +794,7 @@ EditorGameScene.prototype._handleSelection = function (intersection, topLevelOnl
         }
     }).bind(this));
 
-    this.setSelectedObjects(selected, true);
+    this.setSelectedObjects(selected, true, disableSelectionHistory);
 };
 
 /**

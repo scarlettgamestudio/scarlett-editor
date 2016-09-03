@@ -274,13 +274,9 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             return unifiedContainers
         }
 
-        /**
-         *
-         */
-        $scope.$on(constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, (function (e, selected) {
+        $scope.onGameObjectSelectionChanged = function(selected) {
             $scope.setTargets(selected, true);
-
-        }).bind(this));
+        };
 
         /**
          *
@@ -326,7 +322,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             $scope.model.targets.forEach(function (target) {
                 var targetContainer = getContainerByType(target.propertyContainers, container.type);
                 if (targetContainer) {
-                    if(!subPropertyName) {
+                    if (!subPropertyName) {
                         commands.push(new EditPropertyCommand(targetContainer.target, property.name, targetContainer.target[property.name], value));
                     } else {
                         commands.push(new EditPropertyCommand(targetContainer.target[property.name], subPropertyName, targetContainer.target[property.name][subPropertyName], value));
@@ -445,6 +441,14 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
 
         (function init() {
             resetModel();
+
+            // event subscription:
+            EventManager.subscribe(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, $scope.onGameObjectSelectionChanged, this);
         })();
+
+        $scope.$on("$destroy", (function () {
+            EventManager.removeSubscription(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, $scope.onGameObjectSelectionChanged);
+
+        }).bind(this));
     }]
 );

@@ -148,7 +148,7 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
 
         }).bind(this));
 
-        $scope.$on(constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, (function (e, selected) {
+        $scope.onGameObjectSelectionChanged = function (selected) {
             var targetUIDs = [];
             selected.forEach(function (obj) {
                 targetUIDs.push(obj.getUID());
@@ -156,8 +156,7 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
 
             $scope.$broadcast(CZC.EVENTS.SELECT_NODES_BY_UID, targetUIDs, false);
             $scope.safeDigest();
-
-        }).bind(this));
+        };
 
         $scope.refresh = function () {
             if (!sceneSvc.getActiveGameScene()) {
@@ -213,7 +212,15 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
 
         (function init() {
             $scope.refresh();
+
+            // event subscription:
+            EventManager.subscribe(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, $scope.onGameObjectSelectionChanged, this);
         })();
+
+        $scope.$on("$destroy", (function () {
+            EventManager.removeSubscription(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, $scope.onGameObjectSelectionChanged);
+
+        }).bind(this));
     }
 
 ]);

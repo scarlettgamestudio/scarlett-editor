@@ -6,6 +6,8 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
     var svc = {};
     var scope = $rootScope.$new();
 
+    AngularHelper.sceneSvc = svc;
+
     svc._activeGameScenePath = null;
     svc._activeGameScene = null; // the active game scene, all operations on the scene should be made with this consideration
     svc._selectedObjects = [];
@@ -27,7 +29,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
             svc._selectedObjects.splice(idx, 1);
 
             // broadcast the event so other components know
-            $rootScope.$broadcast(constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, svc._selectedObjects);
+            EventManager.emit(constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, svc._selectedObjects);
         }
 
     }).bind(this));
@@ -228,12 +230,19 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
      * set the selected game objects
      * @param objects
      */
-    svc.setSelectedObjects = function (objects) {
-        // update the selected objects object:
-        svc._selectedObjects = objects;
+    svc.setSelectedObjects = function (objects, disableBroadcast, disableCommandStore) {
+        // store the command ?
+        if (!disableCommandStore) {
+            AngularHelper.commandHistory.execute(new GameObjectSelectionCommand(this, svc._selectedObjects.slice(), objects.slice()));
+        } else {
+            // update the selected objects object:
+            svc._selectedObjects = objects;
+        }
 
         // broadcast the event so other components know
-        $rootScope.$broadcast(constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, objects);
+        if (!disableBroadcast) {
+            EventManager.emit(constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, objects);
+        }
     };
 
     /**

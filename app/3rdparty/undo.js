@@ -141,7 +141,7 @@
         this.name = name;
     };
 
-    var up = new Error("override me!");
+    var up = new Error("cannot extend");
 
     extend(Undo.Command.prototype, {
         execute: function () {

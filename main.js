@@ -68,7 +68,7 @@ app.on('ready', function () {
 
 	// Emitted when the window gets focus
 	mainWindow.on('focus', function() {
-		emitter.emit("systemWindowEvent", "focus");
+		//emitter.emit("systemWindowEvent", "focus");
 	});
 
 	// Emitter when the window is closing

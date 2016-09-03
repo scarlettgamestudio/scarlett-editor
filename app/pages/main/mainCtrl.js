@@ -164,8 +164,37 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
                 myLayout.updateSize();
             };
 
+            $scope.onKeyDown = function (e) {
+                var keys = [e.keyCode];
+
+                if (e.ctrlKey) {
+                    keys.push(Keys.Ctrl);
+                }
+
+                if (e.shiftKey) {
+                    keys.push(Keys.Shift);
+                }
+
+                // update the keyboard data:
+                Keyboard.addKeys(keys);
+            };
+
             $scope.onKeyUp = function (e) {
-                // TODO: this can be a lot cleaner (like creating specific modules to handle the input)
+                // note: in the editor
+                var keys = [e.keyCode];
+
+                if (e.ctrlKey) {
+                    keys.push(Keys.Ctrl);
+                }
+
+                if (e.shiftKey) {
+                    keys.push(Keys.Shift);
+                }
+
+                // update the keyboard data:
+                Keyboard.removeKeys(keys);
+
+                // controller behaviors:
 
                 // undo
                 if (e.ctrlKey && e.keyCode == 90) {
@@ -180,6 +209,15 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
                 }
             };
 
+            $scope.onWindowBlur = function (e) {
+                // clear stuff that might generate issues:
+                Keyboard.clearKeys();
+            };
+
+            $scope.onWindowFocus = function (e) {
+
+            };
+
             $timeout((function () {
                 // running this under the $timeout guarantees that the controller will be initialized only when the base
                 // html is rendered, therefore having correct size calculations (important).
@@ -187,6 +225,10 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 
                 window.addEventListener("resize", $scope.onWindowResize);
                 window.addEventListener("keyup", $scope.onKeyUp);
+                window.addEventListener("keydown", $scope.onKeyDown);
+                window.addEventListener("blur", $scope.onWindowBlur);
+                window.addEventListener("focus", $scope.onWindowFocus);
+
             }).bind(this), 10);
 
             $scope.$on("$destroy", (function () {
@@ -197,6 +239,10 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
                 // remove event listeners:
                 window.removeEventListener("resize", $scope.onWindowResize);
                 window.removeEventListener("keyup", $scope.onKeyUp);
+                window.removeEventListener("keydown", $scope.onKeyDown);
+                window.removeEventListener("blur", $scope.onWindowBlur);
+                window.removeEventListener("focus", $scope.onWindowFocus);
+
             }).bind(this));
 
         })();
