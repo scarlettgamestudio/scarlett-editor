@@ -25,7 +25,7 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
         /**
          *
          */
-        $scope.safeDigest = function() {
+        $scope.safeDigest = function () {
             !$scope.$$phase && $scope.$digest();
         };
 
@@ -38,26 +38,34 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
             }
 
             // parse string to float and store color individual values
-            $scope.color.r = parseFloat(color[0]);
-            $scope.color.g = parseFloat(color[1]);
-            $scope.color.b = parseFloat(color[2]);
-
-            // normalize rgb (0 - 1) and store them
-            $scope.model.bind.r = $scope.color.r / 255.0;
-            $scope.model.bind.g = $scope.color.g / 255.0;
-            $scope.model.bind.b = $scope.color.b / 255.0;
+            var r = parseFloat(color[0]);
+            var g = parseFloat(color[1]);
+            var b = parseFloat(color[2]);
+            var a = $scope.color.a;
 
             // since we don't always have alpha (e.g., #fff), we should check if we have more than 3 elements
             if (color["length"] > 3) {
-                $scope.color.a = parseFloat(color[3]);
-                $scope.model.bind.a = $scope.color.a;
-            } else {
-                $scope.color.a = 1;
-                $scope.model.bind.a = 1;
+                a = parseFloat(color[3]);
             }
 
-            $scope.onValueChange();
-            $scope.safeDigest();
+            // something has changed?
+            if ($scope.color.r != r || $scope.color.g != g || $scope.color.b != b || $scope.color.a != a) {
+                // yep, let's update!
+
+                $scope.color.r = r;
+                $scope.color.g = g;
+                $scope.color.b = b;
+                $scope.color.a = a;
+
+                // normalize rgb (0 - 1) and store them
+                $scope.model.bind.r = $scope.color.r / 255.0;
+                $scope.model.bind.g = $scope.color.g / 255.0;
+                $scope.model.bind.b = $scope.color.b / 255.0;
+                $scope.model.bind.a = $scope.color.a;
+
+                $scope.onValueChange();
+                $scope.safeDigest();
+            }
         });
 
         // called when the color picker selected color changes
@@ -73,18 +81,27 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
                 }
 
                 // parse string to float and store color individual values
-                $scope.color.r = parseFloat(result[1]);
-                $scope.color.g = parseFloat(result[2]);
-                $scope.color.b = parseFloat(result[3]);
-                $scope.color.a = parseFloat(result[4]);
+                var r = parseFloat(result[1]);
+                var g = parseFloat(result[2]);
+                var b = parseFloat(result[3]);
+                var a = parseFloat(result[4]);
 
-                // normalize rgb (0 - 1) and store them
-                $scope.model.bind.r = $scope.color.r / 255.0;
-                $scope.model.bind.g = $scope.color.g / 255.0;
-                $scope.model.bind.b = $scope.color.b / 255.0;
-                $scope.model.bind.a = $scope.color.a;
+                // something has changed?
+                if ($scope.color.r != r || $scope.color.g != g || $scope.color.b != b || $scope.color.a != a) {
+                    // yep, let's update!
+                    $scope.color.r = r;
+                    $scope.color.g = g;
+                    $scope.color.b = b;
+                    $scope.color.a = a;
 
-                $scope.onValueChange();
+                    // normalize rgb (0 - 1) and store them
+                    $scope.model.bind.r = $scope.color.r / 255.0;
+                    $scope.model.bind.g = $scope.color.g / 255.0;
+                    $scope.model.bind.b = $scope.color.b / 255.0;
+                    $scope.model.bind.a = $scope.color.a;
+
+                    $scope.onValueChange();
+                }
             }
         };
 

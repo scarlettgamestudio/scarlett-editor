@@ -322,6 +322,14 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 return;
             }
 
+            if(!subPropertyName) {
+                AngularHelper.commandHistory.execute(new EditPropertyCommand(container.target, property.name, container.target[property.name], value, false));
+
+            } else {
+                AngularHelper.commandHistory.execute(new EditPropertyCommand(container.target[property.name], subPropertyName, container.target[property.name][subPropertyName], value, false));
+
+            }
+
             function syncToContainerAction(targetContainer) {
                 var type = property.type.toLowerCase();
 

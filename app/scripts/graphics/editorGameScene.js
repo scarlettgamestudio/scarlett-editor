@@ -27,6 +27,8 @@ function EditorGameScene(params) {
     };
 }
 
+inheritsFrom(EditorGameScene, GameScene);
+
 EditorGameScene.TRANSFORM_STATE = {
     MOVE: 1,
     MOVE_X: 2,
@@ -46,6 +48,13 @@ EditorGameScene.TRANSFORM_STATE = {
     ORIGIN: 16
 };
 
+EditorGameScene.TRANSFORM_TOOL_OPTIONS = {
+    SELECT: 1,
+    MOVE: 2,
+    ROTATE: 3,
+    SCALE: 4
+};
+
 EditorGameScene.CURSOR_TYPES = {
     GRAB: "-webkit-grab",
     DEFAULT: "default",
@@ -62,7 +71,10 @@ EditorGameScene.DIMENSIONS = {
     MOUSE_COLLISION_BULK: 2
 };
 
-inheritsFrom(EditorGameScene, GameScene);
+/** static variables **/
+EditorGameScene.activeTransformTool = EditorGameScene.TRANSFORM_TOOL_OPTIONS.SELECT;
+
+/** static functions **/
 
 /** public functions **/
 
@@ -94,7 +106,6 @@ EditorGameScene.prototype.onMouseDown = function (evt) {
         case 0:
             if (this._selectedObjects.length > 0) {
                 var method = this._handleMouseArtifactCollision(evt);
-                console.log("METHOD: " + method);
                 // is there something that we should take care of?
                 if (method) {
                     this._subjectsMethod = method;
@@ -262,16 +273,16 @@ EditorGameScene.prototype._scaleSubject = function (subject, mx, my, scaleX, sca
     //console.log("r> " + direction);
 
     /*if(scaleX && scaleY) {
-        var length = Math.abs(Math.sqrt((mx*mx)+(my*my)));
-        sx *= Math.abs(mx) / length;
-        sy *= Math.abs(my) / length;
-    }*/
+     var length = Math.abs(Math.sqrt((mx*mx)+(my*my)));
+     sx *= Math.abs(mx) / length;
+     sy *= Math.abs(my) / length;
+     }*/
 
     var newScaleX = subject.originalTransform.getScale().x + ((sx + baseWidth) / baseWidth - 1);
     var newScaleY = subject.originalTransform.getScale().y + ((sy + baseHeight) / baseHeight - 1);
 
     // compensate the position:
-    if(scaleX && scaleY) {
+    if (scaleX && scaleY) {
         // TODO: implement when trying to scale both axis
 
     } else {
@@ -368,6 +379,11 @@ EditorGameScene.prototype._updateSubjects = function (evt) {
 };
 
 EditorGameScene.prototype._clearSubjectsMethod = function () {
+    // before unsetting the method, check if we need to save any state:
+    if (this._subjectsMethod) {
+        this._onSubjectMethodOver();
+    }
+
     this._subjectsMethod = null;
 };
 
@@ -389,60 +405,65 @@ EditorGameScene.prototype._generateGameObjectArtifactData = function (gameObject
     // note: the higher the priority value, the "more priority" it has
     var artifactDictionary = [
         {
-            name: "SCALE_TOP_LEFT",
-            origin: boundary.topLeft,
-            priority: 3,
-            method: EditorGameScene.TRANSFORM_STATE.SCALE_TOP_LEFT
-        },
-        {
-            name: "SCALE_TOP_RIGHT",
-            origin: boundary.topRight,
-            priority: 3,
-            method: EditorGameScene.TRANSFORM_STATE.SCALE_TOP_RIGHT
-        },
-        {
-            name: "SCALE_BOTTOM_RIGHT",
-            origin: boundary.bottomRight,
-            priority: 3,
-            method: EditorGameScene.TRANSFORM_STATE.SCALE_BOTTOM_RIGHT
-        },
-        {
-            name: "SCALE_BOTTOM_LEFT",
-            origin: boundary.bottomLeft,
-            priority: 3,
-            method: EditorGameScene.TRANSFORM_STATE.SCALE_BOTTOM_LEFT
-        },
-        {
-            name: "SCALE_TOP",
-            origin: topMiddlePosition,
-            priority: 3,
-            method: EditorGameScene.TRANSFORM_STATE.SCALE_TOP
-        },
-        {
-            name: "SCALE_RIGHT",
-            origin: rightMiddlePosition,
-            priority: 3,
-            method: EditorGameScene.TRANSFORM_STATE.SCALE_RIGHT
-        },
-        {
-            name: "SCALE_BOTTOM",
-            origin: bottomMiddlePosition,
-            priority: 3,
-            method: EditorGameScene.TRANSFORM_STATE.SCALE_BOTTOM
-        },
-        {
-            name: "SCALE_LEFT",
-            origin: leftMiddlePosition,
-            priority: 3,
-            method: EditorGameScene.TRANSFORM_STATE.SCALE_LEFT
-        },
-        {
             name: "ORIGIN",
             origin: gameObject.transform.getPosition(),
             priority: 5,
             method: EditorGameScene.TRANSFORM_STATE.ORIGIN
         }
     ];
+
+    if (this._isScaleEnabled()) {
+        artifactDictionary = artifactDictionary.concat([
+            {
+                name: "SCALE_TOP_LEFT",
+                origin: boundary.topLeft,
+                priority: 3,
+                method: EditorGameScene.TRANSFORM_STATE.SCALE_TOP_LEFT
+            },
+            {
+                name: "SCALE_TOP_RIGHT",
+                origin: boundary.topRight,
+                priority: 3,
+                method: EditorGameScene.TRANSFORM_STATE.SCALE_TOP_RIGHT
+            },
+            {
+                name: "SCALE_BOTTOM_RIGHT",
+                origin: boundary.bottomRight,
+                priority: 3,
+                method: EditorGameScene.TRANSFORM_STATE.SCALE_BOTTOM_RIGHT
+            },
+            {
+                name: "SCALE_BOTTOM_LEFT",
+                origin: boundary.bottomLeft,
+                priority: 3,
+                method: EditorGameScene.TRANSFORM_STATE.SCALE_BOTTOM_LEFT
+            },
+            {
+                name: "SCALE_TOP",
+                origin: topMiddlePosition,
+                priority: 3,
+                method: EditorGameScene.TRANSFORM_STATE.SCALE_TOP
+            },
+            {
+                name: "SCALE_RIGHT",
+                origin: rightMiddlePosition,
+                priority: 3,
+                method: EditorGameScene.TRANSFORM_STATE.SCALE_RIGHT
+            },
+            {
+                name: "SCALE_BOTTOM",
+                origin: bottomMiddlePosition,
+                priority: 3,
+                method: EditorGameScene.TRANSFORM_STATE.SCALE_BOTTOM
+            },
+            {
+                name: "SCALE_LEFT",
+                origin: leftMiddlePosition,
+                priority: 3,
+                method: EditorGameScene.TRANSFORM_STATE.SCALE_LEFT
+            }
+        ]);
+    }
 
     artifactDictionary.forEach(function (elem) {
         var obj = {
@@ -480,8 +501,10 @@ EditorGameScene.prototype._handleMouseArtifactCollision = function (evt) {
         if (selected.gameObject.collidesWithPoint(worldPosition)) {
             var artifactData = this._generateGameObjectArtifactData(selected.gameObject, true);
 
-            // ok, without further considerations, let's apply the default method because...
-            method = EditorGameScene.TRANSFORM_STATE.MOVE;
+            // ok, without further considerations, let's apply the default method (MOVE) if enabled
+            if (this._isMoveEnabled()) {
+                method = EditorGameScene.TRANSFORM_STATE.MOVE;
+            }
 
             // now we test the collision for each artifact data:
             artifactData.forEach((function (artifact) {
@@ -530,8 +553,53 @@ EditorGameScene.prototype._handleMouseArtifactCollision = function (evt) {
     return method;
 };
 
+EditorGameScene.prototype._onSubjectMethodOver = function () {
+    this._selectedObjects.forEach((function (subject) {
+        switch (this._subjectsMethod) {
+            case EditorGameScene.TRANSFORM_STATE.ORIGIN:
+            case EditorGameScene.TRANSFORM_STATE.SCALE_TOP_LEFT:
+            case EditorGameScene.TRANSFORM_STATE.SCALE_BOTTOM_RIGHT:
+            case EditorGameScene.TRANSFORM_STATE.SCALE_TOP_RIGHT:
+            case EditorGameScene.TRANSFORM_STATE.SCALE_BOTTOM_LEFT:
+            case EditorGameScene.TRANSFORM_STATE.SCALE_TOP:
+            case EditorGameScene.TRANSFORM_STATE.SCALE_RIGHT:
+            case EditorGameScene.TRANSFORM_STATE.SCALE_BOTTOM:
+            case EditorGameScene.TRANSFORM_STATE.SCALE_LEFT:
+                AngularHelper.commandHistory.store([
+                    new EditPropertyCommand(subject.gameObject.transform, "_scale", subject.originalTransform.getScale(), subject.gameObject.transform.getScale()),
+                    new EditPropertyCommand(subject.gameObject.transform, "_position", subject.originalTransform.getPosition(), subject.gameObject.transform.getPosition())
+                ]);
+
+                break;
+
+            case EditorGameScene.TRANSFORM_STATE.MOVE:
+                AngularHelper.commandHistory.store(
+                    new EditPropertyCommand(subject.gameObject.transform, "_position", subject.originalTransform.getPosition(), subject.gameObject.transform.getPosition())
+                );
+
+                break;
+        }
+    }).bind(this));
+
+};
+
 EditorGameScene.prototype._updateCursorGraphic = function () {
     document.body.style.cursor = this._mouseState.cursor;
+};
+
+EditorGameScene.prototype._isScaleEnabled = function () {
+    return EditorGameScene.activeTransformTool == EditorGameScene.TRANSFORM_TOOL_OPTIONS.SELECT ||
+        EditorGameScene.activeTransformTool == EditorGameScene.TRANSFORM_TOOL_OPTIONS.SCALE;
+};
+
+EditorGameScene.prototype._isMoveEnabled = function () {
+    return EditorGameScene.activeTransformTool == EditorGameScene.TRANSFORM_TOOL_OPTIONS.SELECT ||
+        EditorGameScene.activeTransformTool == EditorGameScene.TRANSFORM_TOOL_OPTIONS.MOVE;
+};
+
+EditorGameScene.prototype._isRotateEnabled = function () {
+    return EditorGameScene.activeTransformTool == EditorGameScene.TRANSFORM_TOOL_OPTIONS.SELECT ||
+        EditorGameScene.activeTransformTool == EditorGameScene.TRANSFORM_TOOL_OPTIONS.ROTATE;
 };
 
 EditorGameScene.prototype._renderSelectedObjectsArtifacts = function (delta) {
@@ -571,23 +639,26 @@ EditorGameScene.prototype._renderSelectedObjectsArtifacts = function (delta) {
             this._primitiveRender.drawLine(vertices.bottomLeft, vertices.topLeft, 1, boundaryColor);
 
             // draw vertex rectangles (scale)
-            // corners
-            this._primitiveRender.drawRectangle(new Rectangle(vertices.topLeft.x - rectangleHalfBulk, vertices.topLeft.y - rectangleHalfBulk, rectangleBulk, rectangleBulk), scaleColor, rotation);
-            this._primitiveRender.drawRectangle(new Rectangle(vertices.topRight.x - rectangleHalfBulk, vertices.topRight.y - rectangleHalfBulk, rectangleBulk, rectangleBulk), scaleColor, rotation);
-            this._primitiveRender.drawRectangle(new Rectangle(vertices.bottomRight.x - rectangleHalfBulk, vertices.bottomRight.y - rectangleHalfBulk, rectangleBulk, rectangleBulk), scaleColor, rotation);
-            this._primitiveRender.drawRectangle(new Rectangle(vertices.bottomLeft.x - rectangleHalfBulk, vertices.bottomLeft.y - rectangleHalfBulk, rectangleBulk, rectangleBulk), scaleColor, rotation);
+            if (this._isScaleEnabled()) {
+                // corners
+                this._primitiveRender.drawRectangle(new Rectangle(vertices.topLeft.x - rectangleHalfBulk, vertices.topLeft.y - rectangleHalfBulk, rectangleBulk, rectangleBulk), scaleColor, rotation);
+                this._primitiveRender.drawRectangle(new Rectangle(vertices.topRight.x - rectangleHalfBulk, vertices.topRight.y - rectangleHalfBulk, rectangleBulk, rectangleBulk), scaleColor, rotation);
+                this._primitiveRender.drawRectangle(new Rectangle(vertices.bottomRight.x - rectangleHalfBulk, vertices.bottomRight.y - rectangleHalfBulk, rectangleBulk, rectangleBulk), scaleColor, rotation);
+                this._primitiveRender.drawRectangle(new Rectangle(vertices.bottomLeft.x - rectangleHalfBulk, vertices.bottomLeft.y - rectangleHalfBulk, rectangleBulk, rectangleBulk), scaleColor, rotation);
 
-            // sides
-            // note: we need to calculate the mid point for each two vertex combination (see more at: http://www.purplemath.com/modules/midpoint.htm)
-            var topMiddlePosition = new Vector2((vertices.topLeft.x + vertices.topRight.x) / 2.0, (vertices.topLeft.y + vertices.topRight.y) / 2.0);
-            var leftMiddlePosition = new Vector2((vertices.topLeft.x + vertices.bottomLeft.x) / 2.0, (vertices.topLeft.y + vertices.bottomLeft.y) / 2.0);
-            var bottomMiddlePosition = new Vector2((vertices.bottomLeft.x + vertices.bottomRight.x) / 2.0, (vertices.bottomLeft.y + vertices.bottomRight.y) / 2.0);
-            var rightMiddlePosition = new Vector2((vertices.bottomRight.x + vertices.topRight.x) / 2.0, (vertices.bottomRight.y + vertices.topRight.y) / 2.0);
+                // sides
+                // note: we need to calculate the mid point for each two vertex combination (see more at: http://www.purplemath.com/modules/midpoint.htm)
+                var topMiddlePosition = new Vector2((vertices.topLeft.x + vertices.topRight.x) / 2.0, (vertices.topLeft.y + vertices.topRight.y) / 2.0);
+                var leftMiddlePosition = new Vector2((vertices.topLeft.x + vertices.bottomLeft.x) / 2.0, (vertices.topLeft.y + vertices.bottomLeft.y) / 2.0);
+                var bottomMiddlePosition = new Vector2((vertices.bottomLeft.x + vertices.bottomRight.x) / 2.0, (vertices.bottomLeft.y + vertices.bottomRight.y) / 2.0);
+                var rightMiddlePosition = new Vector2((vertices.bottomRight.x + vertices.topRight.x) / 2.0, (vertices.bottomRight.y + vertices.topRight.y) / 2.0);
 
-            this._primitiveRender.drawRectangle(new Rectangle(topMiddlePosition.x - minorRectangleHalfBulk, topMiddlePosition.y - minorRectangleHalfBulk, rectangleBulk, minorRectangleBulk), scaleColor, rotation);
-            this._primitiveRender.drawRectangle(new Rectangle(leftMiddlePosition.x - minorRectangleHalfBulk, leftMiddlePosition.y - minorRectangleHalfBulk, rectangleBulk, minorRectangleBulk), scaleColor, rotation);
-            this._primitiveRender.drawRectangle(new Rectangle(bottomMiddlePosition.x - minorRectangleHalfBulk, bottomMiddlePosition.y - minorRectangleHalfBulk, rectangleBulk, minorRectangleBulk), scaleColor, rotation);
-            this._primitiveRender.drawRectangle(new Rectangle(rightMiddlePosition.x - minorRectangleHalfBulk, rightMiddlePosition.y - minorRectangleHalfBulk, rectangleBulk, minorRectangleBulk), scaleColor, rotation);
+                this._primitiveRender.drawRectangle(new Rectangle(topMiddlePosition.x - minorRectangleHalfBulk, topMiddlePosition.y - minorRectangleHalfBulk, rectangleBulk, minorRectangleBulk), scaleColor, rotation);
+                this._primitiveRender.drawRectangle(new Rectangle(leftMiddlePosition.x - minorRectangleHalfBulk, leftMiddlePosition.y - minorRectangleHalfBulk, rectangleBulk, minorRectangleBulk), scaleColor, rotation);
+                this._primitiveRender.drawRectangle(new Rectangle(bottomMiddlePosition.x - minorRectangleHalfBulk, bottomMiddlePosition.y - minorRectangleHalfBulk, rectangleBulk, minorRectangleBulk), scaleColor, rotation);
+                this._primitiveRender.drawRectangle(new Rectangle(rightMiddlePosition.x - minorRectangleHalfBulk, rightMiddlePosition.y - minorRectangleHalfBulk, rectangleBulk, minorRectangleBulk), scaleColor, rotation);
+
+            }
 
             // draw transform artifacts (move)
             // y

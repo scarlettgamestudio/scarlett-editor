@@ -11155,10 +11155,12 @@ Sprite.prototype.setTextureSrc = function (path) {
         Texture2D.fromPath(path).then(
             (function (texture) {
                 this.setTexture(texture);
-            }).bind(this), function (error) {
-                // TODO: log this..
-            }
+            }).bind(this), (function (error) {
+                this.setTexture(null);
+            }).bind(this)
         );
+    } else {
+        this.setTexture(null);
     }
 };
 

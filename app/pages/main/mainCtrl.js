@@ -181,4 +181,3 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 		})();
 	}]
 );
-

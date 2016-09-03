@@ -1,4 +1,4 @@
-<nav class="navbar">
+<nav class="navbar" ng-controller="NavbarCtrl">
     <div class="container-fluid">
         <!-- application brand area -->
         <div class="navbar-header">
@@ -61,21 +61,19 @@
                     <li><a><i class="fa fa-info-circle" aria-hidden="true"></i><span translate-once="NAVBAR_ABOUT"></span></a></li>
                 </ul>
             </div>
-
         </ul>
-
 
         <div class="navbar-center">
             <div class="align-left">
-                <div class="sc-action-btn disabled"><i class="fa fa-undo" aria-hidden="true"></i></div>
-                <div class="sc-action-btn disabled"><i class="fa fa-repeat" aria-hidden="true"></i></div>
+                <div class="sc-action-btn" ng-class="{'disabled': !canUndo()}" ng-click="undo()"><i class="fa fa-undo" aria-hidden="true"></i></div>
+                <div class="sc-action-btn" ng-class="{'disabled': !canRedo()}" ng-click="redo()"><i class="fa fa-repeat" aria-hidden="true"></i></div>
             </div>
             <div class="horizontal-space align-left"></div>
             <div class="align-left">
-                <div class="sc-action-btn"><i class="fa fa-hand-pointer-o" aria-hidden="true"></i></div>
-                <div class="sc-action-btn"><i class="fa fa-arrows" aria-hidden="true"></i></div>
-                <div class="sc-action-btn"><i class="fa fa-refresh" aria-hidden="true"></i></div>
-                <div class="sc-action-btn"><i class="fa fa-expand" aria-hidden="true"></i></div>
+                <div class="sc-action-btn" ng-class="{'selected': isToolActive(1)}" ng-click="setActiveTool(1)"><i class="fa fa-hand-pointer-o" aria-hidden="true"></i></div>
+                <div class="sc-action-btn" ng-class="{'selected': isToolActive(2)}" ng-click="setActiveTool(2)"><i class="fa fa-arrows" aria-hidden="true"></i></div>
+                <div class="sc-action-btn" ng-class="{'selected': isToolActive(3)}" ng-click="setActiveTool(3)"><i class="fa fa-refresh" aria-hidden="true"></i></div>
+                <div class="sc-action-btn" ng-class="{'selected': isToolActive(4)}" ng-click="setActiveTool(4)"><i class="fa fa-expand" aria-hidden="true"></i></div>
             </div>
             <div class="horizontal-space align-left"></div>
             <div class="align-left">
