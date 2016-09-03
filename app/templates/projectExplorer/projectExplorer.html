@@ -6,13 +6,22 @@
 
             <!-- node header -->
             <div ng-class="{'selected' : isSelected()}">
-                <div cz-tree-node-header ng-if="node.type === 'directory'" context-menu="folderContextMenuOptions" >
+                <div cz-tree-node-header ng-if="node.type === 'directory'" context-menu="folderContextMenuOptions(node)" >
                     <span class="fa clickable" ng-click="toggleCollapse()" ng-if="node.type === 'directory'" ng-class="{'fa-folder-open' : !collapsed, 'fa-folder' : collapsed}"></span>
 
-                    <span>{{node.name}}</span>
+                    <span ng-if="node.attributes.isRenaming == false">{{node.name}}</span>
+
+                    <span ng-if="node.attributes.isRenaming === true">
+                        <input type="text" class="form-control sc-input input-night" value="{{node.name}}" select-text />
+                    </span>
                 </div>
-                <div cz-tree-node-header ng-if="node.type === 'file'" context-menu="itemContextMenuOptions" >
-                    <span><i class="fa" ng-class="getFileIcon(node.name)" aria-hidden="true"></i> {{node.name}}</span>
+                <div cz-tree-node-header ng-if="node.type === 'file'" context-menu="itemContextMenuOptions(node)" >
+
+                    <span ng-if="node.attributes.isRenaming == false"><i class="fa" ng-class="getFileIcon(node.name)" aria-hidden="true"></i> {{node.name}}</span>
+
+                    <span ng-if="node.attributes.isRenaming === true">
+                        <input type="text" class="form-control sc-input input-night" value="{{node.name}}" select-text="{{node.name}}"/>
+                    </span>
                 </div>
             </div>
 

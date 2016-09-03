@@ -6,6 +6,8 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 			uid: 0
 		};
 
+		$scope.selectedNode = null;
+
 		$scope.createItemsContextMenuOptions =
 			['<i class="fa fa-plus-square"></i>' + $translate.instant("CTX_CREATE"), [
 				['<i class="fa fa-picture-o"></i>' + $translate.instant("CTX_GAME_SCENE"), function ($itemScope) {
@@ -40,7 +42,9 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 
 		$scope.extraContextMenuOptions = [
 			['<i class="fa fa-pencil-square-o"></i>' + $translate.instant("CTX_RENAME"), function ($itemScope) {
-
+				if ($scope.selectedNode != null){
+					$scope.selectedNode.attributes.isRenaming = true;
+				}
 			}],
 			['<i class="fa fa-trash"></i>' + $translate.instant("CTX_DELETE"), function ($itemScope) {
 
@@ -53,26 +57,38 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 			$scope.openFolderInFileExplorer,
 			null,
 			['<i class="fa fa-refresh"></i>' + $translate.instant("CTX_REFRESH"), function ($itemScope) {
-				$scope.refresh();
+				$scope.updateProjectFileMap();
 			}]
 		];
 
-		$scope.folderContextMenuOptions = [
-			$scope.createItemsContextMenuOptions,
-			$scope.addItemsContextMenuOptions,
-			$scope.openFolderInFileExplorer,
-			null
-		].concat($scope.copyPathsContextMenuOptions, null, $scope.extraContextMenuOptions);
+		$scope.folderContextMenuOptions = function(node){
+			// store selected node
+			$scope.selectedNode = node;
 
-		$scope.itemContextMenuOptions = [
-			['<i class="fa fa-external-link"></i>' + $translate.instant("CTX_OPEN"), function ($itemScope) {
+			// return context menu
+			return [
+				$scope.createItemsContextMenuOptions,
+				$scope.addItemsContextMenuOptions,
+				$scope.openFolderInFileExplorer,
+				null
+			].concat($scope.copyPathsContextMenuOptions, null, $scope.extraContextMenuOptions);
+		}
 
-			}],
-			['<i class="fa fa-folder-open-o"></i>' + $translate.instant("CTX_OPEN_CONTAINING_FOLDER"), function ($itemScope) {
+		$scope.itemContextMenuOptions = function(node) {
+			// store selected node
+			$scope.selectedNode = node;
 
-			}],
-			null,
-		].concat($scope.copyPathsContextMenuOptions, null, $scope.extraContextMenuOptions);
+			// return context menu
+			return [
+				['<i class="fa fa-external-link"></i>' + $translate.instant("CTX_OPEN"), function ($itemScope) {
+
+				}],
+				['<i class="fa fa-folder-open-o"></i>' + $translate.instant("CTX_OPEN_CONTAINING_FOLDER"), function ($itemScope) {
+
+				}],
+				null,
+			].concat($scope.copyPathsContextMenuOptions, null, $scope.extraContextMenuOptions);
+		};
 
 
 		$scope.clearSelection = function () {
@@ -164,8 +180,21 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 			$scope.model.tree = [mapTreeModel(scarlettSvc.activeProjectFileMap, true, 0)];
 		};
 
+		$scope.updateProjectFileMap = function ()
+		{
+			// update file map
+			scarlettSvc.updateActiveProjectFileMap();
+
+			// refresh UI with the new file map
+			$scope.refresh();
+		}
+
+		// TODO: do we really need this method to receive an array?
 		$scope.onTreeDoubleClick = function(selected) {
+
+			// TODO check if selectedNode isRenaming is not true ?
 			for (var i = 0; i < selected.length; i++) {
+
 				var attr = JSON.parse(selected[i].attachment);
 				var ext = Path.getFileExtension(attr.path);
 
@@ -194,7 +223,7 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 
 		function mapTreeModel(directory, deep, n) {
 			var directoryTitle = (n === 0 ? scarlettSvc.activeProject.name : Path.getDirectoryName(directory.path));
-			var nodeModel = generateNode(++$scope.model.uid, directoryTitle, "directory", {path: directory.path});
+			var nodeModel = generateNode(++$scope.model.uid, directoryTitle, "directory", {path: directory.path, isRenaming: false});
 
 			if (deep) {
 				directory.subdirectories.forEach(function (subdirectory) {
@@ -212,7 +241,8 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 				} else {
 					nodeModel.nodes.push(generateNode(++$scope.model.uid, filename, "file", {
 						extension: extension,
-						path: fileInfo.fullPath
+						path: fileInfo.fullPath,
+						isRenaming : false
 					}));
 				}
 
