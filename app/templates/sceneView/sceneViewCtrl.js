@@ -141,7 +141,17 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
             }
 
             $scope.updateVisualZoom();
+
+            EventManager.subscribe(AngularHelper.constants.EVENTS.VIEW_CHANGED, $scope.onViewChanged, this);
+
+            $scope.$on("$destroy", function () {
+                EventManager.removeSubscription(AngularHelper.constants.EVENTS.VIEW_CHANGED, $scope.onViewChanged);
+            });
         }
+
+        $scope.onViewChanged = function() {
+            $scope.updateVisualZoom();
+        };
 
         $scope.model.gameUID = gameSvc.createGame();
         $scope.model.canvasID = "canvas_" + $scope.model.gameUID;

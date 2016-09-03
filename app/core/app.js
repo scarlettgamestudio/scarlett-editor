@@ -20,6 +20,10 @@ var app = angular.module('scarlett', dependencies)
 	// validate if the scarlett folder exists:
 	ScarlettInterface.setupApplicationFolder();
 
+	$rootScope.safeApply = function () {
+		!$rootScope.$$phase && $rootScope.$apply();
+	};
+
 	$rootScope.changeView = function (viewName) {
 		$location.path(viewName);
 	};
@@ -53,7 +57,8 @@ var app = angular.module('scarlett', dependencies)
 		GAME_SCENE_CHANGED: "onGameSceneChanged",
 		GAME_INITIALIZE: "onGameInitialize",
 		MODEL_UPDATED: "onModelUpdated",
-		COMMAND_HISTORY_CHANGED: "onCommandHistoryChanged"
+		COMMAND_HISTORY_CHANGED: "onCommandHistoryChanged",
+		VIEW_CHANGED: "onViewChanged"
 
 	},
 	CONTAINERS: {
