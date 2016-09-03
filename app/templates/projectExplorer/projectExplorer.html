@@ -1,14 +1,18 @@
 <perfect-scrollbar class="scroll-wrapper">
-    <div id="projectExplorer" ng-controller="ProjectExplorerCtrl">
+    <div id="projectExplorer" ng-controller="ProjectExplorerCtrl" context-menu="contextMenuOptions" ng-mouseup="baseContainerClick()">
 
         <!-- tree node template -->
         <script type="text/ng-template" id="nodeTemplate.html">
 
             <!-- node header -->
             <div ng-class="{'selected' : isSelected()}">
-                <div cz-tree-node-header>
+                <div cz-tree-node-header ng-if="node.type === 'directory'" context-menu="folderContextMenuOptions" >
                     <span class="fa clickable" ng-click="toggleCollapse()" ng-if="node.type === 'directory'" ng-class="{'fa-folder-open' : !collapsed, 'fa-folder' : collapsed}"></span>
-                    <span><i class="fa" ng-class="getFileIcon(node.name)" aria-hidden="true" ng-if="node.type === 'file'"></i> {{node.name}}</span>
+
+                    <span>{{node.name}}</span>
+                </div>
+                <div cz-tree-node-header ng-if="node.type === 'file'" context-menu="itemContextMenuOptions" >
+                    <span><i class="fa" ng-class="getFileIcon(node.name)" aria-hidden="true"></i> {{node.name}}</span>
                 </div>
             </div>
 

@@ -72,6 +72,23 @@ app.config(function ($translateProvider) {
 		CTX_REFRESH: "Refresh",
 		CTX_DELETE: "Delete",
 
+		CTX_CREATE: 'Create...',
+		CTX_GAME_SCENE: 'Game Scene',
+		CTX_JS_SCRIPT: 'JS Script',
+		CTX_FOLDER: 'Folder',
+
+		CTX_ADD_FROM_FOLDER: 'Add From Folder',
+
+		CTX_OPEN_FOLDER_FILE_EXPLORER: 'Open Folder in File Explorer',
+
+		CTX_COPY_FULL_PATH: 'Copy Full Path',
+		CTX_COPY_RELATIVE_PATH: 'Copy Relative Path',
+
+		CTX_RENAME: 'Rename',
+
+		CTX_OPEN: 'Open',
+		CTX_OPEN_CONTAINING_FOLDER: 'Open Containing Folder',
+
 		NAVBAR_FILE: 'File',
 		NAVBAR_NEW_PROJECT: "New Project",
 		NAVBAR_OPEN_PROJECT: "Open Project",

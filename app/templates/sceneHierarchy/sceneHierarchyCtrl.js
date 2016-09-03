@@ -44,7 +44,7 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
 
             }],
             null,
-            [$translate.instant("CTX_REFRESH"), function ($itemScope) {
+            ['<i class="fa fa-refresh"></i>' + $translate.instant("CTX_REFRESH"), function ($itemScope) {
                 $scope.refresh();
             }]
         ];

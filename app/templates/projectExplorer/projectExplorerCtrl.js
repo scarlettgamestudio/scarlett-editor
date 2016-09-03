@@ -1,9 +1,87 @@
-app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc',
-	function ($scope, logSvc, config, scarlettSvc, sceneSvc) {
+app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', '$translate', 'constants',
+	function ($scope, logSvc, config, scarlettSvc, sceneSvc, $translate, constants) {
 
 		$scope.model = {
 			tree: [],
 			uid: 0
+		};
+
+		$scope.createItemsContextMenuOptions =
+			['<i class="fa fa-plus-square"></i>' + $translate.instant("CTX_CREATE"), [
+				['<i class="fa fa-picture-o"></i>' + $translate.instant("CTX_GAME_SCENE"), function ($itemScope) {
+
+				}],
+				['<i class="fa fa-file-code-o"></i>' + $translate.instant("CTX_JS_SCRIPT"), function ($itemScope) {
+
+				}],
+				['<i class="fa fa-folder-o"></i>' + $translate.instant("CTX_FOLDER"), function ($itemScope) {
+
+				}],
+			]];
+
+		$scope.addItemsContextMenuOptions =
+			['<i class="fa fa-download"></i>' + $translate.instant("CTX_ADD_FROM_FOLDER"), function ($itemScope) {
+
+			}];
+
+		$scope.openFolderInFileExplorer =
+			['<i class="fa fa-folder-open-o"></i>' + $translate.instant("CTX_OPEN_FOLDER_FILE_EXPLORER"), function ($itemScope) {
+
+			}];
+
+		$scope.copyPathsContextMenuOptions = [
+			['<i class="fa fa-clipboard"></i>' + $translate.instant("CTX_COPY_FULL_PATH"), function ($itemScope) {
+
+			}],
+			['<i class="fa fa-clipboard"></i>' + $translate.instant("CTX_COPY_RELATIVE_PATH"), function ($itemScope) {
+
+			}],
+		];
+
+		$scope.extraContextMenuOptions = [
+			['<i class="fa fa-pencil-square-o"></i>' + $translate.instant("CTX_RENAME"), function ($itemScope) {
+
+			}],
+			['<i class="fa fa-trash"></i>' + $translate.instant("CTX_DELETE"), function ($itemScope) {
+
+			}],
+		];
+
+		$scope.contextMenuOptions = [
+			$scope.createItemsContextMenuOptions,
+			$scope.addItemsContextMenuOptions,
+			$scope.openFolderInFileExplorer,
+			null,
+			['<i class="fa fa-refresh"></i>' + $translate.instant("CTX_REFRESH"), function ($itemScope) {
+				$scope.refresh();
+			}]
+		];
+
+		$scope.folderContextMenuOptions = [
+			$scope.createItemsContextMenuOptions,
+			$scope.addItemsContextMenuOptions,
+			$scope.openFolderInFileExplorer,
+			null
+		].concat($scope.copyPathsContextMenuOptions, null, $scope.extraContextMenuOptions);
+
+		$scope.itemContextMenuOptions = [
+			['<i class="fa fa-external-link"></i>' + $translate.instant("CTX_OPEN"), function ($itemScope) {
+
+			}],
+			['<i class="fa fa-folder-open-o"></i>' + $translate.instant("CTX_OPEN_CONTAINING_FOLDER"), function ($itemScope) {
+
+			}],
+			null,
+		].concat($scope.copyPathsContextMenuOptions, null, $scope.extraContextMenuOptions);
+
+
+		$scope.clearSelection = function () {
+			$scope.$broadcast(CZC.EVENTS.SELECT_NODES_BY_UID, [], false);
+			$scope.safeDigest();
+		};
+
+		$scope.baseContainerClick = function () {
+			$scope.clearSelection();
 		};
 
 		$scope.getFileIcon = function (filename) {
