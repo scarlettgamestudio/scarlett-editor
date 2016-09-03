@@ -322,13 +322,20 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 return;
             }
 
-            if(!subPropertyName) {
-                AngularHelper.commandHistory.execute(new EditPropertyCommand(container.target, property.name, container.target[property.name], value, false));
+            var commands = [];
+            $scope.model.targets.forEach(function (target) {
+                var targetContainer = getContainerByType(target.propertyContainers, container.type);
+                if (targetContainer) {
+                    if(!subPropertyName) {
+                        commands.push(new EditPropertyCommand(targetContainer.target, property.name, targetContainer.target[property.name], value));
+                    } else {
+                        commands.push(new EditPropertyCommand(targetContainer.target[property.name], subPropertyName, targetContainer.target[property.name][subPropertyName], value));
+                    }
+                }
+            });
 
-            } else {
-                AngularHelper.commandHistory.execute(new EditPropertyCommand(container.target[property.name], subPropertyName, container.target[property.name][subPropertyName], value, false));
-
-            }
+            // store all commands at the same time so they are considered as a single action
+            AngularHelper.commandHistory.store(commands);
 
             function syncToContainerAction(targetContainer) {
                 var type = property.type.toLowerCase();

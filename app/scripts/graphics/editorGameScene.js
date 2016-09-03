@@ -25,6 +25,9 @@ function EditorGameScene(params) {
         dragging: false,
         cursor: "default"
     };
+
+    // event binding:
+    AngularHelper.rootScope.$on(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, (this._gameObjectsSelectionChanged).bind(this));
 }
 
 inheritsFrom(EditorGameScene, GameScene);
@@ -225,7 +228,7 @@ EditorGameScene.prototype.lateRender = function (delta) {
     this._renderSelectedObjectsArtifacts(delta);
 };
 
-EditorGameScene.prototype.setSelectedObjects = function (gameObjects) {
+EditorGameScene.prototype.setSelectedObjects = function (gameObjects, broadcast) {
     var selected = [];
     gameObjects.forEach(function (elem) {
         selected.push({
@@ -236,10 +239,17 @@ EditorGameScene.prototype.setSelectedObjects = function (gameObjects) {
 
     this._selectedObjects = selected;
 
-    AngularHelper.rootScope.$broadcast(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, gameObjects);
+    if (broadcast) {
+        AngularHelper.rootScope.$broadcast(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, gameObjects);
+    }
 };
 
 /** private functions **/
+
+EditorGameScene.prototype._gameObjectsSelectionChanged = function (evt, selected) {
+    this.setSelectedObjects(selected);
+};
+
 EditorGameScene.prototype._scaleSubject = function (subject, mx, my, scaleX, scaleY, invertX, invertY) {
     var direction = subject.gameObject.transform.getRotation();
     var normDirection = direction % MathHelper.PI2;
@@ -554,9 +564,9 @@ EditorGameScene.prototype._handleMouseArtifactCollision = function (evt) {
 };
 
 EditorGameScene.prototype._onSubjectMethodOver = function () {
+    var commands = [];
     this._selectedObjects.forEach((function (subject) {
         switch (this._subjectsMethod) {
-            case EditorGameScene.TRANSFORM_STATE.ORIGIN:
             case EditorGameScene.TRANSFORM_STATE.SCALE_TOP_LEFT:
             case EditorGameScene.TRANSFORM_STATE.SCALE_BOTTOM_RIGHT:
             case EditorGameScene.TRANSFORM_STATE.SCALE_TOP_RIGHT:
@@ -565,7 +575,7 @@ EditorGameScene.prototype._onSubjectMethodOver = function () {
             case EditorGameScene.TRANSFORM_STATE.SCALE_RIGHT:
             case EditorGameScene.TRANSFORM_STATE.SCALE_BOTTOM:
             case EditorGameScene.TRANSFORM_STATE.SCALE_LEFT:
-                AngularHelper.commandHistory.store([
+                commands = commands.concat([
                     new EditPropertyCommand(subject.gameObject.transform, "_scale", subject.originalTransform.getScale(), subject.gameObject.transform.getScale()),
                     new EditPropertyCommand(subject.gameObject.transform, "_position", subject.originalTransform.getPosition(), subject.gameObject.transform.getPosition())
                 ]);
@@ -573,7 +583,7 @@ EditorGameScene.prototype._onSubjectMethodOver = function () {
                 break;
 
             case EditorGameScene.TRANSFORM_STATE.MOVE:
-                AngularHelper.commandHistory.store(
+                commands.push(
                     new EditPropertyCommand(subject.gameObject.transform, "_position", subject.originalTransform.getPosition(), subject.gameObject.transform.getPosition())
                 );
 
@@ -581,6 +591,8 @@ EditorGameScene.prototype._onSubjectMethodOver = function () {
         }
     }).bind(this));
 
+    // store all commands at the same time so they are considered as a single action
+    AngularHelper.commandHistory.store(commands);
 };
 
 EditorGameScene.prototype._updateCursorGraphic = function () {
@@ -720,7 +732,7 @@ EditorGameScene.prototype._handleSelection = function (intersection, topLevelOnl
         }
     }).bind(this));
 
-    this.setSelectedObjects(selected);
+    this.setSelectedObjects(selected, true);
 };
 
 /**

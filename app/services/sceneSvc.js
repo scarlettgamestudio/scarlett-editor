@@ -86,7 +86,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
                 if (path) {
                     if (Path.relativeTo(path, scarlettSvc.activeProjectPath)) {
                         // also, update the active scene path variable:
-                        svc.activeGameScenePath = path;
+                        svc._activeGameScenePath = path;
 
                         // .. and update the editor values as well:
                         scarlettSvc.getActiveProject().editor.lastScene = Path.makeRelative(scarlettSvc.activeProjectPath, svc._activeGameScenePath);
