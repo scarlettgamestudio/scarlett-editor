@@ -87,8 +87,8 @@ EditorGameScene.activeTransformTool = EditorGameScene.TRANSFORM_TOOL_OPTIONS.SEL
  */
 EditorGameScene.prototype.onMouseWheel = function (evt) {
     var wheelY = evt.deltaY;
-    this._camera.zoom += wheelY / 1000.0;
-    this._camera.zoom = MathHelper.clamp(this._camera.zoom, 0.01, 1000);
+    this._camera.zoom += 0.032 * (wheelY > 0 ? 1 : -1) * this._camera.zoom;
+    this._camera.zoom = MathHelper.clamp(this._camera.zoom, 0.01, 8.0);
 };
 
 /**
