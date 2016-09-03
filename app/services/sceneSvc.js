@@ -21,6 +21,11 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
 
     }).bind(this));
 
+    scope.$on(constants.EVENTS.GAME_SCENE_CHANGED, (function (e, scene) {
+       svc._selectedObjects = [];
+
+    }).bind(this));
+
     scope.$on(constants.EVENTS.GAME_OBJECT_REMOVED, (function (e, gameObject) {
         // remove from the selected objects if the case:
         var idx = svc._selectedObjects.indexOfObject(gameObject);
@@ -57,6 +62,9 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
         if (svc._activeGameScenePath) {
             scarlettSvc.getActiveProject().editor.lastScene = Path.makeRelative(scarlettSvc.activeProjectPath, svc._activeGameScenePath);
         }
+
+        // clear undo/redo history:
+        AngularHelper.commandHistory.clear();
 
         // broadcast this event
         $rootScope.$broadcast(constants.EVENTS.GAME_SCENE_CHANGED, scene);

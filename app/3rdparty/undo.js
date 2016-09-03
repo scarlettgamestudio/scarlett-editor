@@ -50,13 +50,19 @@
     };
 
     Undo.Stack = function (maxHistory) {
+        this._maxHistory = maxHistory;
         this.commands = [];
         this.stackPosition = -1;
         this.savePosition = -1;
-        this.maxHistory = maxHistory || 48;
+        this.maxHistory = this._maxHistory || 48;
     };
 
     extend(Undo.Stack.prototype, {
+        clear: function () {
+            this.commands = [];
+            this.stackPosition = -1;
+            this.savePosition = -1;
+        },
         execute: function (command, storeOnly) {
             this._clearRedo();
 
@@ -85,7 +91,7 @@
             this.execute(command, true);
         },
         undo: function () {
-            if(!this.canUndo()) {
+            if (!this.canUndo()) {
                 return;
             }
 
@@ -104,7 +110,7 @@
             return this.stackPosition >= 0;
         },
         redo: function () {
-            if(!this.canRedo()) {
+            if (!this.canRedo()) {
                 return;
             }
 
