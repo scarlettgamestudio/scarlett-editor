@@ -10,8 +10,8 @@ function NativeInterface() {
 function getOpenCommandLine() {
     switch (process.platform) {
         case 'darwin' : return 'open';
-        case 'win32' : return 'start';
-        case 'win64' : return 'start';
+        case 'win32' : return '';
+        case 'win64' : return '';
         default : return 'xdg-open';
     }
 }
@@ -70,7 +70,7 @@ NativeInterface.openDirectoryBrowser = function (defaultPath, resultCallback) {
 NativeInterface.openFile = function (path) {
     var cmd = getOpenCommandLine();
     var exec = require('child_process').exec;
-    exec(cmd + ' ' + path);
+    exec(cmd + " \"" + path + "\"");
 };
 
 NativeInterface.mapDirectory = function (path, originalPath) {
