@@ -52,7 +52,8 @@ var app = angular.module('scarlett', dependencies)
 		GAME_OBJECT_UPDATED: "onGameObjectUpdated",
 		GAME_SCENE_CHANGED: "onGameSceneChanged",
 		GAME_INITIALIZE: "onGameInitialize",
-		MODEL_UPDATED: "onModelUpdated"
+		MODEL_UPDATED: "onModelUpdated",
+		COMMAND_HISTORY_CHANGED: "onCommandHistoryChanged"
 
 	},
 	CONTAINERS: {

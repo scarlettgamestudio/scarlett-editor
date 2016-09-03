@@ -85,6 +85,10 @@
             this.execute(command, true);
         },
         undo: function () {
+            if(!this.canUndo()) {
+                return;
+            }
+
             if (Array.isArray(this.commands[this.stackPosition])) {
                 this.commands[this.stackPosition].forEach(function (command) {
                     command.undo();
@@ -100,6 +104,10 @@
             return this.stackPosition >= 0;
         },
         redo: function () {
+            if(!this.canRedo()) {
+                return;
+            }
+
             this.stackPosition++;
             if (Array.isArray(this.commands[this.stackPosition])) {
                 this.commands[this.stackPosition].forEach(function (command) {

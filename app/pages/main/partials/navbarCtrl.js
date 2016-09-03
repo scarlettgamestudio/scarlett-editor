@@ -2,6 +2,14 @@ app.controller('NavbarCtrl',
     ['$scope', 'logSvc', 'soapSvc', 'config',
         function ($scope, logSvc, soapSvc, config) {
 
+            $scope.$on(AngularHelper.constants.EVENTS.COMMAND_HISTORY_CHANGED, function() {
+                $scope.safeDigest();
+            });
+
+            $scope.safeDigest = function () {
+                !$scope.$$phase && $scope.$digest();
+            };
+
             $scope.canUndo = function () {
                 return AngularHelper.commandHistory.canUndo();
             };
