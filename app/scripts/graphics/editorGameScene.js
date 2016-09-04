@@ -292,25 +292,28 @@ EditorGameScene.prototype._handleKeyboardInput = function (delta) {
     var keyboardState = Keyboard.getState();
     var sceneOperations = 0;
 
-    if (keyboardState.isKeyDown(Keys.W)) {
-        this._camera.y -= Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
-        sceneOperations++;
-    } else if (keyboardState.isKeyDown(Keys.S)) {
-        this._camera.y += Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
-        sceneOperations++;
-    }
+    // is the canvas focused?
+    if (AngularHelper.isActiveCanvasFocused()) {
+        if (keyboardState.isKeyDown(Keys.W)) {
+            this._camera.y -= Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
+            sceneOperations++;
+        } else if (keyboardState.isKeyDown(Keys.S)) {
+            this._camera.y += Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
+            sceneOperations++;
+        }
 
-    if (keyboardState.isKeyDown(Keys.A)) {
-        this._camera.x -= Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
-        sceneOperations++;
-    } else if (keyboardState.isKeyDown(Keys.D)) {
-        this._camera.x += Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
-        sceneOperations++;
-    }
+        if (keyboardState.isKeyDown(Keys.A)) {
+            this._camera.x -= Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
+            sceneOperations++;
+        } else if (keyboardState.isKeyDown(Keys.D)) {
+            this._camera.x += Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
+            sceneOperations++;
+        }
 
-    if (keyboardState.isKeyDown(Keys.D0) && !this._lastKeyboardState.isKeyDown(Keys.D0)) {
-        this._camera.zoom = 1;
-        sceneOperations++;
+        if (keyboardState.isKeyDown(Keys.D0) && !this._lastKeyboardState.isKeyDown(Keys.D0)) {
+            this._camera.zoom = 1;
+            sceneOperations++;
+        }
     }
 
     if (sceneOperations > 0) {

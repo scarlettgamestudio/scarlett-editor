@@ -73,6 +73,9 @@
     border-bottom: 1px solid map-get($default-colors, grey-hound);
     color: map-get($default-colors, light-grey);
     font-size: 0.9em;
+    position: absolute;
+    width: 100%;
+    background: darken(map-get($default-colors, grey-hound), 2%);
 
     .button {
       padding: 0px 4px;

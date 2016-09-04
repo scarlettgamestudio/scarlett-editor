@@ -14,6 +14,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
 
     scope.$on(constants.EVENTS.GAME_INITIALIZE, (function (e, project) {
         svc._activeGameScene = null;
+        svc._activeGameScenePath = null;
 
         if (project.editor && project.editor.lastScene) {
             svc.loadSceneFromFile(scarlettSvc.getActiveProjectPath() + project.editor.lastScene);

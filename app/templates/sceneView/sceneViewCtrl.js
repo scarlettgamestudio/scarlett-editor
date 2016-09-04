@@ -5,6 +5,7 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
             visualZoom: 100,
             gameUID: null,
             canvasID: null,
+            canvasElem: null,
             scene: null,
             lastWidth: null,
             lastHeight: null,
@@ -84,6 +85,8 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
         $scope.onCanvasMouseDown = function (evt) {
             // trigger mouse down event:
             $scope.model.scene.onMouseDown(evt);
+            AngularHelper.activeCanvas = $scope.model.canvasElem;
+            AngularHelper.focusElement(AngularHelper.activeCanvas);
         };
 
         $scope.onCanvasMouseMove = function (evt) {
@@ -147,6 +150,9 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
             $scope.$on("$destroy", function () {
                 EventManager.removeSubscription(AngularHelper.constants.EVENTS.VIEW_CHANGED, $scope.onViewChanged);
             });
+
+            $scope.model.canvasElem = document.getElementById($scope.model.canvasID);
+            AngularHelper.activeCanvas = $scope.model.canvasElem;
         }
 
         $scope.onViewChanged = function() {
