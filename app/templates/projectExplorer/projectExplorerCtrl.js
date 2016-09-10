@@ -35,7 +35,7 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 			['<i class="fa fa-clipboard"></i>' + $translate.instant("CTX_COPY_FULL_PATH"), function ($itemScope) {
 
 			}],
-			['<i class="fa fa-clipboard"></i>' + $translate.instant("CTX_COPY_RELATIVE_PATH"), function ($itemScope) {
+			['' + $translate.instant("CTX_COPY_RELATIVE_PATH"), function ($itemScope) {
 
 			}],
 		];
@@ -72,7 +72,7 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 				$scope.openFolderInFileExplorer,
 				null
 			].concat($scope.copyPathsContextMenuOptions, null, $scope.extraContextMenuOptions);
-		}
+		};
 
 		$scope.itemContextMenuOptions = function(node) {
 			// store selected node
@@ -90,7 +90,6 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 			].concat($scope.copyPathsContextMenuOptions, null, $scope.extraContextMenuOptions);
 		};
 
-
 		$scope.clearSelection = function () {
 			$scope.$broadcast(CZC.EVENTS.SELECT_NODES_BY_UID, [], false);
 			$scope.safeDigest();
@@ -100,84 +99,10 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 			$scope.clearSelection();
 		};
 
-		$scope.getFileIcon = function (filename) {
-			var extension = Path.getFileExtension(filename).toLowerCase();
-
-			switch (extension) {
-				// git related files
-				case ".gitignore":
-					return "fa-git";
-
-				// game scene
-				case ".ss":
-					// maybe get a better icon here?
-					return "fa-picture-o";
-
-				// archive files
-				case ".zip":
-				case ".rar":
-				case ".tar":
-				case ".tar.gz":
-				case ".7zip":
-					return "fa-file-archive-o";
-
-				// scarlett project file
-				case ".sc":
-					return "fa-cube";
-
-				// video files
-				case ".mp4":
-				case ".webm":
-				case ".mov":
-				case ".wmv":
-				case ".mpg":
-				case ".mpeg":
-				case ".avi":
-					return "fa-file-video-o";
-
-				// audio files
-				case ".mp3":
-				case ".wav":
-				case ".midi":
-				case ".ogg":
-					return "fa-file-audio-o";
-
-				// pdf
-				case ".pdf":
-					return "fa-file-pdf-o";
-
-				// code related files
-				case ".xml":
-				case ".html":
-				case ".xhtml":
-				case ".php":
-				case ".js":
-					return "fa-file-code-o";
-
-				// text related files
-				case ".json":
-				case ".txt":
-					return "fa-file-text-o";
-
-				// image files
-				case ".png":
-				case ".jpg":
-				case ".jpeg":
-				case ".gif":
-				case ".bmp":
-				case ".svg":
-				case ".ico":
-					return "fa-file-image-o";
-
-				// default
-				default:
-					return "fa-file-o";
-			}
-		};
-
 		$scope.refresh = function () {
 			$scope.model.uid = 0;
 			$scope.model.tree = [mapTreeModel(scarlettSvc.activeProjectFileMap, true, 0)];
+			$scope.setActiveFolderNode($scope.model.tree[0]);
 		};
 
 		$scope.updateProjectFileMap = function ()
@@ -187,7 +112,7 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 
 			// refresh UI with the new file map
 			$scope.refresh();
-		}
+		};
 
 		// TODO: do we really need this method to receive an array?
 		$scope.onTreeDoubleClick = function(selected) {
@@ -245,7 +170,6 @@ app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSv
 						isRenaming : false
 					}));
 				}
-
 			});
 
 			return nodeModel;

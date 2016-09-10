@@ -37,6 +37,7 @@ app.config(function ($translateProvider) {
 		EDITOR_PROJECT_EXPLORER: "Project Explorer",
 		EDITOR_INSPECTOR: "Property Editor",
 		EDITOR_CONSOLE: "Console Logs",
+		EDITOR_CONTENT_BROWSER: "Content Browser",
 
 		MODAL_NEW_PROJECT: "Create New Project",
 
@@ -51,6 +52,7 @@ app.config(function ($translateProvider) {
 
 		BUTTON_CREATE: "Create",
 		BUTTON_IMPORT: "Import",
+		BUTTON_EXPORT: "Export",
 		BUTTON_CANCEL: "Cancel",
 		BUTTON_OK: "OK",
 		BUTTON_CLOSE: "Close",

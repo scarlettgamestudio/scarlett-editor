@@ -7,8 +7,92 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 
         var myLayout = null;
         var activeModal = null;
-
-        AngularHelper.constants = constants;
+        var sceneHierarchyLayoutConfiguration = {
+            type: 'component',
+            componentName: 'template',
+            width: 22,
+            componentState: {
+                templateId: 'sceneHierarchy',
+                url: 'templates/sceneHierarchy/sceneHierarchy.html'
+            },
+            title: $translate.instant("EDITOR_SCENE_HIERARCHY")
+        };
+        var sceneViewLayoutConfiguration = {
+            type: 'component',
+            componentName: 'template',
+            componentState: {
+                templateId: 'sceneView',
+                url: 'templates/sceneView/sceneView.html'
+            },
+            title: $translate.instant("EDITOR_SCENE_VIEW")
+        };
+        var propertyEditorLayoutConfiguration = {
+            type: 'component',
+            width: 20,
+            minWidth: 340,
+            componentName: 'template',
+            componentState: {
+                templateId: 'inspector',
+                url: 'templates/propertyEditor/propertyEditor.html'
+            },
+            title: $translate.instant("EDITOR_INSPECTOR")
+        };
+        var contentBrowserLayoutConfiguration = {
+            type: 'component',
+            height: 38,
+            minWidth: 340,
+            componentName: 'template',
+            componentState: {
+                templateId: 'inspector',
+                url: 'templates/contentBrowser/contentBrowser.html'
+            },
+            title: $translate.instant("EDITOR_CONTENT_BROWSER")
+        };
+        var consoleLayoutConfiguration = {
+            type: 'component',
+            componentName: 'template',
+            componentState: {
+                templateId: 'consoleView',
+                url: ''
+            },
+            height: 25,
+            title: $translate.instant("EDITOR_CONSOLE")
+        };
+        var layoutConfiguration = {
+            settings: {
+                hasHeaders: true,
+                showPopoutIcon: false
+            },
+            labels: {
+                close: $translate.instant("ACTION_CLOSE"),
+                maximise: $translate.instant("ACTION_MAXIMIZE"),
+                minimise: $translate.instant("ACTION_MINIMIZE"),
+                popout: $translate.instant("ACTION_POPOUT")
+            },
+            dimensions: {
+                borderWidth: 4,
+                headerHeight: 20,
+            },
+            content: [{
+                type: 'row',
+                content: [
+                    {
+                        type: 'column',
+                        content: [
+                            {
+                                type: 'row',
+                                content: [
+                                    sceneHierarchyLayoutConfiguration,
+                                    sceneViewLayoutConfiguration
+                                ]
+                            },
+                            contentBrowserLayoutConfiguration
+                        ]
+                    },
+                    propertyEditorLayoutConfiguration,
+                ]
+            }]
+        };
 
         $scope.model = {
             onlineMode: userSvc.isLoggedIn()
@@ -46,7 +130,6 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 
         // initialization
         (function init() {
-
             // there is an active project assigned?
             if (!isObjectAssigned(scarlettSvc.activeProject)) {
                 // no ? we can't be in this view without an active project..
@@ -56,86 +139,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 
             $scope.userInfo = userSvc.getUserInfo();
 
-            myLayout = new GoldenLayout({
-                settings: {
-                    hasHeaders: true,
-                    showPopoutIcon: false
-                },
-                labels: {
-                    close: $translate.instant("ACTION_CLOSE"),
-                    maximise: $translate.instant("ACTION_MAXIMIZE"),
-                    minimise: $translate.instant("ACTION_MINIMIZE"),
-                    popout: $translate.instant("ACTION_POPOUT")
-                },
-                dimensions: {
-                    borderWidth: 4,
-                    headerHeight: 20,
-                },
-                content: [{
-                    type: 'row',
-                    content: [
-                        {
-                            type: 'column',
-                            width: 20,
-                            content: [
-                                {
-                                    type: 'component',
-                                    componentName: 'template',
-                                    componentState: {
-                                        templateId: 'sceneHierarchy',
-                                        url: 'templates/sceneHierarchy/sceneHierarchy.html'
-                                    },
-                                    title: $translate.instant("EDITOR_SCENE_HIERARCHY")
-                                },
-                                {
-                                    type: 'component',
-                                    componentName: 'template',
-                                    componentState: {
-                                        templateId: 'projectExplorer',
-                                        url: 'templates/projectExplorer/projectExplorer.html'
-                                    },
-                                    title: $translate.instant("EDITOR_PROJECT_EXPLORER")
-                                }
-                            ]
-                        },
-                        {
-                            type: 'column',
-                            content: [
-                                {
-                                    type: 'component',
-                                    componentName: 'template',
-                                    componentState: {
-                                        templateId: 'sceneView',
-                                        url: 'templates/sceneView/sceneView.html'
-                                    },
-                                    title: $translate.instant("EDITOR_SCENE_VIEW"),
-                                    resize: function () {
-                                    }
-                                }/*,
-                                 {
-                                 type: 'component',
-                                 componentName: 'template',
-                                 componentState: {
-                                 templateId: 'consoleView',
-                                 url: ''
-                                 },
-                                 height: 25,
-                                 title: $translate.instant("EDITOR_CONSOLE")
-                                 }*/
-                            ]
-                        }, {
-                            type: 'component',
-                            width: 20,
-                            minWidth: 340,
-                            componentName: 'template',
-                            componentState: {
-                                templateId: 'inspector',
-                                url: 'templates/propertyEditor/propertyEditor.html'
-                            },
-                            title: $translate.instant("EDITOR_INSPECTOR")
-                        }]
-                }]
-            }, "#editor-container");
+            myLayout = new GoldenLayout(layoutConfiguration, "#editor-container");
 
             myLayout.registerComponent('template', function (container, state) {
                 if (state.url && state.url.length > 0) {
@@ -154,6 +158,10 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
                         }
                     });
                 }
+            });
+
+            myLayout.on('stateChanged', function () {
+
             });
 
             myLayout.on('initialised', function () {
@@ -230,20 +238,6 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
                 window.addEventListener("focus", $scope.onWindowFocus);
 
             }).bind(this), 10);
-
-            $scope.$on("$destroy", (function () {
-                if (isObjectAssigned(myLayout)) {
-                    myLayout.destroy();
-                }
-
-                // remove event listeners:
-                window.removeEventListener("resize", $scope.onWindowResize);
-                window.removeEventListener("keyup", $scope.onKeyUp);
-                window.removeEventListener("keydown", $scope.onKeyDown);
-                window.removeEventListener("blur", $scope.onWindowBlur);
-                window.removeEventListener("focus", $scope.onWindowFocus);
-
-            }).bind(this));
 
         })();
     }]

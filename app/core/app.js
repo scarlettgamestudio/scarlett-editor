@@ -15,8 +15,7 @@ var dependencies = [
 
 var app = angular.module('scarlett', dependencies)
 
-.run(function ($rootScope, $location) {
-
+.run(function ($rootScope, $location, constants) {
 	// validate if the scarlett folder exists:
 	ScarlettInterface.setupApplicationFolder();
 
@@ -40,6 +39,9 @@ var app = angular.module('scarlett', dependencies)
 
 	// set the global root scope:
 	AngularHelper.rootScope = $rootScope;
+
+	// assign the global constant
+	AngularHelper.constants = constants;
 })
 
 .constant("constants", {
@@ -58,7 +60,8 @@ var app = angular.module('scarlett', dependencies)
 		GAME_INITIALIZE: "onGameInitialize",
 		MODEL_UPDATED: "onModelUpdated",
 		COMMAND_HISTORY_CHANGED: "onCommandHistoryChanged",
-		VIEW_CHANGED: "onViewChanged"
+		VIEW_CHANGED: "onViewChanged",
+		ACTIVE_FOLDER_NODE_CHANGED: "onActiveFolderNodeChanged"
 
 	},
 	CONTAINERS: {
