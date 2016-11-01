@@ -9371,13 +9371,120 @@ var SCARLETT = SC = {
 		SCENE_RENDER: 14,
 		LATE_RENDER: 15
 	}
-};;/**
+};
+
+// function "quickies" holder
+var sc = {};
+;/**
+ * Content Loader static class
+ */
+var ContentLoader = function () {
+};
+
+/**
+ * Cached images
+ * @type {{}}
+ * @private
+ */
+ContentLoader._imgLoaded = {};
+
+/**
+ * Cached audio
+ * @type {{}}
+ * @private
+ */
+ContentLoader._audioLoaded = {};
+
+/**
+ *
+ * @param path
+ * @returns {*}
+ * @private
+ */
+ContentLoader._enrichRelativePath = function (path) {
+    // is this a relative path?
+    if (GameManager.activeProjectPath && path.indexOf(GameManager.activeProjectPath) < 0) {
+        path = GameManager.activeProjectPath + path;
+    }
+
+    return path;
+};
+
+/**
+ * loads an image file from a specified path into memory
+ * @param path
+ * @returns {*}
+ */
+ContentLoader.loadImage = function (path) {
+    return new Promise((function (resolve, reject) {
+        path = ContentLoader._enrichRelativePath(path);
+
+        // is the image on cache?
+        if (ContentLoader._imgLoaded.hasOwnProperty(path)) {
+            // the image is already cached. let's use it!
+            resolve(ContentLoader._imgLoaded[path]);
+
+        } else {
+            // the image is not in cache, we must load it:
+            var image = new Image();
+            image.src = path;
+            image.onload = function () {
+                // cache the loaded image:
+                ContentLoader._imgLoaded[path] = image;
+
+                resolve(image);
+            };
+            image.onerror = function () {
+                // TODO: log this
+                reject();
+            };
+        }
+    }).bind(this));
+};
+
+/**
+ * loads an audio file from a specified path into memory
+ * @param path
+ * @returns {*}
+ */
+ContentLoader.loadAudio = function (path) {
+    return new Promise((function (resolve, reject) {
+        path = ContentLoader._enrichRelativePath(path);
+
+        // is the audio on cache?
+        if (ContentLoader._audioLoaded.hasOwnProperty(path)) {
+            // the audio is already cached. let's use it!
+            resolve(ContentLoader._audioLoaded[path]);
+
+        } else {
+            var audio = new Audio();
+            audio.src = path;
+            audio.oncanplaythrough = function() {
+                // cache the loaded image:
+                ContentLoader._audioLoaded[path] = audio;
+
+                resolve(audio);
+            };
+            audio.onerror = function () {
+                // TODO: log this
+                reject();
+            };
+        }
+
+    }).bind(this));
+};
+;/**
  * Event Manager
  * @constructor
  */
 var EventManager = function () {
 };
 
+/**
+ *
+ * @type {{}}
+ * @private
+ */
 EventManager._handlers = {};
 
 /**
@@ -9402,7 +9509,7 @@ EventManager.subscribe = function (topic, callback, context) {
  * @param topic
  * @param callback (for reference)
  */
-EventManager.removeSubscription = function(topic, callback) {
+EventManager.removeSubscription = function (topic, callback) {
     if (!EventManager._handlers[topic]) {
         return;
     }
@@ -9498,71 +9605,7 @@ Array.prototype.indexOfObject = function arrayObjectIndexOf(search) {
 		if (isEqual(this[i], search)) return i;
 	}
 	return -1;
-};;/**
- * Image Loader static class
- */
-var ImageLoader = function () {
-};
-
-/**
- *
- * @type {{}}
- */
-ImageLoader.loaded = {};
-
-
-/**
- * loads an image from a specified path into memory
- * @param path
- * @param callback
- * @returns {*}
- */
-ImageLoader.loadImage = function (path, callback) {
-    var image;
-
-    // is this a relative path?
-    if(GameManager.activeProjectPath && path.indexOf(GameManager.activeProjectPath) < 0) {
-       path = GameManager.activeProjectPath + path;
-    }
-
-    // is the image on cache?
-    if (ImageLoader.loaded.hasOwnProperty(path)) {
-        // the image is already cached. let's use it!
-        image = ImageLoader.loaded[path];
-
-        if (isFunction(callback)) {
-            callback(new CallbackResponse({
-                success: true,
-                data: image
-            }));
-        }
-    } else {
-        // the image is not in cache, we must load it:
-        image = new Image();
-        image.src = path;
-        image.onload = function () {
-            ImageLoader.loaded[path] = image;
-
-            if (isFunction(callback)) {
-                callback(new CallbackResponse({
-                    success: true,
-                    data: image
-                }));
-            }
-        };
-        image.onerror = function () {
-            if (isFunction(callback)) {
-                callback(new CallbackResponse({
-                    success: false
-                }));
-            }
-        };
-    }
-
-    return image;
-};
-
-;function Logger(params) {
+};;function Logger(params) {
     params = params || {};
 
     // private properties:
@@ -9761,11 +9804,13 @@ function isEqual(a, b) {
 ;function RigidBody (params) {
 	params = params || {};
 
+	// public properties
+	this.gameObject = null;
+
 	// private properties
 	this._isStatic = params.static || false;
 	this._mass = params.mass || null;
 	this._friction = params.friction || null;
-	this._gameObject = null;
 	this._body = null;
 
 }
@@ -9773,20 +9818,20 @@ function isEqual(a, b) {
 RigidBody.prototype._sync = function() {
 	var self = this;
 
-	if(!isObjectAssigned(this._gameObject)) {
+	if(!isObjectAssigned(this.gameObject)) {
 		return;
 	}
 
 	if(!isObjectAssigned(this._body)) {
-		var pos = this._gameObject.transform.getPosition();
+		var pos = this.gameObject.transform.getPosition();
 
 		// TODO assign the body based on the object
 		var width = 1,
 			height = 1;
 		
-		if(isSprite(this._gameObject)) {
-			width = this._gameObject.getTexture().getWidth();
-			height = this._gameObject.getTexture().getHeight();
+		if(isSprite(this.gameObject)) {
+			width = this.gameObject.getTexture().getWidth();
+			height = this.gameObject.getTexture().getHeight();
 		}
 
 		this._body = Matter.Bodies.rectangle(pos.x, pos.y, width, height,
@@ -9796,17 +9841,17 @@ RigidBody.prototype._sync = function() {
 
 		Matter.World.add(GameManager.activeScene.getPhysicsWorld(), [this._body]);
 
-		var objScale = this._gameObject.transform.getScale();
+		var objScale = this.gameObject.transform.getScale();
 		Matter.Body.scale(this._body, objScale.x, objScale.y);
 
-		this._gameObject.transform.overridePositionGetter(function() {
+		this.gameObject.transform.overridePositionGetter(function() {
 			return {
 				x: self._body.position.x,
 				y: self._body.position.y
 			}
 		});
 
-		this._gameObject.transform.overrideRotationGetter(function() {
+		this.gameObject.transform.overrideRotationGetter(function() {
 			return self._body.angle;
 		});
 	}
@@ -9830,14 +9875,13 @@ RigidBody.prototype.getMass = function() {
 };
 
 RigidBody.prototype.setGameObject = function(gameObject) {
-	this._gameObject = gameObject;
 	this._sync();
 };
 
 RigidBody.prototype.onGameObjectDetach = function() {
-	this._gameObject.transform.clearPositionGetter();
-	this._gameObject.transform.clearScaleGetter();
-	this._gameObject.transform.clearRotationGetter();
+	this.gameObject.transform.clearPositionGetter();
+	this.gameObject.transform.clearScaleGetter();
+	this.gameObject.transform.clearRotationGetter();
 };
 
 RigidBody.prototype.onGameObjectPositionUpdated = function(value) {
@@ -10178,6 +10222,7 @@ function Game(params) {
     this._paused = false;
     this._swapScene = null; // used to contain a temporary scene before swapping
     this._swappingScenes = false;
+    this._inputHandlersBinded = false;
 
     Matter.Engine.run(this._physicsEngine);
 
@@ -10222,6 +10267,48 @@ Game.prototype.getPhysicsEngine = function () {
     return this._physicsEngine;
 };
 
+Game.prototype._bindInputHandlers = function() {
+    window.addEventListener('keyup', (this._keyUpListener).bind(this), false);
+    window.addEventListener('keydown', (this._keyDownListener).bind(this), false);
+    this._inputHandlersBinded = true;
+};
+
+Game.prototype._unbindInputHandlers = function() {
+    window.removeEventListener('keyup', (this._keyUpListener).bind(this), false);
+    window.removeEventListener('keydown', (this._keyDownListener).bind(this), false);
+    this._inputHandlersBinded = false;
+};
+
+Game.prototype._keyUpListener = function(e) {
+    var keys = [e.keyCode];
+
+    if (e.ctrlKey) {
+        keys.push(Keys.Ctrl);
+    }
+
+    if (e.shiftKey) {
+        keys.push(Keys.Shift);
+    }
+
+    // update the keyboard data:
+    Keyboard.removeKeys(keys);
+};
+
+Game.prototype._keyDownListener = function(e) {
+    var keys = [e.keyCode];
+
+    if (e.ctrlKey) {
+        keys.push(Keys.Ctrl);
+    }
+
+    if (e.shiftKey) {
+        keys.push(Keys.Shift);
+    }
+
+    // update the keyboard data:
+    Keyboard.addKeys(keys);
+};
+
 /**
  *
  * @param timestamp
@@ -10254,6 +10341,8 @@ Game.prototype._onAnimationFrame = function (timestamp) {
             this._executionPhase = SC.EXECUTION_PHASES.UPDATE;
             this._gameScene.update(delta);
         }
+
+        this._gameScene.sceneUpdate(delta);
 
         if (isFunction(this._gameScene.lateUpdate)) {
             // call user defined update function:
@@ -10319,7 +10408,9 @@ Game.prototype.getExecutionPhase = function () {
     return this._executionPhase;
 };
 
-Game.prototype.init = function () {
+Game.prototype.init = function (params) {
+    params = params || {};
+
     // context initialization
     if (!isObjectAssigned(this._canvas)) {
         this._logger.warn("Cannot initialize game, the render display target was not provided or is invalid.");
@@ -10331,6 +10422,10 @@ Game.prototype.init = function () {
 
     // set this as the active game:
     GameManager.activeGame = this;
+
+    if (!params.ignoreInputHandler) {
+        this._bindInputHandlers();
+    }
 
     this._initalized = true;
 };
@@ -10431,6 +10526,9 @@ Game.prototype.getTotalElapsedTime = function () {
 };
 
 Game.prototype.unload = function () {
+    if (this._inputHandlersBinded) {
+        this._unbindInputHandlers();
+    }
 };;/**
  * Game Manager static class
  */
@@ -10548,6 +10646,9 @@ GameObject.prototype.addComponent = function (component) {
         component.setGameObject(this);
     }
 
+    // set the related component game object:
+    component.gameObject = this;
+
     this._components.push(component);
 };
 
@@ -10562,6 +10663,12 @@ GameObject.prototype.update = function (delta) {
             elem.update(delta);
         }
     });
+
+    this._components.forEach(function (component) {
+       if (component.update) {
+           component.update(delta);
+       }
+    });
 };
 
 GameObject.prototype.render = function (delta, spriteBatch) {
@@ -10573,6 +10680,12 @@ GameObject.prototype.render = function (delta, spriteBatch) {
     this._children.forEach(function (elem) {
         if (elem.render) {
             elem.render(delta, spriteBatch);
+        }
+    });
+
+    this._components.forEach(function (component) {
+        if (component.render) {
+            component.render(delta, spriteBatch);
         }
     });
 };
@@ -10790,6 +10903,13 @@ GameScene.prototype.prepareRender = function () {
 
 GameScene.prototype.sceneLateUpdate = function (delta) {
     Matter.Engine.update(this._game.getPhysicsEngine(), 1000 / 60);
+};
+
+GameScene.prototype.sceneUpdate = function (delta) {
+    // let's render all game objects on scene:
+    for (var i = 0; i < this._gameObjects.length; i++) {
+        this._gameObjects[i].update(delta);
+    }
 };
 
 GameScene.prototype.sceneRender = function (delta) {
@@ -11123,6 +11243,160 @@ PrimitiveRender.prototype.drawLine = function (vectorA, vectorB, thickness, colo
 
     gl.drawArrays(gl.LINES, 0, 2);
 };;/**
+ * Scripts singleton
+ * @constructor
+ */
+function Scripts() {
+}
+
+Scripts._store = {};
+
+/**
+ * Setup a script adding event handlers and such
+ * @private
+ */
+Scripts._setupScript = function (script) {
+    script.properties = {
+        _store: {},
+        _target: script,
+        add: function (name, attr) {
+            // save on the target's properties store the attributes:
+            this._store[name] = attr;
+        },
+        get: function (name) {
+            return this._store[name];
+        },
+        getAll: function () {
+            return this._store;
+        }
+    };
+};
+
+/**
+ * Clear all the stored scripts
+ */
+Scripts.clear = function () {
+    Scripts._store = {};
+};
+
+/**
+ * Creates and stores a script code
+ * @returns {ObjectComponent}
+ */
+Scripts.addScript = function (name) {
+    var script = function instance() {
+    };
+    Scripts._store[name] = script;
+    Scripts._setupScript(script);
+    return script;
+};
+// alias:
+sc.addScript = Scripts.addScript;
+
+/**
+ * Generates a component from one stored script
+ * @param scriptName
+ * @param gameObject
+ */
+Scripts.generateComponent = function (scriptName, gameObject) {
+    if (!Scripts._store[scriptName]) {
+        return null;
+    }
+
+    var component = Object.create(Scripts._store[scriptName].prototype);
+    component._name = scriptName;
+
+    // now we need to assign all the instance properties defined:
+    var properties = Scripts._store[scriptName].properties.getAll();
+    var propertyNames = Object.keys(properties);
+
+    if (propertyNames && propertyNames.length > 0) {
+        propertyNames.forEach(function (propName) {
+            // assign the default value if exists:
+            component[propName] = properties[propName].default;
+        });
+    }
+
+    if (gameObject) {
+        gameObject.addComponent(component);
+    }
+
+    return component;
+};;/**
+ * Sound class
+ */
+function Sound(audio) {
+    if (!isObjectAssigned(audio)) {
+        throw error("Cannot create Sound without a valid audio source");
+    }
+
+    // private properties
+    this._source = audio;
+}
+
+/**
+ *
+ * @param path
+ * @returns {Promise}
+ */
+Sound.fromPath = function (path) {
+    return new Promise((function (resolve, reject) {
+        ContentLoader.loadAudio(path).then(function (audio) {
+            resolve(new Sound(audio));
+
+        }, function () {
+            reject();
+
+        });
+    }).bind(this));
+};
+
+/**
+ *
+ * @param audio
+ */
+Sound.prototype.setAudioSource = function (audio) {
+    this._source = audio;
+};
+
+/**
+ * plays the current audio source
+ */
+Sound.prototype.play = function () {
+    this._source.play();
+};
+
+/**
+ * pauses the current audio source
+ */
+Sound.prototype.pause = function () {
+    this._source.pause();
+};
+
+/**
+ * stops the current audio source
+ */
+Sound.prototype.stop = function () {
+    this._source.pause();
+    this._source.currentTime = 0;
+};
+
+/**
+ * sets the current audio source loop behavior
+ * @param loop
+ */
+Sound.prototype.setLoop = function (loop) {
+    this._source.loop = loop;
+};
+
+
+/**
+ * sets the current audio source output volume (0 to 1)
+ * @param volume
+ */
+Sound.prototype.setVolume = function (volume) {
+    this._source.volume = volume;
+};;/**
  * Sprite class
  */
 AttributeDictionary.inherit("sprite", "gameobject");
@@ -11137,12 +11411,15 @@ function Sprite(params) {
     GameObject.call(this, params);
 
     // private properties:
-    this._texture = params.texture;
     this._textureSrc = "";
     this._tint = params.tint || Color.fromRGB(255, 255, 255);
     this._textureWidth = 0;
     this._textureHeight = 0;
     this._origin = new Vector2(0.5, 0.5);
+
+    if (params.texture) {
+        this.setTexture(params.texture);
+    }
 }
 
 inheritsFrom(Sprite, GameObject);
@@ -11505,17 +11782,14 @@ SpriteBatchOld.prototype.unload = function () {
 };;/**
  * Texture2D class
  */
-function Texture2D(source) {
-    if (!isObjectAssigned(source)) {
-        throw error("Cannot create Texture2D without a valid source filename");
+function Texture2D(image) {
+    if (!isObjectAssigned(image)) {
+        throw error("Cannot create Texture2D without an image source");
     }
-
-    // public properties:
-
 
     // private properties:
     this._uid = generateUID();
-    this._source = source;
+    this._source = image;
     this._texture = null;
     this._gl = gl = GameManager.renderContext.getContext();
 
@@ -11538,21 +11812,15 @@ function Texture2D(source) {
 }
 
 Texture2D.fromPath = function (path) {
-    var promise = new Promise((function (resolve, reject) {
-        ImageLoader.loadImage(path, function (e) {
-            if (e.success) {
-                var texture = new Texture2D(e.data);
-                resolve(texture);
+    return new Promise((function (resolve, reject) {
+        ContentLoader.loadImage(path).then(function (image) {
+            resolve(new Texture2D(image));
 
-            } else {
-                reject();
+        }, function () {
+            reject();
 
-                // TODO: log this
-            }
         });
     }).bind(this));
-
-    return promise;
 };
 
 Texture2D.prototype.getUID = function () {
@@ -11647,6 +11915,20 @@ Transform.prototype.getPosition = function () {
     return this._position;
 };
 
+Transform.prototype.translate = function(x, y) {
+    var curPos = this.getPosition();
+    this.setPosition(curPos.x + (x || 0), curPos.y + (y || 0));
+};
+
+Transform.prototype.rotate = function(value) {
+    this.setRotation(this.getRotation() + (value || 0));
+};
+
+Transform.prototype.scale = function(x, y) {
+    var curScale = this.getScale();
+    this.setPosition(curScale.x + (x || 0), curScale.y + (y || 0));
+};
+
 Transform.prototype.setRotation = function (value) {
     this._rotation = value;
     this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
@@ -11711,8 +11993,8 @@ function GridExt(params) {
 
     // private properties:
     this._game = params.game || null;
-    this._gridSize = 32;
-    this._gridColor = Color.Red;
+    this._gridSize = params.gridSize || 32;
+    this._gridColor = params.gridColor || Color.Red;
     this._originLines = true;
     this._zoomMultiplier = 2;
     this._primitiveRender = new PrimitiveRender(params.game); // maybe get a batch here?
