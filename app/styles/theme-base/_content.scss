@@ -119,8 +119,17 @@
 .tool-container {
 
   .toolbar {
-    //background-color: darken(map-get($default-colors, grey-hound), 4);
+    background-color: lighten(map-get($default-colors, grey-hound), 2);
     padding: 4px;
+
+    .sc-input {
+      font-size:0.9em;
+
+      &.input-night {
+        background-color: map-get($default-colors, grey-hound)
+      }
+    }
+
 
     input[type="text"] {
       font-size: 0.9em;
@@ -134,7 +143,7 @@
       background-color: lighten(map-get($default-colors, dim-grey), 2);
       border: none;
       padding: 2px 6px;
-      font-size: 0.9em;
+      font-size: 0.84em;
 
       &:hover {
         background-color: lighten(map-get($default-colors, dim-grey), 16);
@@ -160,10 +169,9 @@
     display: flex;
     flex-wrap: wrap;
     align-content: flex-start;
-    background-color: darken(map-get($default-colors, grey-hound), 3);
 
     &.size_0 .content-item,
-    &.size_1 .content-item  {
+    &.size_1 .content-item {
       width: $_itemSizeSmall;
       height: $_itemSizeSmall;
       line-height: $_itemSizeSmall;
@@ -176,7 +184,7 @@
       font-size: 0.68em;
     }
 
-    &.size_3 .content-item  {
+    &.size_3 .content-item {
       width: $_itemSizeLarge;
       height: $_itemSizeLarge;
       line-height: $_itemSizeLarge;
@@ -188,7 +196,7 @@
       font-size: 0.80em;
     }
 
-    &.size_4 .content-item  {
+    &.size_4 .content-item {
       width: $_itemSizeXLarge;
       height: $_itemSizeXLarge;
       line-height: $_itemSizeXLarge;
@@ -200,7 +208,7 @@
       font-size: 0.84em;
     }
 
-    &.size_5 .content-item  {
+    &.size_5 .content-item {
       width: $_itemSizeXXLarge;
       height: $_itemSizeXXLarge;
       line-height: $_itemSizeXXLarge;

@@ -1,5 +1,5 @@
-app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', 'constants', '$translate', '$timeout', '$http', '$compile', 'resizer',
-    function ($scope, logSvc, config, scarlettSvc, sceneSvc, constants, $translate, $timeout, $http, $compile, resizer) {
+app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', 'constants', '$translate', '$timeout', '$http', '$compile',
+    function ($scope, logSvc, config, scarlettSvc, sceneSvc, constants, $translate, $timeout, $http, $compile) {
 
         var myLayout = null;
         var projectExplorerLayoutConfiguration = {
@@ -256,7 +256,7 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             $scope.model.types = constants.CONTENT_TYPES;
 
             // initialize content browser layout
-            myLayout = new GoldenLayout(layoutConfiguration, "#content-browser-body");
+           /* myLayout = new GoldenLayout(layoutConfiguration, "#content-browser-body");
 
             myLayout.registerComponent('template', function (container, state) {
                 if (state.url && state.url.length > 0) {
@@ -285,7 +285,7 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
                 // remove event listeners:
                 window.removeEventListener("resize", $scope.onWindowResize);
 
-            }).bind(this));
+            }).bind(this));*/
 
         })();
     }

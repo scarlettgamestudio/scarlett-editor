@@ -1,4 +1,4 @@
-app.controller('ProjectExplorerCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', '$translate', 'constants',
+app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', '$translate', 'constants',
 	function ($scope, logSvc, config, scarlettSvc, sceneSvc, $translate, constants) {
 
 		$scope.model = {

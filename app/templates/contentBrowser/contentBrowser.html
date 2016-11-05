@@ -55,7 +55,18 @@
 
     </div>
 
-    <!-- middle content -->
-    <div id="content-browser-body" class="fill-parent"></div>
+    <!-- main content -->
+    <div style="position:relative" class="fill-parent">
+        <bg-splitter orientation="horizontal">
+            <!-- folder tree -->
+            <bg-pane min-size="200" size="240">
+                <div class="fill-parent" ng-include="'templates/contentBrowser/contentBrowserTree.html'"></div>
+            </bg-pane>
+            <!-- content -->
+            <bg-pane min-size="250">
+                <div class="fill-parent" ng-include="'templates/contentBrowser/contentBrowserNavigator.html'"></div>
+            </bg-pane>
+        </bg-splitter>
+    </div>
 
 </div>
