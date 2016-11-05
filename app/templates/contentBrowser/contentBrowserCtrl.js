@@ -1,5 +1,5 @@
-app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', 'constants', '$translate', '$timeout', '$http', '$compile',
-    function ($scope, logSvc, config, scarlettSvc, sceneSvc, constants, $translate, $timeout, $http, $compile) {
+app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', 'constants', '$translate', '$timeout', '$http', '$compile', 'resizer',
+    function ($scope, logSvc, config, scarlettSvc, sceneSvc, constants, $translate, $timeout, $http, $compile, resizer) {
 
         var myLayout = null;
         var projectExplorerLayoutConfiguration = {
@@ -56,7 +56,12 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             types: null,
             search: "",
             content: {},
-            contentView: []
+            contentView: [],
+            zoom: 2
+        };
+
+        $scope.contentClass = function() {
+            return "size_" + $scope.model.zoom;
         };
 
         $scope.getFilterDisplayName = function (type) {

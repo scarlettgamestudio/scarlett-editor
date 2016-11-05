@@ -11,7 +11,7 @@
                     <i ng-if="node.nodes.length > 0" class="fa clickable"
                        ng-class="{'fa-angle-down' : !collapsed, 'fa-angle-right' : collapsed}"
                        ng-click="toggleCollapse()" aria-hidden="true"></i>
-                    {{node.gameObject.name}}
+                    {{node.gameObject.name || "&nbsp;" }}
                 </span>
                 </div>
             </div>
@@ -26,7 +26,7 @@
 
         <div>
             <!-- tree root node -->
-            <cz-tree on-selection-change="onTreeSelectionChanged(selected)"> <!--node.gameObject.getUID()-->
+            <cz-tree on-selection-change="onTreeSelectionChanged(selected)" on-drop-event="onTreeItemDrop(dropEvent)"> <!--node.gameObject.getUID()-->
                 <div ng-repeat="node in model.tree" cz-tree-node uid="{{node.id}}"
                      attachment="{{node.gameObject.getUID()}}" ng-include="'hierarchyNodeTemplate.html'"></div>
             </cz-tree>

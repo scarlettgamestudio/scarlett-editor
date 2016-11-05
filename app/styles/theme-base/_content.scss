@@ -150,6 +150,10 @@
 
   .tool-container-body {
     $_itemSize: 54px;
+    $_itemSizeSmall: 42px;
+    $_itemSizeLarge: 64px;
+    $_itemSizeXLarge: 78px;
+    $_itemSizeXXLarge: 96px;
 
     height: 100%;
     width: 100%;
@@ -157,6 +161,56 @@
     flex-wrap: wrap;
     align-content: flex-start;
     background-color: darken(map-get($default-colors, grey-hound), 3);
+
+    &.size_0 .content-item,
+    &.size_1 .content-item  {
+      width: $_itemSizeSmall;
+      height: $_itemSizeSmall;
+      line-height: $_itemSizeSmall;
+      font-size: 24px;
+    }
+
+    &.size_0 .content-item-description,
+    &.size_1 .content-item-description {
+      max-width: $_itemSizeSmall;
+      font-size: 0.68em;
+    }
+
+    &.size_3 .content-item  {
+      width: $_itemSizeLarge;
+      height: $_itemSizeLarge;
+      line-height: $_itemSizeLarge;
+      font-size: 36px;
+    }
+
+    &.size_3 .content-item-description {
+      max-width: $_itemSizeLarge;
+      font-size: 0.80em;
+    }
+
+    &.size_4 .content-item  {
+      width: $_itemSizeXLarge;
+      height: $_itemSizeXLarge;
+      line-height: $_itemSizeXLarge;
+      font-size: 44px;
+    }
+
+    &.size_4 .content-item-description {
+      max-width: $_itemSizeXLarge;
+      font-size: 0.84em;
+    }
+
+    &.size_5 .content-item  {
+      width: $_itemSizeXXLarge;
+      height: $_itemSizeXXLarge;
+      line-height: $_itemSizeXXLarge;
+      font-size: 52px;
+    }
+
+    &.size_5 .content-item-description {
+      max-width: $_itemSizeXXLarge;
+      font-size: 0.92em;
+    }
 
     .content-item {
       width: $_itemSize;

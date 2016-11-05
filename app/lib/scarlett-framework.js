@@ -9387,6 +9387,7 @@ var ContentLoader = function () {
  * @private
  */
 ContentLoader._imgLoaded = {};
+ContentLoader._imgAlias = {};
 
 /**
  * Cached audio
@@ -9394,6 +9395,7 @@ ContentLoader._imgLoaded = {};
  * @private
  */
 ContentLoader._audioLoaded = {};
+ContentLoader._audioAlias = {};
 
 /**
  *
@@ -9411,11 +9413,100 @@ ContentLoader._enrichRelativePath = function (path) {
 };
 
 /**
+ * Clears all loaded assets from the content loader
+ */
+ContentLoader.clear = function () {
+    ContentLoader._imgLoaded = {};
+    ContentLoader._imgAlias = {};
+    ContentLoader._audioLoaded = {};
+    ContentLoader._audioAlias = {};
+};
+
+/**
+ * Loads several assets per category (audio, images, ..) and resolves after all are loaded
+ * @param assets
+ */
+ContentLoader.load = function (assets) {
+    return new Promise(function (resolve, reject) {
+        // result holder
+        var result = {
+            success: [],
+            fail: []
+        };
+
+        // counters
+        var toLoad = 0; // number of expected loaded assets
+        var loaded = 0; // number of loaded assets
+
+        function assetLoaded(asset, success) {
+            loaded += 1;
+
+            if (success) {
+                result.success.push(asset);
+            } else {
+                result.fail.push(asset);
+            }
+
+            if (loaded >= toLoad) {
+                resolve(result);
+            }
+        }
+
+        // load all images:
+        assets.images = assets.images || [];
+        assets.images.forEach(function (asset) {
+            if (!asset.path) {
+                return;
+            }
+
+            toLoad++; // count only supposedly valid assets
+
+            ContentLoader.loadImage(asset.path, asset.alias).then(
+                function () {
+                    assetLoaded(asset, true);
+                }, function () {
+                    assetLoaded(asset, false);
+                }
+            )
+        });
+
+        // load all images:
+        assets.audio = assets.audio || [];
+        assets.audio.forEach(function (asset) {
+            if (!asset.path) {
+                return;
+            }
+
+            toLoad++; // count only supposedly valid assets
+
+            ContentLoader.loadAudio(asset.path, asset.alias).then(
+                function () {
+                    assetLoaded(asset, true);
+                }, function () {
+                    assetLoaded(asset, false);
+                }
+            )
+        });
+    });
+};
+
+/**
+ * Returns an image loaded by the given alias (if exists)
+ * @param alias
+ */
+ContentLoader.getImage = function (alias) {
+    if (ContentLoader._imgAlias.hasOwnProperty(alias)) {
+        return ContentLoader._imgLoaded[ContentLoader._imgAlias[alias]]
+    }
+};
+
+/**
  * loads an image file from a specified path into memory
  * @param path
+ * @param alias
  * @returns {*}
  */
-ContentLoader.loadImage = function (path) {
+ContentLoader.loadImage = function (path, alias) {
     return new Promise((function (resolve, reject) {
         path = ContentLoader._enrichRelativePath(path);
 
@@ -9432,6 +9523,10 @@ ContentLoader.loadImage = function (path) {
                 // cache the loaded image:
                 ContentLoader._imgLoaded[path] = image;
 
+                if (alias) {
+                    ContentLoader._imgAlias[alias] = path;
+                }
+
                 resolve(image);
             };
             image.onerror = function () {
@@ -9443,11 +9538,22 @@ ContentLoader.loadImage = function (path) {
 };
 
 /**
+ * Returns an audio loaded by the given alias (if exists)
+ * @param alias
+ */
+ContentLoader.getAudio = function (alias) {
+    if (ContentLoader._audioAlias.hasOwnProperty(alias)) {
+        return ContentLoader._audioLoaded[ContentLoader._audioAlias[alias]]
+    }
+};
+
+/**
  * loads an audio file from a specified path into memory
  * @param path
+ * @param alias
  * @returns {*}
  */
-ContentLoader.loadAudio = function (path) {
+ContentLoader.loadAudio = function (path, alias) {
     return new Promise((function (resolve, reject) {
         path = ContentLoader._enrichRelativePath(path);
 
@@ -9459,9 +9565,13 @@ ContentLoader.loadAudio = function (path) {
         } else {
             var audio = new Audio();
             audio.src = path;
-            audio.oncanplaythrough = function() {
+            audio.oncanplaythrough = function () {
                 // cache the loaded image:
                 ContentLoader._audioLoaded[path] = audio;
+
+                if (alias) {
+                    ContentLoader._audioAlias[alias] = path;
+                }
 
                 resolve(audio);
             };
@@ -10577,11 +10687,11 @@ GameObject.prototype.equals = function (other) {
     return this === other;
 };
 
-GameObject.prototype.getBaseWidth = function() {
+GameObject.prototype.getBaseWidth = function () {
     return 1;
 };
 
-GameObject.prototype.getBaseHeight = function() {
+GameObject.prototype.getBaseHeight = function () {
     return 1;
 };
 
@@ -10612,19 +10722,44 @@ GameObject.prototype.getParent = function () {
     return this._parent;
 };
 
-GameObject.prototype.setParent = function (gameObject) {
-    if (gameObject.getParent() != null) {
-        gameObject.getParent().removeChild(gameObject);
+GameObject.prototype.removeParent = function () {
+    if (this._parent) {
+        this._parent.removeChild(this);
+    } else {
+        GameManager.activeScene.removeGameObject(this);
     }
 
-    this._parent = gameObject;
+    this._parent = null;
+};
+
+GameObject.prototype.setParent = function (gameObject) {
+    if (!gameObject) {
+        // since there is no game object specified we will try to look for a scene related to this game object
+        // and then add it to the root hierarchy:
+        if (GameManager.activeScene) {
+            GameManager.activeScene.addGameObject(this);
+        }
+
+    } else {
+        // does the object has a parent?
+        if (this.getParent() != null) {
+            this.getParent().removeChild(this);
+
+        } else {
+            // maybe is part of a game scene root hierarchy? if so try to remove from that
+            if (GameManager.activeScene) {
+                GameManager.activeScene.removeGameObject(this);
+            }
+        }
+
+        gameObject.addChild(this);
+    }
 };
 
 GameObject.prototype.removeChild = function (gameObject) {
     for (var i = this._children.length - 1; i >= 0; i--) {
         if (this._children[i].getUID() == gameObject.getUID()) {
-            this._children.splice(i, 1);
-            break;
+            return this._children.splice(i, 1);
         }
     }
 };
@@ -10633,12 +10768,45 @@ GameObject.prototype.getChildren = function () {
     return this._children;
 };
 
-GameObject.prototype.addChild = function (gameObject) {
+GameObject.prototype.addChild = function (gameObject, index) {
+    // let's be safe, make sure to remove parent if any
+    gameObject.removeParent();
+
     // update the object parent
-    gameObject.setParent(gameObject);
+    gameObject._parent = this;
 
     // add this to our children array
-    this._children.push(gameObject);
+    if (isObjectAssigned(index)) {
+        this._children.insert(index, gameObject);
+    } else {
+        this._children.push(gameObject);
+    }
+};
+
+GameObject.prototype.getHierarchyHash = function () {
+    if (this._parent) {
+        return this._parent.getHierarchyHash() + "." + this._uid;
+    }
+    return this._uid + "";
+};
+
+GameObject.prototype.isChild = function (gameObject) {
+    // check if is a child simply by getting the hierarchy hash:
+    var hierarchyHash = gameObject.getHierarchyHash().split(".");  // this . x . y . z . other
+    var thisIndex = hierarchyHash.indexOf(this._uid + ""), otherIndex = hierarchyHash.indexOf(gameObject.getUID() + "");
+    return otherIndex > thisIndex && thisIndex >= 0;
+
+    // this way takes away more resources:
+    /*for (var i = 0; i < this._children.length; ++i) {
+        if (this._children[i].equals(gameObject)) {
+            return true;
+        } else {
+            if (this._children[i].isChild(gameObject)) {
+                return true;
+            }
+        }
+    }
+    return false;*/
 };
 
 GameObject.prototype.addComponent = function (component) {
@@ -10665,9 +10833,9 @@ GameObject.prototype.update = function (delta) {
     });
 
     this._components.forEach(function (component) {
-       if (component.update) {
-           component.update(delta);
-       }
+        if (component.update) {
+            component.update(delta);
+        }
     });
 };
 
@@ -10863,16 +11031,27 @@ GameScene.prototype.getBackgroundColor = function () {
     return this._backgroundColor;
 };
 
-GameScene.prototype.addGameObject = function (entity) {
-    this._gameObjects.push(entity);
+GameScene.prototype.addGameObject = function (gameObject, index) {
+    // let's be safe, make sure to remove parent if any
+    gameObject.removeParent();
+
+    if (isObjectAssigned(index)) {
+        this._gameObjects.insert(index, gameObject);
+    } else {
+        this._gameObjects.push(gameObject);
+    }
 };
 
 GameScene.prototype.getGameObjects = function () {
     return this._gameObjects;
 };
 
-GameScene.prototype.removeEntity = function (entity) {
-    // TODO: implement
+GameScene.prototype.removeGameObject = function (gameObject) {
+    for (var i = this._gameObjects.length - 1; i >= 0; i--) {
+        if (this._gameObjects[i].getUID() == gameObject.getUID()) {
+            return this._gameObjects.splice(i, 1);
+        }
+    }
 };
 
 /**
@@ -11294,11 +11473,23 @@ Scripts.addScript = function (name) {
 sc.addScript = Scripts.addScript;
 
 /**
- * Generates a component from one stored script
+ * Generates and assigns a component to the given game object. The component is returned in the function call
  * @param scriptName
  * @param gameObject
  */
-Scripts.generateComponent = function (scriptName, gameObject) {
+Scripts.assign = function (scriptName, gameObject) {
+    var component = Scripts.generateComponent(scriptName);
+    gameObject.addComponent(component);
+    return component;
+};
+// alias:
+sc.assignScript = Scripts.assign;
+
+/**
+ * Generates a component from one stored script
+ * @param scriptName
+ */
+Scripts.generateComponent = function (scriptName) {
     if (!Scripts._store[scriptName]) {
         return null;
     }
@@ -11315,10 +11506,6 @@ Scripts.generateComponent = function (scriptName, gameObject) {
             // assign the default value if exists:
             component[propName] = properties[propName].default;
         });
-    }
-
-    if (gameObject) {
-        gameObject.addComponent(component);
     }
 
     return component;
@@ -11943,7 +12130,7 @@ Transform.prototype.getRotation = function () {
 };
 
 Transform.prototype.setScale = function (x, y) {
-    this._scale.set(x, y);
+    this._scale.set(x, y || x);
     this.gameObject.propagatePropertyUpdate("Scale", this._scale);
 };
 

@@ -1,52 +1,8 @@
-<div class="tool-container fill-parent">
-    <!-- top bar -->
-    <div class="toolbar">
+<div class="fill-parent">
 
-        <div class="btn-group">
-            <div class="btn-group" uib-dropdown>
-                <button id="create-menu" type="button" class="btn btn-grey" uib-dropdown-toggle>
-                    <i class="fa fa-plus-square" aria-hidden="true"></i> {{'BUTTON_CREATE' | translate}} <span
-                        class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="create-menu">
-                    <li role="menuitem" ng-repeat="type in model.types" ng-click="createContentObject(type)"><a>{{getFilterDisplayName(type)}}</a>
-                    </li>
-                </ul>
-            </div>
+    <!-- folder items -->
 
-            <label class="btn btn-grey"><i class="fa fa-download" aria-hidden="true"></i> {{'BUTTON_IMPORT' | translate}}</label>
-            <label class="btn btn-grey disabled"><i class="fa fa-upload" aria-hidden="true"></i> {{'BUTTON_EXPORT' | translate}}</label>
-        </div>
-
-        <button id="filter-menu" type="button" class="btn btn-grey" uib-dropdown-toggle>
-            <i class="fa fa-refresh" aria-hidden="true"></i> {{'CTX_REFRESH' | translate}}
-        </button>
-
-        <div class="align-right">
-
-            <!-- filters -->
-            <!--<div class="btn-group" uib-dropdown>
-                <button id="filter-menu" type="button" class="btn btn-grey" uib-dropdown-toggle>
-                    <i class="fa fa-filter" aria-hidden="true"></i> {{getSelectedFilterName()}} <span
-                        class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="filter-menu">
-                    <li role="menuitem" ng-click="setFilter(null)"><a>{{'CONTENT_ALL' | translate}}</a></li>
-                    <li class="divider"></li>
-                    <li role="menuitem" ng-repeat="type in model.types" ng-click="setFilter(type)"><a>{{getFilterDisplayName(type)}}</a>
-                    </li>
-                </ul>
-            </div>-->
-
-            <!-- search box -->
-            <input ng-model="model.search" class="sc-input input-night" placeholder="{{'COMMON_SEARCH' | translate}}.."
-                   type="text">
-
-        </div>
-
-    </div>
-
-    <div class="tool-container-body">
+    <div class="tool-container-body" ng-class="contentClass()">
         <div ng-repeat="item in model.contentView | filter:model.search">
             <div class="content-item {{item.type}}"
                  ng-style="{'background-image': 'url(' + getBackgroundImage(item) + ')'}">

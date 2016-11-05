@@ -1,16 +1,22 @@
 var CZC_PREFIX = "czc.";
 var CZC = {
+    INLINE_OFFSET: 4,
     EVENTS: {
         SELECT_NODES_BY_UID: CZC_PREFIX + "selectNodesByUID"
+    },
+    DROP_LOCATION: {
+        INLINE_TOP: "inlineTop",
+        INLINE: "inline",
+        INLINE_BOTTOM: "inlineBottom"
     }
 };;// cz-tree angular definition:
 angular.module("cz-tree", [])
 
-.constant("settings", {
-	baseItemPadding: 6,
-	itemPadding: 18,    // px
-	multiSelect: true
-});;angular.module('cz-tree')
+    .constant("settings", {
+        baseItemPadding: 6,
+        itemPadding: 18,    // px
+        multiSelect: true
+    });;angular.module('cz-tree')
     .controller('TreeCtrl', ['$scope', 'settings',
         function ($scope, settings) {
             /* quick tip: */
@@ -26,7 +32,7 @@ angular.module("cz-tree", [])
             /* scope functions */
 
             $scope.$on(CZC.EVENTS.SELECT_NODES_BY_UID, (function (e, targets, keepPrevious) {
-                if(targets && targets.length > 0) {
+                if (targets && targets.length > 0) {
                     for (var i = 0; i < targets.length; i++) {
                         $scope.selectNode(targets[i], null, i == 0 ? keepPrevious : true, true);
                     }
@@ -37,7 +43,7 @@ angular.module("cz-tree", [])
 
             }).bind(this));
 
-            $scope.safeDigest = function() {
+            $scope.safeDigest = function () {
                 if (!$scope.$$phase) {
                     $scope.$digest();
                 }
@@ -61,6 +67,18 @@ angular.module("cz-tree", [])
                 }
             };
 
+            $scope.onDrop = function (id, attachment, inlineLocation) {
+                var dropEvent = {};
+                dropEvent.inlineLocation = inlineLocation;
+                dropEvent.target = {
+                    id: id,
+                    attachment: attachment
+                };
+                dropEvent.source = $scope.$selectedNodes;
+
+                $scope.onDropEvent({dropEvent: dropEvent})
+            };
+
             $scope.unselectNode = function (node) {
                 var index = $scope.getSelectedNodeIndex(node);
                 if (index >= 0) {
@@ -72,7 +90,7 @@ angular.module("cz-tree", [])
                 $scope.$selectedNodes = [];
             };
 
-            $scope.getSelectedNodeIndex = function(id) {
+            $scope.getSelectedNodeIndex = function (id) {
                 for (var i = 0; i < $scope.$selectedNodes.length; i++) {
                     if ($scope.$selectedNodes[i].id == id) {
                         return i;
@@ -88,61 +106,75 @@ angular.module("cz-tree", [])
             };
         }
     ]);;angular.module('cz-tree')
-.controller('TreeNodeCtrl', ['$scope',
-	function ($scope) {
-		/* quick tip: */
-		/* definitions with 'this' will be accessible from the directive */
+    .controller('TreeNodeCtrl', ['$scope',
+        function ($scope) {
 
-		this.scope = $scope;
+            var INLINE_OFFSET = 3;
 
-		/* scope variables */
+            /* quick tip: */
+            /* definitions with 'this' will be accessible from the directive */
 
-		$scope.$parentNodeScope = null;
-		$scope.$treeScope = null;
+            this.scope = $scope;
 
-		$scope.collapsed = false;
-		$scope.attachment = null;
-		$scope.id = null;
+            /* scope variables */
 
-		/* scope functions */
+            $scope.$parentNodeScope = null;
+            $scope.$treeScope = null;
 
-		$scope.depth = function () {
-			// is this a root node?
-			return ($scope.$parentNodeScope ? $scope.$parentNodeScope.depth() + 1 : 0);
-		};
+            $scope.collapsed = false;
+            $scope.attachment = null;
+            $scope.id = null;
 
-		$scope.toggleCollapse = function() {
-			$scope.collapsed = !$scope.collapsed;
-		};
+            /* scope functions */
 
-		$scope.toggleSelect = function() {
-			$scope.isSelected() ? $scope.unselect() : $scope.select();
-		};
+            $scope.depth = function () {
+                // is this a root node?
+                return ($scope.$parentNodeScope ? $scope.$parentNodeScope.depth() + 1 : 0);
+            };
 
-		$scope.unselect = function() {
-			$scope.$treeScope.unselectNode($scope.id || $scope.$id);
-		};
+            $scope.toggleCollapse = function () {
+                $scope.collapsed = !$scope.collapsed;
+            };
 
-		$scope.doubleClick = function() {
-			$scope.$treeScope.onDoubleClick({selected: $scope.$treeScope.$selectedNodes});
-		};
+            $scope.toggleSelect = function () {
+                $scope.isSelected() ? $scope.unselect() : $scope.select();
+            };
 
-		$scope.select = function(keepPrevious) {
-			$scope.$treeScope.selectNode($scope.id || $scope.$id, $scope.attachment, keepPrevious);
-		};
+            $scope.unselect = function () {
+                $scope.$treeScope.unselectNode($scope.id || $scope.$id);
+            };
 
-		$scope.isSelected = function() {
-			return $scope.$treeScope.isNodeSelected($scope.id || $scope.$id);
-		};
+            $scope.doubleClick = function () {
+                $scope.$treeScope.onDoubleClick({selected: $scope.$treeScope.$selectedNodes});
+            };
 
-		/* initialize */
+            $scope.select = function (keepPrevious) {
+                $scope.$treeScope.selectNode($scope.id || $scope.$id, $scope.attachment, keepPrevious);
+            };
 
-		$scope.initialize = function (parentTreeNodeCtrl, treeCtrl) {
-			$scope.$parentNodeScope = parentTreeNodeCtrl ? parentTreeNodeCtrl.scope : null;
-			$scope.$treeScope = treeCtrl ? treeCtrl.scope : null;
-		};
-	}
-]);;angular.module('cz-tree')
+            $scope.isSelected = function () {
+                return $scope.$treeScope.isNodeSelected($scope.id || $scope.$id);
+            };
+
+            $scope.onDrop = function (e) {
+                var dropLocation = CZC.DROP_LOCATION.INLINE;
+                if (e.offsetY <= CZC.INLINE_OFFSET) {
+                    dropLocation = CZC.DROP_LOCATION.INLINE_TOP;
+                } else if (e.offsetY >= e.target.offsetHeight - CZC.INLINE_OFFSET) {
+                    dropLocation = CZC.DROP_LOCATION.INLINE_BOTTOM;
+                }
+
+                $scope.$treeScope.onDrop($scope.id || $scope.$id, $scope.attachment, dropLocation);
+            };
+
+            /* initialize */
+
+            $scope.initialize = function (parentTreeNodeCtrl, treeCtrl) {
+                $scope.$parentNodeScope = parentTreeNodeCtrl ? parentTreeNodeCtrl.scope : null;
+                $scope.$treeScope = treeCtrl ? treeCtrl.scope : null;
+            };
+        }
+    ]);;angular.module('cz-tree')
     .directive('czTree', [
         function () {
             return {
@@ -150,6 +182,7 @@ angular.module("cz-tree", [])
                 controller: 'TreeCtrl',
                 scope: {
                     onSelectionChange: '&',
+                    onDropEvent: '&',
                     onDoubleClick: '&'
                 },
                 link: function (scope, element, attributes) {
@@ -184,75 +217,75 @@ angular.module("cz-tree", [])
             }
         }
     ]);;angular.module('cz-tree')
-.directive('czTreeNodeHeader', ['$timeout', 'settings',
-	function ($timeout, settings) {
-		return {
-			require: '^czTreeNode',
-			restrict: 'A',
-			scope: true,
-			replace: false,
-			link: function(scope, element, attributes, treeNode) {
-				// add the cz-tree-nodes class to the element:
-				element.addClass('cz-tree-header');
+    .directive('czTreeNodeHeader', ['$timeout', 'settings',
+        function ($timeout, settings) {
+            return {
+                require: '^czTreeNode',
+                restrict: 'A',
+                scope: true,
+                replace: false,
+                link: function (scope, element, attributes, treeNode) {
+                    // add the cz-tree-nodes class to the element:
+                    element.addClass('cz-tree-header');
 
-				function applyDynamicStyle () {
-					var multiplier = treeNode ? treeNode.scope.depth() * settings.itemPadding + settings.baseItemPadding : 0;
-					element.css({'padding-left': multiplier + "px"});
-				}
+                    function applyDynamicStyle() {
+                        var multiplier = treeNode ? treeNode.scope.depth() * settings.itemPadding + settings.baseItemPadding : 0;
+                        element.css({'padding-left': multiplier + "px"});
+                    }
 
-				$timeout(applyDynamicStyle);
+                    $timeout(applyDynamicStyle);
 
-				// set the attributes for dragging:
-				element.attr('draggable', 'true');
-				element.attr('dragstart', '{{onDragStart(e)}}');
-				element.attr('onmouseup', '{{onClick(e)}}');
+                    // set the attributes for dragging:
+                    element.attr('draggable', 'true');
 
-				// event handlers:
-				var nodeScope = treeNode ? treeNode.scope : scope;
+                    // event handlers:
+                    var nodeScope = treeNode ? treeNode.scope : scope;
 
-				element[0].ondblclick = function(e) {
-					// based on the shift key state we are going to keep the previous selection or not
-					nodeScope.select(e.ctrlKey);
-					nodeScope.doubleClick();
-					scope.$apply();
-				};
+                    element[0].ondblclick = function (e) {
+                        // based on the shift key state we are going to keep the previous selection or not
+                        nodeScope.select(e.ctrlKey);
+                        nodeScope.doubleClick();
+                        scope.$apply();
+                    };
 
-				element[0].onmouseup = function(e) {
-					// if the mouse clicked button isn't left or right, there's no need to go further
-					if (e.which != 1 && e.which != 3) {
-						return;
-					}
+                    element[0].onclick = function (e) {
+                        // based on the shift key state we are going to keep the previous selection or not
+                        nodeScope.select(e.ctrlKey);
+                        scope.$apply();
 
-					// based on the shift key state we are going to keep the previous selection or not
-					nodeScope.select(e.ctrlKey);
+                        // stop the event propagation.
+                        e.stopPropagation();
+                    };
 
-					scope.$apply();
+                    element[0].ondragstart = function (e) {
+                        if (!nodeScope.isSelected()) {
+                            nodeScope.select(e.ctrlKey);
+                        }
 
-					// stop the event propagation.
-					e.stopPropagation();
-				};
+                        e.dataTransfer.setData('text/plain', '');
+                        scope.$apply();
+                    };
 
-				element[0].ondragstart = function(e) {
-					e.dataTransfer.setData('text/plain', '');
-					scope.$apply();
-				};
+                    element[0].ondrop = function (e) {
+                        nodeScope.onDrop(e);
+                    };
 
-				element[0].ondragend = function(e) {
-					console.log("end" + e);
-				}
-			}
-		}
-	}
-]);;angular.module('cz-tree')
-.directive('czTreeNodes', [
-	function () {
-		return {
-			restrict: 'A',
-			scope: false,
-			link: function(scope, element) {
-				// add the cz-tree-nodes class to the element:
-				element.addClass('cz-tree-nodes');
-			}
-		}
-	}
-]);
+                    element[0].ondragover = function (e) {
+                        event.preventDefault();
+                    };
+                }
+            }
+        }
+    ]);;angular.module('cz-tree')
+    .directive('czTreeNodes', [
+        function () {
+            return {
+                restrict: 'A',
+                scope: false,
+                link: function(scope, element) {
+                    // add the cz-tree-nodes class to the element:
+                    element.addClass('cz-tree-nodes');
+                }
+            }
+        }
+    ]);

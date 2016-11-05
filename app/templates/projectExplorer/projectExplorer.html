@@ -9,7 +9,7 @@
                 <div cz-tree-node-header context-menu="folderContextMenuOptions(node)" >
                     <span class="fa clickable" ng-click="toggleCollapse()" ng-class="{'fa-folder-open' : !collapsed, 'fa-folder' : collapsed}"></span>
 
-                    <span ng-if="node.attributes.isRenaming == false">{{node.name}}</span>
+                    <span ng-if="node.attributes.isRenaming == false">{{node.name || "&nbsp;"}}</span>
 
                     <span ng-if="node.attributes.isRenaming === true">
                         <input type="text" class="form-control sc-input input-night" value="{{node.name}}" select-text />
