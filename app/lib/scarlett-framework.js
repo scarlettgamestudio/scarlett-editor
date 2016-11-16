@@ -10481,13 +10481,14 @@ Game.prototype._onAnimationFrame = function (timestamp) {
         this._executionPhase = SC.EXECUTION_PHASES.SCENE_RENDER;
         this._gameScene.sceneRender(delta);
 
+        this._gameScene.flushRender();
+
         // the user defined the game scene pre-render function?
         if (isFunction(this._gameScene.lateRender)) {
             this._executionPhase = SC.EXECUTION_PHASES.LATE_RENDER;
             this._gameScene.lateRender(delta);
+            this._gameScene.flushRender();
         }
-
-        this._gameScene.flushRender();
 
         //} catch (ex) {
         //    this._logger.error(ex);
@@ -10499,6 +10500,11 @@ Game.prototype._onAnimationFrame = function (timestamp) {
     // request a new animation frame:
     requestAnimationFrame(this._onAnimationFrame.bind(this));
 };
+
+GameScene.prototype.update = function() {
+	funnyFace.position.x += 10;
+};
+
 
 Game.prototype.pauseGame = function () {
     this._pause = true;
@@ -11122,7 +11128,7 @@ GameScene.restore = function (data) {
 
 GameScene.prototype.unload = function () {
 
-};;/**
+};;;/**
  * PrimitiveBatch class for on demand direct drawing
  */
 function PrimitiveBatch(game) {
@@ -13648,9 +13654,6 @@ Path.makeRelative = function (basePath, fullPath) {
  */
 function WebGLContext(params) {
     params = params || {};
-
-    // public properties:
-
 
     // private properties:
     this._logger = new Logger(arguments.callee.name);
@@ -20313,8 +20316,6 @@ WebGLContext.prototype.unload = function () {
 ;;/**
  * WebGL Utils class
  *
- * Some boilerplate code fetched from Gregg Tavares webgl utilities
- * http://webglfundamentals.org/webgl/resources/webgl-utils.js
  */
 function WebGLUtils() {
     // private fields
@@ -20351,7 +20352,7 @@ WebGLUtils.prototype._compileShader = function(gl, shaderSource, shaderType) {
     }
 
     return shader;
-}
+};
 
 /**
  * Creates a program from 2 shaders.
