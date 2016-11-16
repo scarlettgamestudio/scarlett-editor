@@ -1,12 +1,7 @@
 app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', '$translate', 'constants',
 	function ($scope, logSvc, config, scarlettSvc, sceneSvc, $translate, constants) {
 
-		$scope.model = {
-			tree: [],
-			uid: 0
-		};
 
-		$scope.selectedNode = null;
 
 		$scope.createItemsContextMenuOptions =
 			['<i class="fa fa-plus-square"></i>' + $translate.instant("CTX_CREATE"), [
@@ -61,9 +56,20 @@ app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlet
 			}]
 		];
 
+		$scope.onTreeSelectionChanged = function(selected) {
+			if (selected.length == 0) {
+				$scope.setActiveFolderNode(null);
+			}
+		};
+
+		$scope.onFolderSelection = function (node) {
+			// store selected node
+			$scope.setActiveFolderNode(node);
+		};
+
 		$scope.folderContextMenuOptions = function(node){
 			// store selected node
-			$scope.selectedNode = node;
+			$scope.setActiveFolderNode(node);
 
 			// return context menu
 			return [
@@ -76,7 +82,7 @@ app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlet
 
 		$scope.itemContextMenuOptions = function(node) {
 			// store selected node
-			$scope.selectedNode = node;
+			$scope.setActiveFolderNode(node);
 
 			// return context menu
 			return [
@@ -96,13 +102,7 @@ app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlet
 		};
 
 		$scope.baseContainerClick = function () {
-			$scope.clearSelection();
-		};
-
-		$scope.refresh = function () {
-			$scope.model.uid = 0;
-			$scope.model.tree = [mapTreeModel(scarlettSvc.activeProjectFileMap, true, 0)];
-			$scope.setActiveFolderNode($scope.model.tree[0]);
+			//$scope.clearSelection();
 		};
 
 		$scope.updateProjectFileMap = function ()
@@ -136,47 +136,7 @@ app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlet
 			}
 		};
 
-		function generateNode(id, name, type, attributes) {
-			return {
-				id: id,
-				name: name,
-				type: type,
-				attributes: attributes || {},
-				nodes: []
-			}
-		}
-
-		function mapTreeModel(directory, deep, n) {
-			var directoryTitle = (n === 0 ? scarlettSvc.activeProject.name : Path.getDirectoryName(directory.path));
-			var nodeModel = generateNode(++$scope.model.uid, directoryTitle, "directory", {path: directory.path, isRenaming: false});
-
-			if (deep) {
-				directory.subdirectories.forEach(function (subdirectory) {
-					nodeModel.nodes.push(mapTreeModel(subdirectory, deep));
-				});
-			}
-
-			directory.files.forEach(function (fileInfo) {
-				var filename = Path.getFilename(fileInfo.relativePath);
-				var extension = Path.getFileExtension(filename);
-
-				//FIXME: this validation should be placed somewhere else:
-				if (filename.indexOf("_") == 0 || filename.indexOf(".") == 0) {
-
-				} else {
-					nodeModel.nodes.push(generateNode(++$scope.model.uid, filename, "file", {
-						extension: extension,
-						path: fileInfo.fullPath,
-						isRenaming : false
-					}));
-				}
-			});
-
-			return nodeModel;
-		}
-
 		(function init() {
-			$scope.refresh();
 
 		})();
 	}

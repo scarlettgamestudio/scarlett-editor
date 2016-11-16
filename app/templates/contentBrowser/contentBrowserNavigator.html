@@ -8,7 +8,7 @@
                      ng-style="{'background-image': 'url(' + getBackgroundImage(item) + ')'}">
                     <i class="fa" ng-class="getFileIcon(item)" aria-hidden="true"></i>
                 </div>
-                <div class="content-item-description {{getTypeFromContentObject(item)}}">
+                <div class="content-item-description {{getTypeFromContentObject(item)}}" title="{{item.name}}">
                     {{item.name}}
                 </div>
             </div>

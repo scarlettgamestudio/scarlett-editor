@@ -189,6 +189,10 @@ angular.module("cz-tree", [])
                     // add the cz-tree class to the element:
                     element.addClass('cz-tree');
 
+                    if (attributes['multiselect']) {
+                        scope.$multiSelectEnabled = attributes['multiselect'].toLowerCase() === "true";
+                    }
+
                     // initialize the controller:
                     scope.initialize();
                 }
@@ -246,6 +250,9 @@ angular.module("cz-tree", [])
                         nodeScope.select(e.ctrlKey);
                         nodeScope.doubleClick();
                         scope.$apply();
+
+                        // stop the event propagation.
+                        e.stopPropagation();
                     };
 
                     element[0].onclick = function (e) {
@@ -262,7 +269,7 @@ angular.module("cz-tree", [])
                             nodeScope.select(e.ctrlKey);
                         }
 
-                        e.dataTransfer.setData('text/plain', '');
+                        //e.dataTransfer.setData('text/plain', '');
                         scope.$apply();
                     };
 
@@ -270,7 +277,7 @@ angular.module("cz-tree", [])
                         nodeScope.onDrop(e);
                     };
 
-                    element[0].ondragover = function (e) {
+                    element[0].ondragover = function (event) {
                         event.preventDefault();
                     };
                 }

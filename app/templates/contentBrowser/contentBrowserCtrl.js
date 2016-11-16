@@ -1,63 +1,13 @@
 app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', 'constants', '$translate', '$timeout', '$http', '$compile',
     function ($scope, logSvc, config, scarlettSvc, sceneSvc, constants, $translate, $timeout, $http, $compile) {
 
-        var myLayout = null;
-        var projectExplorerLayoutConfiguration = {
-            type: 'component',
-            componentName: 'template',
-            width: 20,
-            componentState: {
-                templateId: 'projectExplorer',
-                url: 'templates/projectExplorer/projectExplorer.html'
-            },
-            title: $translate.instant("EDITOR_PROJECT_EXPLORER")
-        };
-        var contentBrowserNavigatorConfiguration = {
-            type: 'component',
-            componentName: 'template',
-            componentState: {
-                templateId: 'projectExplorer',
-                url: 'templates/contentBrowser/contentBrowserNavigator.html'
-            },
-            title: $translate.instant("EDITOR_CONTENT_BROWSER")
-        };
-        var layoutConfiguration = {
-            settings: {
-                showPopoutIcon: false,
-                hasHeaders: false,
-                showCloseIcon: false,
-                showMaximiseIcon: false
-            },
-            labels: {
-                close: $translate.instant("ACTION_CLOSE"),
-                maximise: $translate.instant("ACTION_MAXIMIZE"),
-                minimise: $translate.instant("ACTION_MINIMIZE"),
-                popout: $translate.instant("ACTION_POPOUT")
-            },
-            dimensions: {
-                borderWidth: 4,
-                headerHeight: 20,
-            },
-            content: [{
-                type: 'row',
-                content: [
-                    projectExplorerLayoutConfiguration,
-                    contentBrowserNavigatorConfiguration
-                ]
-            }]
-        };
-
-        $scope.contentShared = {
-            activeFolderNode: null
-        };
-
         $scope.model = {
-            filter: null,
-            types: null,
+            tree: [],
+            uid: 0,
             search: "",
-            content: {},
             contentView: [],
-            zoom: 2
+            zoom: 2,
+            selectedNode: null
         };
 
         $scope.contentClass = function() {
@@ -77,44 +27,8 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             }
         };
 
-        $scope.getBackgroundImage = function(obj) {
-            return "";
-        };
-
         $scope.getSelectedFilterName = function () {
             return $scope.getFilterDisplayName($scope.model.filter);
-        };
-
-        $scope.createContentObject = function (type) {
-            var obj = undefined;
-            switch (type) {
-                case constants.CONTENT_TYPES.TEXTURE:
-                    obj = new ContentTexture({name: generateUniqueName("Texture", type)});
-                    break;
-
-                case constants.CONTENT_TYPES.TEXTURE_ATLAS:
-                    obj = new ContentTextureAtlas({name: generateUniqueName("TextureAtlas", type)});
-                    break;
-
-                case constants.CONTENT_TYPES.SCRIPT:
-                    obj = new ContentScript({name: generateUniqueName("Script", type)});
-                    break;
-            }
-
-            if (obj) {
-                // make sure the array container exists:
-                ensureTypeExists(type);
-
-                // push it into the content model:
-                $scope.model.content[type].push(obj);
-
-                // add to the current content view?
-                // note: this only matters if there is no filter applied because filtered views are already synced
-                $scope.refreshContentView();
-                /*if (!$scope.model.filter) {
-                    $scope.model.contentView.push(obj);
-                }*/
-            }
         };
 
         $scope.getFileIcon = function (node) {
@@ -197,16 +111,11 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             }
         };
 
-        $scope.setFilter = function (type) {
-            $scope.model.filter = type;
-            $scope.refreshContentView();
-        };
-
         $scope.refreshContentView = function() {
             // TODO: change this
             var newContentView = [];
 
-            $scope.contentShared.activeFolderNode.nodes.forEach(function (node) {
+            $scope.selectedNode.nodes.forEach(function (node) {
                 newContentView.push(node);
             });
 
@@ -214,14 +123,49 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
         };
 
         $scope.setActiveFolderNode = function(node) {
-            $scope.contentShared.activeFolderNode = node;
+            $scope.selectedNode = node;
             //$scope.$broadcast(constants.EVENTS.ACTIVE_FOLDER_NODE_CHANGED, node);
             $scope.refreshContentView();
         };
 
-        $scope.onWindowResize = function () {
-            myLayout.updateSize();
-        };
+        function generateNode(id, name, type, attributes) {
+            return {
+                id: id,
+                name: name,
+                type: type,
+                attributes: attributes || {},
+                nodes: []
+            }
+        }
+
+        function mapTreeModel(directory, deep, n) {
+            var directoryTitle = (n === 0 ? scarlettSvc.activeProject.name : Path.getDirectoryName(directory.path));
+            var nodeModel = generateNode(++$scope.model.uid, directoryTitle, "directory", {path: directory.path, isRenaming: false});
+
+            if (deep) {
+                directory.subdirectories.forEach(function (subdirectory) {
+                    nodeModel.nodes.push(mapTreeModel(subdirectory, deep));
+                });
+            }
+
+            directory.files.forEach(function (fileInfo) {
+                var filename = Path.getFilename(fileInfo.relativePath);
+                var extension = Path.getFileExtension(filename);
+
+                //FIXME: this validation should be placed somewhere else (maybe?)
+                if (filename.indexOf("_") == 0 || filename.indexOf(".") == 0) {
+
+                } else {
+                    nodeModel.nodes.push(generateNode(++$scope.model.uid, filename, "file", {
+                        extension: extension,
+                        path: fileInfo.fullPath,
+                        isRenaming : false
+                    }));
+                }
+            });
+
+            return nodeModel;
+        }
 
         function generateUniqueName(baseName, type) {
             ensureTypeExists(type);
@@ -244,49 +188,10 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             return baseName + extra;
         }
 
-        function ensureTypeExists(type) {
-            $scope.model.content[type] = $scope.model.content[type] || [];
-        }
-
         (function init() {
-            // clone the current project content so we can cancel the operation:
-            $scope.model.content = scarlettSvc.activeProject.content;
-
-            // assign locally the content types:
-            $scope.model.types = constants.CONTENT_TYPES;
-
-            // initialize content browser layout
-           /* myLayout = new GoldenLayout(layoutConfiguration, "#content-browser-body");
-
-            myLayout.registerComponent('template', function (container, state) {
-                if (state.url && state.url.length > 0) {
-                    $http.get(state.url, {cache: true}).success(function (html) {
-                        // compile the html so we have all angular goodies:
-                        html = $compile(html)($scope);
-                        container.getElement().html(html);
-                    });
-                }
-            });
-
-            $timeout((function () {
-                // running this under the $timeout guarantees that the controller will be initialized only when the base
-                // html is rendered, therefore having correct size calculations (important).
-                myLayout.init();
-
-                window.addEventListener("resize", $scope.onWindowResize);
-
-            }).bind(this), 10);
-
-            $scope.$on("$destroy", (function () {
-                if (isObjectAssigned(myLayout)) {
-                    myLayout.destroy();
-                }
-
-                // remove event listeners:
-                window.removeEventListener("resize", $scope.onWindowResize);
-
-            }).bind(this));*/
-
+            $scope.model.uid = 0;
+            $scope.model.tree = [mapTreeModel(scarlettSvc.activeProjectFileMap, true, 0)];
+            $scope.setActiveFolderNode($scope.model.tree[0]);
         })();
     }
 ]);

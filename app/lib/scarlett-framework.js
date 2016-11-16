@@ -10377,19 +10377,19 @@ Game.prototype.getPhysicsEngine = function () {
     return this._physicsEngine;
 };
 
-Game.prototype._bindInputHandlers = function() {
+Game.prototype._bindInputHandlers = function () {
     window.addEventListener('keyup', (this._keyUpListener).bind(this), false);
     window.addEventListener('keydown', (this._keyDownListener).bind(this), false);
     this._inputHandlersBinded = true;
 };
 
-Game.prototype._unbindInputHandlers = function() {
+Game.prototype._unbindInputHandlers = function () {
     window.removeEventListener('keyup', (this._keyUpListener).bind(this), false);
     window.removeEventListener('keydown', (this._keyDownListener).bind(this), false);
     this._inputHandlersBinded = false;
 };
 
-Game.prototype._keyUpListener = function(e) {
+Game.prototype._keyUpListener = function (e) {
     var keys = [e.keyCode];
 
     if (e.ctrlKey) {
@@ -10404,7 +10404,7 @@ Game.prototype._keyUpListener = function(e) {
     Keyboard.removeKeys(keys);
 };
 
-Game.prototype._keyDownListener = function(e) {
+Game.prototype._keyDownListener = function (e) {
     var keys = [e.keyCode];
 
     if (e.ctrlKey) {
@@ -10436,7 +10436,7 @@ Game.prototype._onAnimationFrame = function (timestamp) {
     }
 
     // calculate the current delta time value:
-    var delta = timestamp - this._totalElapsedTime;
+    var delta = (timestamp - this._totalElapsedTime) / 1000;
     var self = this;
     this._totalElapsedTime = timestamp;
 
@@ -10487,8 +10487,10 @@ Game.prototype._onAnimationFrame = function (timestamp) {
             this._gameScene.lateRender(delta);
         }
 
+        this._gameScene.flushRender();
+
         //} catch (ex) {
-        //	this._logger.error(ex);
+        //    this._logger.error(ex);
         //}
 
         this._executionPhase = SC.EXECUTION_PHASES.WAITING;
@@ -10917,10 +10919,7 @@ GameObject.prototype.getRectangleBoundary = function (bulk) {
  * @returns {boolean}
  */
 GameObject.prototype.collidesWith = function (gameObject, bulk, bulkOther) {
-    var boundaryA = this.getBoundary(bulk);
-    var boundaryB = gameObject.getBoundary(bulkOther);
-
-    return Boundary.overlap(boundaryA, boundaryB);
+    return this.getBoundary(bulk).overlapsWith(gameObject.getBoundary(bulkOther));
 };
 
 /**
@@ -11096,7 +11095,9 @@ GameScene.prototype.sceneRender = function (delta) {
     for (var i = 0; i < this._gameObjects.length; i++) {
         this._gameObjects[i].render(delta, this._spriteBatch);
     }
+};
 
+GameScene.prototype.flushRender = function() {
     // all draw data was stored, now let's actually render stuff into the screen!
     this._spriteBatch.flush();
 };
@@ -11590,6 +11591,7 @@ AttributeDictionary.inherit("sprite", "gameobject");
 AttributeDictionary.addRule("sprite", "_textureSrc", {displayName: "Image Src", editor: "filepath"});
 AttributeDictionary.addRule("sprite", "_tint", {displayName: "Tint"});
 AttributeDictionary.addRule("sprite", "_texture", {visible: false});
+AttributeDictionary.addRule("sprite", "_wrapMode", {visible: false}); // temporary while we don't have cb's in editor
 
 function Sprite(params) {
     params = params || {};
@@ -11603,6 +11605,7 @@ function Sprite(params) {
     this._textureWidth = 0;
     this._textureHeight = 0;
     this._origin = new Vector2(0.5, 0.5);
+    this._wrapMode = WrapMode.CLAMP;
 
     if (params.texture) {
         this.setTexture(params.texture);
@@ -11620,17 +11623,46 @@ Sprite.prototype.getBaseHeight = function() {
 };
 
 Sprite.prototype.getMatrix = function () {
-    var width = this._textureWidth * this.transform.getScale().x;
-    var height = this._textureHeight * this.transform.getScale().y;
+    var x, y, width, height;
+
+    x = this.transform.getPosition().x;
+    y = this.transform.getPosition().y;
+
+    switch(this._wrapMode) {
+        case WrapMode.REPEAT:
+            width = 1280;
+            height = 720;
+            break;
+
+        case WrapMode.CLAMP:
+        default:
+            width = this._textureWidth * this.transform.getScale().x;
+            height = this._textureHeight * this.transform.getScale().y;
+            break;
+    }
 
     mat4.identity(this._transformMatrix);
-    mat4.translate(this._transformMatrix, this._transformMatrix, [this.transform.getPosition().x - width * this._origin.x, this.transform.getPosition().y - height * this._origin.y, 0]);
+
+    if (this._wrapMode != WrapMode.REPEAT) {
+        mat4.translate(this._transformMatrix, this._transformMatrix, [x - width * this._origin.x, y - height * this._origin.y, 0]);
+    } else {
+        mat4.translate(this._transformMatrix, this._transformMatrix, [-width * this._origin.x, -height * this._origin.y, 0]);
+    }
+
     mat4.translate(this._transformMatrix, this._transformMatrix, [width * this._origin.x, height * this._origin.y, 0]);
     mat4.rotate(this._transformMatrix, this._transformMatrix, this.transform.getRotation(), [0.0, 0.0, 1.0]);
     mat4.translate(this._transformMatrix, this._transformMatrix, [-width * this._origin.x, -height * this._origin.y, 0]);
     mat4.scale(this._transformMatrix, this._transformMatrix, [width, height, 0]);
 
     return this._transformMatrix;
+};
+
+Sprite.prototype.setWrapMode = function (wrapMode) {
+    this._wrapMode = wrapMode;
+};
+
+Sprite.prototype.getWrapMode = function () {
+    return this._wrapMode;
 };
 
 Sprite.prototype.setOrigin = function (origin) {
@@ -11738,9 +11770,6 @@ function SpriteBatch(game) {
         throw error("Cannot create sprite render, the Game object is missing from the parameters");
     }
 
-    // public properties:
-
-
     // private properties:
     this._game = game;
     this._gl = game.getRenderContext().getContext();
@@ -11813,6 +11842,18 @@ SpriteBatch.prototype.flush = function () {
             if (this._lastTexUID != texture.getUID()) {
                 texture.bind();
                 this._lastTexUID = texture.getUID();
+            }
+
+            switch (this._sprites[i].getWrapMode()) {
+                case WrapMode.REPEAT:
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+                    break;
+
+                case WrapMode.CLAMP:
+                default:
+                    break;
             }
 
             gl.uniformMatrix4fv(this._textureShader.uniforms.uTransform._location, false, this._sprites[i].getMatrix());
@@ -12089,6 +12130,11 @@ Transform.prototype.overrideRotationGetter = function (overrideFunction) {
     this._overrideRotationFunction = overrideFunction;
 };
 
+Transform.prototype.lookAt = function(position) {
+    var direction = this.getPosition().subtract(position).normalize();
+    this.setRotation(Math.atan2(direction.y, direction.x));
+};
+
 Transform.prototype.setPosition = function (x, y) {
     this._position.set(x, y);
     this.gameObject.propagatePropertyUpdate("Position", this._position);
@@ -12165,7 +12211,10 @@ Transform.restore = function (data) {
 Transform.prototype.unload = function () {
 
 };
-;/**
+;var WrapMode = {
+    CLAMP: 0,
+    REPEAT: 1
+};;/**
  * GridExt class
  */
 function GridExt(params) {
@@ -12442,6 +12491,7 @@ Keys.RightArrow = 39;
 Keys.DownArrow = 40;
 Keys.Insert = 45;
 Keys.Delete = 46;
+Keys.Space = 32;
 Keys.D0 = 48;
 Keys.D1 = 49;
 Keys.D2 = 50;
@@ -12882,6 +12932,18 @@ Vector2.prototype.normalRight = function () {
     return new Vector2(-1 * this.y, this.x);
 };
 
+Vector2.prototype.normalize = function() {
+    return Vector2.normalize(this);
+};
+
+Vector2.normalize = function (vector) {
+    var val = 1.0 / Math.sqrt((vector.x * vector.x) + (vector.y * vector.y));
+    vector.x *= val;
+    vector.y *= val;
+
+    return vector;
+};
+
 /**
  * The dot product of this vector with another vector.
  * @param vector
@@ -12924,6 +12986,22 @@ Vector2.prototype.equals = function (obj) {
 
 Vector2.prototype.unload = function () {
 
+};
+
+Vector2.prototype.subtract = function(vector) {
+    return Vector2.subtract(this, vector);
+};
+
+Vector2.prototype.add = function(vector) {
+    return Vector2.add(this, vector);
+};
+
+Vector2.subtract = function(vectorA, vectorB) {
+    return new Vector2(vectorA.x - vectorB.x, vectorA.y - vectorB.y);
+};
+
+Vector2.add = function(vectorA, vectorB) {
+    return new Vector2(vectorA.x + vectorB.x, vectorA.y + vectorB.y);
 };
 
 Vector2.multiply = function (vectorA, vectorB) {

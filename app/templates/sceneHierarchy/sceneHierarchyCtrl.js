@@ -55,8 +55,12 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             $scope.safeDigest();
         };
 
-        $scope.baseContainerClick = function () {
-            //$scope.clearSelection();
+        $scope.baseContainerClick = function ($event) {
+            // right click?
+            if ($event.which == 3) {
+                return; // right click doesn't count! (reserved for context menu)
+            }
+            $scope.clearSelection();
         };
 
         $scope.removeNodes = function (uids) {

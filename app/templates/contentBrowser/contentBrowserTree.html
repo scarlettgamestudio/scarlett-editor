@@ -6,7 +6,8 @@
 
             <!-- node header -->
             <div ng-class="{'selected' : isSelected()}" ng-if="node.type === 'directory'">
-                <div cz-tree-node-header context-menu="folderContextMenuOptions(node)" >
+                <!-- directories -->
+                <div cz-tree-node-header ng-click="onFolderSelection(node)" context-menu="folderContextMenuOptions(node)" >
                     <span class="fa clickable" ng-click="toggleCollapse()" ng-class="{'fa-folder-open' : !collapsed, 'fa-folder' : collapsed}"></span>
 
                     <span ng-if="node.attributes.isRenaming == false">{{node.name || "&nbsp;"}}</span>
@@ -15,6 +16,8 @@
                         <input type="text" class="form-control sc-input input-night" value="{{node.name}}" select-text />
                     </span>
                 </div>
+
+                <!-- files -->
                 <!--<div cz-tree-node-header ng-if="node.type === 'file'" context-menu="itemContextMenuOptions(node)" >
 
                     <span ng-if="node.attributes.isRenaming == false"><i class="fa" ng-class="getFileIcon(node.name)" aria-hidden="true"></i> {{node.name}}</span>
@@ -34,7 +37,7 @@
 
         <div>
             <!-- tree root node -->
-            <cz-tree on-double-click="onTreeDoubleClick(selected)">
+            <cz-tree on-selection-change="onTreeSelectionChanged(selected)" on-double-click="onTreeDoubleClick(selected)" multiselect="false">
                 <cz-tree-node ng-repeat="node in model.tree" attachment="{{node.attributes}}" ng-include="'nodeTemplate.html'"></cz-tree-node>
             </cz-tree>
         </div>
