@@ -3,7 +3,7 @@
 
         <!-- shows selected folder content -->
         <div class="tool-container-body" ng-class="contentClass()">
-            <div ng-repeat="item in model.contentView | filter:model.search">
+            <div ng-repeat="item in model.contentView | filter:model.search" ng-click="onNodeClick(item)" ng-dblclick="onNodeDblClick(item)">
                 <div class="content-item {{item.type}}"
                      ng-style="{'background-image': 'url(' + getBackgroundImage(item) + ')'}">
                     <i class="fa" ng-class="getFileIcon(item)" aria-hidden="true"></i>

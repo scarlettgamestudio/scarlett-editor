@@ -114,28 +114,6 @@ app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlet
 			$scope.refresh();
 		};
 
-		// TODO: do we really need this method to receive an array?
-		$scope.onTreeDoubleClick = function(selected) {
-
-			// TODO check if selectedNode isRenaming is not true ?
-			for (var i = 0; i < selected.length; i++) {
-
-				var attr = JSON.parse(selected[i].attachment);
-				var ext = Path.getFileExtension(attr.path);
-
-				switch (ext) {
-					case ".ss":
-						sceneSvc.loadSceneFromFile(attr.path);
-						break;
-
-					default:
-						// open the file using the system preferred software:
-						NativeInterface.openFile(attr.path);
-						break;
-				}
-			}
-		};
-
 		(function init() {
 
 		})();
