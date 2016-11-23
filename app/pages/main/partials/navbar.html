@@ -16,7 +16,7 @@
                 </a>
                 <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
                     <li ng-click="openNewProjectModal()"><a><i class="fa fa-plus-square"></i><span translate-once="NAVBAR_NEW_PROJECT"></span></a></li>
-                    <li><a><i class="fa fa-folder-open"></i><span translate-once="NAVBAR_OPEN_PROJECT"></span></a></li>
+                    <li ng-click="openLoadProject()"><a><i class="fa fa-folder-open"></i><span translate-once="NAVBAR_OPEN_PROJECT"></span></a></li>
                     <li ng-click="save()"><a><i class="fa fa-floppy-o"></i><span translate-once="NAVBAR_SAVE"></span></a></li>
                     <li class="divider"></li>
                     <li ng-if="!model.onlineMode" ng-click="logout()"><a><i class="fa fa-sign-in" aria-hidden="true"></i><span translate-once="NAVBAR_LOGIN"></span></a>

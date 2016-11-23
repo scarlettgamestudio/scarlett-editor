@@ -15,7 +15,7 @@ var dependencies = [
 
 var app = angular.module('scarlett', dependencies)
 
-.run(function ($rootScope, $location, constants) {
+.run(function ($rootScope, $location, constants, $route) {
 	// validate if the scarlett folder exists:
 	ScarlettInterface.setupApplicationFolder();
 
@@ -24,7 +24,17 @@ var app = angular.module('scarlett', dependencies)
 	};
 
 	$rootScope.changeView = function (viewName) {
+		var reload = false;
+		// same path? if so tag for reload..
+		if ("/" + viewName == $location.path()) {
+			reload = true;
+		}
+
 		$location.path(viewName);
+
+		if (reload) {
+			$route.reload();
+		}
 	};
 
 	// system window events subscription
@@ -61,8 +71,8 @@ var app = angular.module('scarlett', dependencies)
 		MODEL_UPDATED: "onModelUpdated",
 		COMMAND_HISTORY_CHANGED: "onCommandHistoryChanged",
 		VIEW_CHANGED: "onViewChanged",
-		ACTIVE_FOLDER_NODE_CHANGED: "onActiveFolderNodeChanged"
-
+		ACTIVE_FOLDER_NODE_CHANGED: "onActiveFolderNodeChanged",
+		ASSET_SELECTION: "onAssetSelection"
 	},
 	CONTAINERS: {
 		SCENE_VIEW: "sceneView"
@@ -118,3 +128,5 @@ var app = angular.module('scarlett', dependencies)
 	$translateProvider.preferredLanguage('en');
 	$translateProvider.useSanitizeValueStrategy('escape');
 });
+
+

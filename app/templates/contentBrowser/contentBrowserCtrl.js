@@ -1,5 +1,5 @@
-app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', 'constants', '$translate', '$timeout', '$http', '$compile',
-	function ($scope, logSvc, config, scarlettSvc, sceneSvc, constants, $translate, $timeout, $http, $compile) {
+app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', 'constants', '$translate', '$timeout', '$http', '$compile', 'assetSvc',
+	function ($scope, logSvc, config, scarlettSvc, sceneSvc, constants, $translate, $timeout, $http, $compile, assetSvc) {
 
 		$scope.model = {
 			tree: [],
@@ -7,7 +7,8 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
 			search: "",
 			contentView: [],
 			zoom: 2,
-			selectedNode: null
+			selectedNode: null,
+			availableFileTypes: null
 		};
 
 		$scope.contentClass = function () {
@@ -112,7 +113,6 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
 		};
 
 		$scope.refreshContentView = function () {
-			// TODO: change this
 			var newContentView = [];
 
 			$scope.selectedNode.nodes.forEach(function (node) {
@@ -125,15 +125,25 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
 		$scope.setActiveFolderNode = function (node) {
 			$scope.selectedNode = node;
 			//$scope.$broadcast(constants.EVENTS.ACTIVE_FOLDER_NODE_CHANGED, node);
+
+			$scope.$broadcast(CZC.EVENTS.SELECT_NODES_BY_UID, [node.id], false);
 			$scope.refreshContentView();
 		};
 
 		$scope.onFolderDblClick = function (folder) {
-
+			$scope.setActiveFolderNode(folder);
 		};
 
 		$scope.onFileDblClick = function (file) {
 			handleOpenFile(file);
+		};
+
+		$scope.onFileClick = function(file) {
+			var container = assetSvc.getAssetContainer(file.attributes.path);
+
+			if (container) {
+				EventManager.emit(constants.EVENTS.ASSET_SELECTION, container);
+			}
 		};
 
 		$scope.onNodeDblClick = function (node) {
@@ -145,7 +155,9 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
 		};
 
 		$scope.onNodeClick = function (node) {
-			// TODO: handle this
+			if (node.type == "file") {
+				$scope.onFileClick(node);
+			}
 		};
 
 		function handleOpenFile(file) {

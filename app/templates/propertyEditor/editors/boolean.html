@@ -3,7 +3,7 @@
 </div>
 <div class="peEditorValues">
     <input
-            type="checkbox" class="form-control sc-input input-night checkbox-nice"
+            type="checkbox" class="form-control sc-input input-night checkbox-nice" readonly="{{::property.readOnly}}"
             ng-class="{'inconclusive' : hasMultipleDefinitions()}"
             ng-model="model.bind" ng-change="onValueChange()">
 </div>

@@ -5,7 +5,7 @@
 
     <div class="input-group">
         <!-- path input -->
-        <input type="text" class="form-control sc-input input-night"
+        <input type="text" class="form-control sc-input input-night" readonly="{{::property.readOnly}}"
                ng-class="{'inconclusive' : hasMultipleDefinitions()}"
                ng-model="model.bind" ng-change="onValueChange()" placeholder="">
         <span class="input-group-btn">

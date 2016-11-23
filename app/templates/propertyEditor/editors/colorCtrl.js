@@ -143,6 +143,10 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
             $scope.onValueChange(property);
         };
 
+        $scope.prepareChange = function(property) {
+
+        };
+
         $scope.getPreviewStyleNoAlpha = function () {
             return {
                 "background-color": "rgb(" +

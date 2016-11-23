@@ -111,6 +111,10 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
             });
         };
 
+        $scope.openLoadProject = function () {
+            scarlettSvc.promptLoadProject();
+        };
+
         $scope.save = function () {
             // save active scene:
             sceneSvc.saveActiveScene();

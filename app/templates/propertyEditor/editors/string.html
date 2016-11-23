@@ -3,7 +3,7 @@
 </div>
 <div class="peEditorValues">
     <input
-            type="text" class="form-control sc-input input-night"
+            type="text" class="form-control sc-input input-night" readonly="{{::property.readOnly}}"
             ng-class="{'inconclusive' : hasMultipleDefinitions()}"
             ng-model="model.bind" ng-change="onValueChange()" placeholder="">
 </div>

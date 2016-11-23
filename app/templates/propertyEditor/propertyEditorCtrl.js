@@ -74,6 +74,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                         var propertyModel = {
                             name: entry,
                             displayName: customRule.displayName || splitCamelCase(capitalName),
+                            readonly: customRule.readOnly || false,
                             type: getType(object[entry]),
                             systemType: typeof object[entry],
                             bindOnce: false,
@@ -278,6 +279,10 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             $scope.setTargets(selected, true);
         };
 
+        $scope.onAssetSelected = function(selected) {
+            $scope.setTargets([selected], true);
+        };
+
         /**
          *
          */
@@ -444,10 +449,13 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
 
             // event subscription:
             EventManager.subscribe(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, $scope.onGameObjectSelectionChanged, this);
+            EventManager.subscribe(AngularHelper.constants.EVENTS.ASSET_SELECTION, $scope.onAssetSelected, this);
+
         })();
 
         $scope.$on("$destroy", (function () {
             EventManager.removeSubscription(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, $scope.onGameObjectSelectionChanged);
+            EventManager.removeSubscription(AngularHelper.constants.EVENTS.ASSET_SELECTION, $scope.onAssetSelected);
 
         }).bind(this));
     }]
