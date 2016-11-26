@@ -74,7 +74,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                         var propertyModel = {
                             name: entry,
                             displayName: customRule.displayName || splitCamelCase(capitalName),
-                            readonly: customRule.readOnly || false,
+                            readOnly: customRule.readOnly || false,
                             type: getType(object[entry]),
                             systemType: typeof object[entry],
                             bindOnce: false,
