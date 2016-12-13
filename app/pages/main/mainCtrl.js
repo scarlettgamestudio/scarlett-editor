@@ -147,9 +147,9 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 
             myLayout.registerComponent('template', function (container, state) {
                 if (state.url && state.url.length > 0) {
-                    $http.get(state.url, {cache: true}).success(function (html) {
+                    $http.get(state.url, {cache: true}).then(function (response) {
                         // compile the html so we have all angular goodies:
-                        html = $compile(html)($scope);
+                        var html = $compile(response.data)($scope);
                         container.getElement().html(html);
 
                         // assign events here:

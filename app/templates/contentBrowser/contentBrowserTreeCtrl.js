@@ -26,7 +26,7 @@ app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlet
 
         $scope.openFolderInFileExplorer =
             ['<i class="fa fa-folder-open-o"></i>' + $translate.instant("CTX_OPEN_FOLDER_FILE_EXPLORER"), function ($itemScope) {
-
+                NativeInterface.openFile($scope.model.selectedNode.attributes.path);
             }];
 
         $scope.copyPathsContextMenuOptions = [
@@ -51,6 +51,8 @@ app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlet
             }],
             ['<i class="fa fa-trash"></i>' + $translate.instant("CTX_DELETE"), function ($itemScope) {
 
+            }, function ($itemScope, $event, modelValue, text, $li) {
+                return $scope.model.selectedNode.parent;
             }],
         ];
 
