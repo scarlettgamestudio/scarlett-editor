@@ -77,6 +77,7 @@ app.config(function ($translateProvider) {
 		CTX_CREATE: 'Create...',
 		CTX_GAME_SCENE: 'Game Scene',
 		CTX_JS_SCRIPT: 'JS Script',
+		CTX_TEXTURE_2D: 'Texture 2D',
 		CTX_FOLDER: 'Folder',
 
 		CTX_ADD_FROM_FOLDER: 'Add From Folder',

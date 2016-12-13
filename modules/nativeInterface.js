@@ -3,20 +3,25 @@ const pjson = require('../package.json');
 const fs = require('fs');
 const fse = require('fs-extra');
 const pathUtils = require('path');
+const ncp = require('copy-paste');
 
 function NativeInterface() {
 }
 
 function getOpenCommandLine() {
     switch (process.platform) {
-        case 'darwin' : return 'open';
-        case 'win32' : return '';
-        case 'win64' : return '';
-        default : return 'xdg-open';
+        case 'darwin' :
+            return 'open';
+        case 'win32' :
+            return '';
+        case 'win64' :
+            return '';
+        default :
+            return 'xdg-open';
     }
 }
 
-NativeInterface.getSystemDirectorySlash = function() {
+NativeInterface.getSystemDirectorySlash = function () {
     switch (process.platform) {
         case 'win32' :
         case 'win64':
@@ -26,7 +31,15 @@ NativeInterface.getSystemDirectorySlash = function() {
     }
 };
 
-NativeInterface.saveFileDialog = function(defaultPath, params, callback) {
+NativeInterface.copy = function (text, callback) {
+    ncp.copy(text, callback);
+};
+
+NativeInterface.paste = function (callback) {
+    ncp.paste(callback);
+};
+
+NativeInterface.saveFileDialog = function (defaultPath, params, callback) {
     params = params || {};
     params.filters = params.filters || {};
     dialog.showSaveDialog({
