@@ -57,6 +57,10 @@ app.config(function ($translateProvider) {
 		BUTTON_OK: "OK",
 		BUTTON_CLOSE: "Close",
 
+		WARN_PATH_ALREADY_EXISTS: "Path already exists!",
+
+		COMMON_NEW_FOLDER: "New Folder",
+
 		CONTENT_ALL: "Everything",
 		CONTENT_TEXTURE: "Texture",
 		CONTENT_TEXTURE_ATLAS: "Texture Atlas",
@@ -78,6 +82,7 @@ app.config(function ($translateProvider) {
 		CTX_GAME_SCENE: 'Game Scene',
 		CTX_JS_SCRIPT: 'JS Script',
 		CTX_TEXTURE_2D: 'Texture 2D',
+		CTX_ATLAS: 'Atlas',
 		CTX_FOLDER: 'Folder',
 
 		CTX_ADD_FROM_FOLDER: 'Add From Folder',

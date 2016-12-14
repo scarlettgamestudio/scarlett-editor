@@ -1,5 +1,6 @@
 <perfect-scrollbar class="scroll-wrapper">
-    <div id="projectExplorer" class="fill-parent" style="padding-bottom: 28px" ng-controller="ContentBrowserTreeCtrl" context-menu="contextMenuOptions" ng-mouseup="baseContainerClick()">
+    <div id="projectExplorer" class="fill-parent" style="padding-bottom: 28px" ng-controller="ContentBrowserTreeCtrl"
+         context-menu="contextMenuOptions" ng-mouseup="baseContainerClick()">
 
         <!-- tree node template -->
         <script type="text/ng-template" id="nodeTemplate.html">
@@ -7,13 +8,17 @@
             <!-- node header -->
             <div ng-class="{'selected' : isSelected()}" ng-if="node.type === 'directory'">
                 <!-- directories -->
-                <div cz-tree-node-header ng-click="onFolderSelection(node)" context-menu="folderContextMenuOptions(node)" >
-                    <span class="fa clickable" ng-click="toggleCollapse()" ng-class="{'fa-folder-open' : !collapsed, 'fa-folder' : collapsed}"></span>
+                <div cz-tree-node-header ng-click="onFolderSelection(node)"
+                     context-menu="folderContextMenuOptions(node)">
+                    <span class="fa clickable" ng-click="toggleCollapse()"
+                          ng-class="{'fa-folder-open' : !collapsed, 'fa-folder' : collapsed}"></span>
 
                     <span ng-if="node.attributes.isRenaming == false">{{node.name || "&nbsp;"}}</span>
 
                     <span ng-if="node.attributes.isRenaming === true">
-                        <input type="text" class="form-control sc-input input-night" value="{{node.name}}" select-text />
+                        <input type="text" class="form-control sc-input input-night" value="{{node.name}}"
+                               ng-blur="onTreeItemInputBlur($event, node)"
+                               ng-keypress="onTreeItemInputKeyPress($event, node)" select-text/>
                     </span>
                 </div>
 
@@ -30,15 +35,18 @@
 
             <!-- sub nodes -->
             <div cz-tree-nodes ng-class="{'hidden': collapsed}">
-                <cz-tree-node ng-repeat="node in node.nodes" uid="{{node.id}}" attachment="{{node.attributes}}" ng-include="'nodeTemplate.html'"></cz-tree-node>
+                <cz-tree-node ng-repeat="node in node.nodes" uid="{{node.id}}" attachment="{{node.attributes}}"
+                              ng-include="'nodeTemplate.html'"></cz-tree-node>
             </div>
 
         </script>
 
         <div>
             <!-- tree root node -->
-            <cz-tree on-selection-change="onTreeSelectionChanged(selected)" on-double-click="onTreeDoubleClick(selected)" multiselect="false">
-                <cz-tree-node ng-repeat="node in model.tree" uid="{{node.id}}" attachment="{{node.attributes}}" ng-include="'nodeTemplate.html'"></cz-tree-node>
+            <cz-tree on-selection-change="onTreeSelectionChanged(selected)"
+                     on-double-click="onTreeDoubleClick(selected)" multiselect="false">
+                <cz-tree-node ng-repeat="node in model.tree" uid="{{node.id}}" attachment="{{node.attributes}}"
+                              ng-include="'nodeTemplate.html'"></cz-tree-node>
             </cz-tree>
         </div>
 

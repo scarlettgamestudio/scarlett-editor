@@ -1,11 +1,11 @@
-app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', '$translate', 'constants',
-    function ($scope, logSvc, config, scarlettSvc, sceneSvc, $translate, constants) {
+app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', '$translate', 'constants', 'refactorSvc',
+    function ($scope, logSvc, config, scarlettSvc, sceneSvc, $translate, constants, refactorSvc) {
 
 
         $scope.createItemsContextMenuOptions =
             ['<i class="fa fa-plus-square"></i>' + $translate.instant("CTX_CREATE"), [
                 ['<i class="fa fa-folder-o"></i>' + $translate.instant("CTX_FOLDER"), function ($itemScope) {
-
+                    $scope.addFolder();
                 }],
                 null,
                 ['<i class="fa fa-picture-o"></i>' + $translate.instant("CTX_GAME_SCENE"), function ($itemScope) {
@@ -14,8 +14,8 @@ app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlet
                 ['<i class="fa fa-file-code-o"></i>' + $translate.instant("CTX_JS_SCRIPT"), function ($itemScope) {
 
                 }],
-                ['<i class="fa fa-paint-brush"></i>' + $translate.instant("CTX_TEXTURE_2D"), function ($itemScope) {
-                    alert($scope.model.selectedNode);
+                ['<i class="fa fa-object-group"></i>' + $translate.instant("CTX_ATLAS"), function ($itemScope) {
+
                 }],
             ]];
 
@@ -34,7 +34,7 @@ app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlet
                 NativeInterface.copy($scope.model.selectedNode.attributes.path);
             }],
             ['' + $translate.instant("CTX_COPY_RELATIVE_PATH"), function ($itemScope) {
-                var path = Path.makeRelative(scarlettSvc.activeProjectPath, $scope.model.selectedNode.attributes.path);
+                let path = Path.makeRelative(scarlettSvc.activeProjectPath, $scope.model.selectedNode.attributes.path);
                 NativeInterface.copy(path);
             }, function ($itemScope, $event, modelValue, text, $li) {
                 return $scope.model.selectedNode.parent;
@@ -50,6 +50,7 @@ app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlet
                 return $scope.model.selectedNode.parent;
             }],
             ['<i class="fa fa-trash"></i>' + $translate.instant("CTX_DELETE"), function ($itemScope) {
+                $scope.deleteNode($scope.model.selectedNode);
 
             }, function ($itemScope, $event, modelValue, text, $li) {
                 return $scope.model.selectedNode.parent;
@@ -88,6 +89,55 @@ app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlet
                 $scope.openFolderInFileExplorer,
                 null
             ].concat($scope.copyPathsContextMenuOptions, null, $scope.extraContextMenuOptions);
+        };
+
+        $scope.onTreeItemInputBlur = function (event, node) {
+            node.attributes.isRenaming = false;
+        };
+
+        $scope.onTreeItemInputKeyPress = function (event, node) {
+            // enter pressed?
+            if (event.which === 13 && event.currentTarget.value && event.currentTarget.value.trim().length > 0) {
+                let newName = event.currentTarget.value.trim();
+                let oldPath = node.attributes.path;
+                let split = node.attributes.path.split(Path.TRAILING_SLASH);
+                split[split.length - 1] = event.currentTarget.value;
+                let newPath = split.join(Path.TRAILING_SLASH);
+
+                if (newName == node.name) {
+                    // no changes required..
+                    return;
+                }
+
+                if ($scope.nodeNameExists(node.parent.nodes, newName)) {
+                    alert($translate.instant("WARN_PATH_ALREADY_EXISTS"));
+                    return;
+                }
+
+                function callback(err) {
+                    node.attributes.isRenaming = false;
+
+                    if (!err) {
+                        node.attributes.path = newPath;
+                        node.name = newName;
+
+                        // deep update all inner nodes paths stored in memory:
+                        $scope.deepUpdatePath(node, Path.wrapDirectoryPath(oldPath), Path.wrapDirectoryPath(newPath));
+                    }
+
+                    node.parent.nodes = $scope.sortNodes(node.parent.nodes);
+
+                    $scope.safeDigest();
+                }
+
+                refactorSvc.rename(oldPath, newPath, true).then(callback, callback);
+            }
+        };
+
+        $scope.safeDigest = function () {
+            if (!$scope.$$phase) {
+                $scope.$digest();
+            }
         };
 
         $scope.itemContextMenuOptions = function (node) {

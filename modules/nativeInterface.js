@@ -31,6 +31,22 @@ NativeInterface.getSystemDirectorySlash = function () {
     }
 };
 
+NativeInterface.rename = function (oldPath, newPath, callback) {
+    fs.rename(oldPath, newPath, callback);
+};
+
+NativeInterface.removeDirectory = function (path, callback) {
+    fs.rmdir(path, callback);
+};
+
+NativeInterface.removeFile = function (path, callback) {
+    fs.unlink(path, callback);
+};
+
+NativeInterface.createDirectory = function (path, callback) {
+    fse.mkdirs(path, callback);
+};
+
 NativeInterface.copy = function (text, callback) {
     ncp.copy(text, callback);
 };

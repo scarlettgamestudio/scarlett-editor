@@ -1,5 +1,5 @@
-app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', 'constants', '$translate', '$timeout', '$http', '$compile', 'assetSvc',
-    function ($scope, logSvc, config, scarlettSvc, sceneSvc, constants, $translate, $timeout, $http, $compile, assetSvc) {
+app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', 'constants', '$translate', '$timeout', '$http', '$compile', 'assetSvc', 'refactorSvc',
+    function ($scope, logSvc, config, scarlettSvc, sceneSvc, constants, $translate, $timeout, $http, $compile, assetSvc, refactorSvc) {
 
         $scope.model = {
             tree: [],
@@ -160,8 +160,114 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             }
         };
 
+        $scope.deleteNode = function (node) {
+            function callback(err) {
+                if (err) {
+                    return;
+                }
+
+                // remove from hierarchy:
+                node.parent.nodes.splice(node.parent.nodes.indexOfObject(node), 1);
+
+                $scope.safeDigest();
+            }
+
+            refactorSvc.delete(node.attributes.path, node.isDirectory()).then(callback, callback);
+        };
+
+        $scope.nodeNameExists = function (nodes, name) {
+            let normalizedName = name.toLowerCase();
+            for (let i = 0; i < nodes.length; i++) {
+                // note: for now i'm considering normalized (lower case) comparisons
+                if (nodes[i].name.toLowerCase() == normalizedName) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+
+        $scope.getUniqueNodeName = function (nodes, name) {
+            let tmpName = name, c = 0;
+            while ($scope.nodeNameExists(nodes, tmpName)) {
+                tmpName = name + "_" + (++c);
+            }
+
+            return tmpName;
+        };
+
+        $scope.addFolder = function () {
+            if (!$scope.model.selectedNode) {
+                return;
+            }
+
+            let parentNode = $scope.model.selectedNode;
+            let uniqueName = $scope.getUniqueNodeName(parentNode.nodes, $translate.instant('COMMON_NEW_FOLDER'));
+            let path = Path.wrapDirectoryPath(parentNode.attributes.path) + uniqueName;
+
+            NativeInterface.createDirectory(path, function (err) {
+                if (err) {
+                    logSvc.error(err);
+                    return;
+                }
+
+                let node = generateNode(++$scope.model.uid, uniqueName, "directory", {
+                    path: path,
+                    isRenaming: false
+                }, parentNode);
+
+                parentNode.nodes.push(node);
+                parentNode.nodes = $scope.sortNodes(parentNode.nodes);
+
+                $scope.refreshContentView();
+                $scope.safeDigest();
+            });
+        };
+
+        $scope.safeDigest = function () {
+            if (!$scope.$$phase) {
+                $scope.$digest();
+            }
+        };
+
+        $scope.sortNodes = function (nodes) {
+            let result = [];
+            let directories = [];
+            let files = [];
+
+            nodes.forEach(function (node) {
+                if (node.type == "directory") {
+                    directories.push(node);
+                } else {
+                    files.push(node);
+                }
+            });
+
+            directories.sort(sortByNodeName);
+            files.sort(sortByNodeName);
+
+            result = result.concat(directories);
+            result = result.concat(files);
+
+            return result;
+        };
+
+        $scope.deepUpdatePath = function (baseNode, oldPath, newPath) {
+            baseNode.nodes.forEach(function (node) {
+                node.attributes.path = node.attributes.path.replace(oldPath, newPath);
+
+                if (node.nodes && node.nodes.length > 0) {
+                    $scope.deepUpdatePath(node, oldPath, newPath);
+                }
+            });
+        };
+
+        function sortByNodeName(a, b) {
+            return a.name.localeCompare(b.name);
+        }
+
         function handleOpenFile(file) {
-            var ext = Path.getFileExtension(file.attributes.path);
+            let ext = Path.getFileExtension(file.attributes.path);
 
             switch (ext) {
                 case ".ss":
@@ -182,38 +288,51 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
                 type: type,
                 attributes: attributes || {},
                 nodes: [],
-                parent: parent
+                parent: parent,
+                isDirectory: function () {
+                    return this.type === "directory";
+                },
+                isEqual: function (other) {
+                    return this.id == other.id;
+                }
             }
         }
 
         function mapTreeModel(directory, deep, n, parent) {
-            var directoryTitle = (n === 0 ? scarlettSvc.activeProject.name : Path.getDirectoryName(directory.path));
-            var nodeModel = generateNode(++$scope.model.uid, directoryTitle, "directory", {
+            let directoryTitle = (n === 0 ? scarlettSvc.activeProject.name : Path.getDirectoryName(directory.path));
+            let nodeModel = generateNode(++$scope.model.uid, directoryTitle, "directory", {
                 path: directory.path,
                 isRenaming: false,
             }, parent);
 
             if (deep) {
+                let directories = [];
                 directory.subdirectories.forEach(function (subdirectory) {
-                    nodeModel.nodes.push(mapTreeModel(subdirectory, deep, n + 1, nodeModel));
+                    directories.push(mapTreeModel(subdirectory, deep, n + 1, nodeModel));
                 });
+                directories.sort(sortByNodeName);
+                nodeModel.nodes = nodeModel.nodes.concat(directories);
             }
 
+            let files = [];
             directory.files.forEach(function (fileInfo) {
-                var filename = Path.getFilename(fileInfo.relativePath);
-                var extension = Path.getFileExtension(filename);
+                let filename = Path.getFilename(fileInfo.relativePath);
+                let extension = Path.getFileExtension(filename);
 
                 //FIXME: this validation should be placed somewhere else (maybe?)
                 if (filename.indexOf("_") == 0 || filename.indexOf(".") == 0) {
-
+                    // ..
                 } else {
-                    nodeModel.nodes.push(generateNode(++$scope.model.uid, filename, "file", {
+                    files.push(generateNode(++$scope.model.uid, filename, "file", {
                         extension: extension,
                         path: fileInfo.fullPath,
                         isRenaming: false
                     }, nodeModel));
                 }
             });
+
+            files.sort(sortByNodeName);
+            nodeModel.nodes = nodeModel.nodes.concat(files);
 
             return nodeModel;
         }
@@ -239,9 +358,17 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             return baseName + extra;
         }
 
-        (function init() {
+        $scope.refresh = function(updateExternalFilemap) {
+            if (updateExternalFilemap) {
+                scarlettSvc.updateActiveProjectFileMap();
+            }
+
             $scope.model.uid = 0;
             $scope.model.tree = [mapTreeModel(scarlettSvc.activeProjectFileMap, true, 0, null)];
+        };
+
+        (function init() {
+            $scope.refresh();
             $scope.setActiveFolderNode($scope.model.tree[0]);
         })();
     }
