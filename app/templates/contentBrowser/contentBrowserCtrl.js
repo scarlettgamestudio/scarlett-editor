@@ -190,7 +190,7 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
         $scope.getUniqueNodeName = function (nodes, name) {
             let tmpName = name, c = 0;
             while ($scope.nodeNameExists(nodes, tmpName)) {
-                tmpName = name + "_" + (++c);
+                tmpName = name + " (" + (++c) + ")";
             }
 
             return tmpName;
