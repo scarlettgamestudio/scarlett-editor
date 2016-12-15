@@ -41,6 +41,10 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             var extension = Path.getFileExtension(filename).toLowerCase();
 
             switch (extension) {
+                // atlas
+                case ".atl":
+                    return "fa-object-group";
+
                 // git related files
                 case ".gitignore":
                     return "fa-git";
@@ -113,7 +117,7 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
         };
 
         $scope.refreshContentView = function () {
-            var newContentView = [];
+            let newContentView = [];
 
             $scope.model.selectedNode.nodes.forEach(function (node) {
                 newContentView.push(node);
@@ -139,7 +143,12 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
         };
 
         $scope.onFileClick = function (file) {
-            var container = assetSvc.getAssetContainer(file.attributes.path);
+            if (assetSvc.isAsset(file.attributes.path)) {
+                handleOpenFile(file);
+                return;
+            }
+
+            let container = assetSvc.getAssetContainer(file.attributes.path);
 
             if (container) {
                 EventManager.emit(constants.EVENTS.ASSET_SELECTION, container);
@@ -187,13 +196,57 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             return false;
         };
 
-        $scope.getUniqueNodeName = function (nodes, name) {
+        $scope.getUniqueNodeName = function (nodes, name, isFilename) {
             let tmpName = name, c = 0;
             while ($scope.nodeNameExists(nodes, tmpName)) {
-                tmpName = name + " (" + (++c) + ")";
+                if (isFilename) {
+                    // file name
+                    let split = name.split(".");
+                    let ext = split.splice(split.length - 1, 1)[0];
+                    tmpName = split.join(".") + (++c) + "." + ext;
+
+                } else {
+                    // folder name
+                    tmpName = name + " " + (++c);
+                }
             }
 
             return tmpName;
+        };
+
+        $scope.loadAsset = function (path) {
+            assetSvc.loadAsset(path).then(function (asset) {
+                EventManager.emit(constants.EVENTS.ASSET_SELECTION, asset);
+
+            }, function () {
+                logSvc.error("Error while loading asset: " + path);
+            });
+        };
+
+        $scope.createAsset = function (assetName, asset) {
+            if (!$scope.model.selectedNode) {
+                return;
+            }
+
+            let parentNode = $scope.model.selectedNode;
+            let uniqueName = $scope.getUniqueNodeName($scope.model.selectedNode.nodes, assetName, true);
+            let path = Path.wrapDirectoryPath(parentNode.attributes.path) + uniqueName;
+
+            assetSvc.saveAsset(path, asset).then(function () {
+                let node = generateNode(++$scope.model.uid, uniqueName, "file", {
+                    path: path,
+                    isRenaming: false
+                }, parentNode);
+
+                parentNode.nodes.push(node);
+                parentNode.nodes = $scope.sortNodes(parentNode.nodes);
+
+                $scope.refreshContentView();
+                $scope.safeDigest();
+
+            }, function () {
+                logSvc.error("Error while saving asset: " + asset);
+            });
         };
 
         $scope.addFolder = function () {
@@ -272,6 +325,11 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             switch (ext) {
                 case ".ss":
                     sceneSvc.loadSceneFromFile(file.attributes.path);
+                    break;
+
+                // asset files:
+                case ".atl":
+                    $scope.loadAsset(file.attributes.path);
                     break;
 
                 default:
@@ -358,7 +416,7 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             return baseName + extra;
         }
 
-        $scope.refresh = function(updateExternalFilemap) {
+        $scope.refresh = function (updateExternalFilemap) {
             if (updateExternalFilemap) {
                 scarlettSvc.updateActiveProjectFileMap();
             }

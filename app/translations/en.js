@@ -82,8 +82,10 @@ app.config(function ($translateProvider) {
 		CTX_GAME_SCENE: 'Game Scene',
 		CTX_JS_SCRIPT: 'JS Script',
 		CTX_TEXTURE_2D: 'Texture 2D',
-		CTX_ATLAS: 'Atlas',
+		CTX_ATLAS: 'Texture Atlas',
 		CTX_FOLDER: 'Folder',
+
+		ASSET_ATLAS_FILENAME: "Atlas.atl",
 
 		CTX_ADD_FROM_FOLDER: 'Add From Folder',
 

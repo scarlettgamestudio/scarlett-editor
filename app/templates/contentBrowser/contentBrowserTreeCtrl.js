@@ -1,5 +1,5 @@
-app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', '$translate', 'constants', 'refactorSvc',
-    function ($scope, logSvc, config, scarlettSvc, sceneSvc, $translate, constants, refactorSvc) {
+app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', '$translate', 'constants', 'refactorSvc', 'assetSvc',
+    function ($scope, logSvc, config, scarlettSvc, sceneSvc, $translate, constants, refactorSvc, assetSvc) {
 
 
         $scope.createItemsContextMenuOptions =
@@ -15,7 +15,7 @@ app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlet
 
                 }],
                 ['<i class="fa fa-object-group"></i>' + $translate.instant("CTX_ATLAS"), function ($itemScope) {
-
+                    $scope.createAsset($translate.instant("ASSET_ATLAS_FILENAME"), assetSvc.createTextureAtlas());
                 }],
             ]];
 
