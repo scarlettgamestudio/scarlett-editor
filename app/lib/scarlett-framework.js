@@ -9507,6 +9507,8 @@ ContentLoader.getImage = function (alias) {
  * @returns {*}
  */
 ContentLoader.loadImage = function (path, alias) {
+    alias = alias || path;
+
     return new Promise((function (resolve, reject) {
         path = ContentLoader._enrichRelativePath(path);
 
@@ -10465,13 +10467,14 @@ Game.prototype._onAnimationFrame = function (timestamp) {
         this._executionPhase = SC.EXECUTION_PHASES.SCENE_RENDER;
         this._gameScene.sceneRender(delta);
 
+        this._gameScene.flushRender();
+
         // the user defined the game scene pre-render function?
         if (isFunction(this._gameScene.lateRender)) {
             this._executionPhase = SC.EXECUTION_PHASES.LATE_RENDER;
             this._gameScene.lateRender(delta);
+            this._gameScene.flushRender();
         }
-
-        this._gameScene.flushRender();
 
         //} catch (ex) {
         //    this._logger.error(ex);
@@ -11611,19 +11614,8 @@ Sprite.prototype.getMatrix = function () {
 
     x = this.transform.getPosition().x;
     y = this.transform.getPosition().y;
-
-    switch(this._wrapMode) {
-        case WrapMode.REPEAT:
-            width = 1280;
-            height = 720;
-            break;
-
-        case WrapMode.CLAMP:
-        default:
-            width = this._textureWidth * this.transform.getScale().x;
-            height = this._textureHeight * this.transform.getScale().y;
-            break;
-    }
+    width = this._textureWidth * this.transform.getScale().x;
+    height = this._textureHeight * this.transform.getScale().y;
 
     mat4.identity(this._transformMatrix);
 
