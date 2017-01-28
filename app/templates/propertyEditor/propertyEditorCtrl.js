@@ -75,12 +75,9 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                         let customEditor = customRule["editor"];
                         let valid = true;
 
-                        let availability;
+                        let availability = null;
                         if (customRule.hasOwnProperty("available") && isFunction(customRule.available)) {
                             availability = customRule.available;
-
-                        } else {
-                            availability = function() { return true; };
                         }
 
                         let propertyModel = {
