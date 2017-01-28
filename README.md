@@ -11,6 +11,10 @@ This README would normally document whatever steps are necessary to get your app
 
 This repository contains the Scarlett Editor Module and associated libraries. **At the moment this software is in Development Stage and not ready for production use.**
 
+### Which Operative System is compatible? ###
+
+The Scarlett Editor can run in all common Operative Systems including Windows, MacOS and Linux.
+
 ### How do I get set up? ###
 
 * Install NodeJS (6.x or higher is recommended)
