@@ -1,0 +1,72 @@
+<div class="sc-login-page">
+    <div class="container sc-login-container vertical-center animated fadeIn" ng-controller="RegisterCtrl">
+        <div class="row">
+            <div class="col-sm-6">
+                <h2><b><span class="text-scarlet">{{'PRODUCT_TITLE' | translate}}</span>
+                    {{'GAME_STUDIO' | translate}}</b> <span class="headerInfo">{{'REGISTER' | translate}}</span></h2>
+                <a ng-click="changeView('login')" class="important-href text-bold">
+                    <i class="fa fa-chevron-circle-left"></i> {{ 'RETURN_LOGIN' | translate }}
+                </a>
+                <br/><br/>
+
+                <p class="text-grey">Please fill in the fields bellow so we can know more about you <i
+                        class="fa fa-smile-o"></i></p>
+                <br/>
+
+                <form name="registerForm" ng-submit="register(registerForm.$valid)" novalidate>
+
+                    <div class="form-group"
+                         ng-class="{'has-error': registerForm.$submitted && registerForm.username.$invalid }">
+                        <label class="text-grey">{{'PLACEHOLDER_LOGIN_USERNAME' | translate}}</label>
+                        <input type="text" class="form-control sc-input input-night" id="username" name="username"
+                               ng-model="userData.username" ng-minlength="3" minlength="3"
+                               autocomplete="off" placeholder="" required>
+                        <div class="on-error">
+                            <span class="help-block" ng-show="registerForm.username.$error.required">
+                                <i class="icon-remove-sign"></i> {{ 'REQUIRED_FIELD' | translate }}
+                            </span>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group"
+                         ng-class="{'has-error': registerForm.$submitted && registerForm.password.$invalid }">
+                        <label class="text-grey">{{'PLACEHOLDER_LOGIN_PASSWORD' | translate}}</label>
+                        <input type="password" class="form-control sc-input input-night" id="password" name="password"
+                               ng-model="userData.password" ng-minlength="4"
+                               autocomplete="off" placeholder="" required>
+
+                        <div class="on-error">
+                            <span class="help-block" ng-show="registerForm.password.$error.required">
+                                <i class="icon-remove-sign"></i> {{ 'REQUIRED_FIELD' | translate }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group"
+                         ng-class="{'has-error': registerForm.$submitted && registerForm.email.$invalid }">
+                        <label class="text-grey">{{'PLACEHOLDER_LOGIN_EMAIL' | translate}}</label>
+                        <input type="email" class="form-control sc-input input-night" id="email" name="email"
+                               ng-model="userData.email" ng-minlength="4" minlength="4"
+                               autocomplete="off" placeholder="" required>
+                        <div class="on-error">
+                            <span class="help-block" ng-show="registerForm.email.$error.required">
+                                <i class="icon-remove-sign"></i> {{ 'REQUIRED_FIELD' | translate }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <br/>
+
+                    <button type="submit" class="btn btn-dark btn-block text-left">
+                        <i class="fa fa-key"></i> &nbsp;{{ 'REGISTER' | translate }}
+                    </button>
+
+                    <br/><br/>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,18 @@
+<perfect-scrollbar class="scroll-wrapper">
+    <div class="fill-parent" style="padding-bottom: 28px">
+
+        <!-- shows selected folder content -->
+        <div class="tool-container-body" ng-class="contentClass()">
+            <div ng-repeat="item in model.contentView | filter:model.search" ng-click="onNodeClick(item)" ng-dblclick="onNodeDblClick(item)">
+                <div class="content-item {{item.type}}"
+                     ng-style="{'background-image': 'url(' + getBackgroundImage(item) + ')'}">
+                    <i class="fa" ng-class="getFileIcon(item)" aria-hidden="true"></i>
+                </div>
+                <div class="content-item-description {{getTypeFromContentObject(item)}}" title="{{item.name}}">
+                    {{item.name}}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</perfect-scrollbar>

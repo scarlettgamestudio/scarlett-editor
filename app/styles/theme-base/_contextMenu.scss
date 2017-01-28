@@ -1,0 +1,24 @@
+.angular-bootstrap-contextmenu {
+  .dropdown-menu {
+    padding: 4px 0;
+    font-size: 0.95em;
+  }
+
+  .dropdown-menu .divider {
+    margin: 4px 0;
+  }
+
+  .dropdown-menu > li > a:hover,
+  .dropdown-menu > li > a:focus {
+    background-color: darken(#ffffff, 12%);
+  }
+
+  .dropdown-menu > li > a {
+    line-height: 1.6;
+  }
+
+  .dropdown-menu > .disabled > a, .dropdown-menu > .disabled > a:focus, .dropdown-menu > .disabled > a:hover {
+    color: map-get($default-colors, fade-grey);
+  }
+}
+

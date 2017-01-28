@@ -1,0 +1,35 @@
+$border-radius: 4px;
+$default-padding: 10px;
+$sub-font-size: 0.92em;
+
+$default-collection: (
+        padding: 10px,
+        border-radius: 4px
+);
+
+$measure-collection: (
+        navbar-height: 44px,
+        toolbar-width: 56px
+);
+
+$default-colors: (
+        scarlet: #e84e40,
+        amethyst: #9b59b6,
+        emerald: #2ecc71,
+        river: #3498db,
+        asphalt: #34495e,
+        sunflower: #f1c40f,
+        concrete: #95a5a6,
+        turquoise: #1abc9c,
+        grey-hound: #2c2e2f,
+        snow-white: #fff,
+        medium-grey: #666,
+        dirty-grey: #707070,
+        dim-grey: #313334,
+        grey: #37393A,
+        light-grey: #888,
+        fade-white: #f3f5f6,
+        dim-white: #e3e3e3,
+        bright-grey: #969696,
+        fade-grey: #ccc
+);

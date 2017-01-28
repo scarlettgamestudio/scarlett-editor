@@ -1,0 +1,49 @@
+<div class="sc-hub" ng-controller="HubCtrl">
+    <div class="container-fixed sc-hub-container sc-login-container animated fadeIn" style="margin-top:60px"
+         ng-controller="HubCtrl">
+
+        <div class="row row-xs-12">
+            <div class="col col-md-6">
+                <h2>
+                    <b>
+                        <span class="text-scarlet">{{'PRODUCT_TITLE' | translate}}</span> {{'GAME_STUDIO' | translate}}
+                    </b>
+                    <span class="headerInfo">{{'LABEL_HUB' | translate}}</span>
+                </h2>
+
+                <p class="text-grey">{{'HUB_SUBHEADER' | translate}}</p>
+
+                <br/>
+
+                <div class="btn-group btn-group-justified">
+                    <label class="btn btn-dark text-left" ng-click="openNewProjectModal()">
+                        <i class="fa fa-plus-square"></i> &nbsp; {{ 'NAVBAR_NEW_PROJECT' | translate }}
+                    </label>
+                    <label class="btn btn-dark text-left" ng-click="promptLoadProject()">
+                        <i class="fa fa-folder-open"></i> &nbsp; {{ 'NAVBAR_OPEN_PROJECT' | translate }}
+                    </label>
+                    <label class="btn btn-dark text-left" ng-click="logout()">
+                        <i class="fa fa-sign-out"></i> &nbsp; {{ 'RETURN_LOGIN' | translate }}
+                    </label>
+                </div>
+
+                <hr>
+                <div class="loadedProjectsContainer">
+                    <!-- project list -->
+                    <div class="projectDetails" ng-repeat="project in model.projects | orderBy: '-lastUpdate' | limitTo: 5" ng-click="openProject(project.path)" >
+                        <div class="projectTitle">{{::project.name}}</div>
+                        <div class="projectPath"><i class="fa fa-folder-open" aria-hidden="true"></i> {{::project.path}}</div>
+                    </div>
+
+                    <!-- no projects available -->
+                    <div ng-show="model.projects.length === 0" class="text-grey"> There aren't previously loaded projects</div>
+                </div>
+                <hr>
+            </div>
+
+        </div>
+        <div class="col-md-6">
+        </div>
+
+    </div>
+</div>

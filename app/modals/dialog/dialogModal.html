@@ -1,0 +1,13 @@
+<div class="modal-header">
+    <h3 class="modal-title text-bold">
+        <i ng-show="model.type === 'alert'" class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+        <i ng-show="model.type === 'info'" class="fa fa-info-circle" aria-hidden="true"></i>
+        {{model.title}}
+    </h3>
+</div>
+<div class="modal-body">
+    {{model.body}}
+</div>
+<div class="modal-footer">
+    <button class="btn btn-grey" type="button" ng-click="close()">{{'BUTTON_OK' | translate}}</button>
+</div>

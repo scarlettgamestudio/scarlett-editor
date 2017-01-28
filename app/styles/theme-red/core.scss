@@ -1,0 +1,11 @@
+@import '../theme-base/mappings';
+@import 'mappings';
+@import 'vars';
+@import 'base';
+@import 'goldenlayout';
+
+.sc-theme-red {
+  @import 'components';
+  @import 'header';
+
+}

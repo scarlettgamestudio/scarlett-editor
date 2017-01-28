@@ -1,0 +1,112 @@
+<nav class="navbar" ng-controller="NavbarCtrl">
+    <div class="container-fluid">
+        <!-- application brand area -->
+        <div class="navbar-header">
+            <div class="navbar-logo">{{ 'PRODUCT_ABBR' | translate }}</div>
+            <div class="navbar-title"></div>
+        </div>
+
+        <!-- left menus -->
+        <ul class="nav navbar-nav">
+            <!-- in here will go specific view menus -->
+
+            <!-- FILE MENU -->
+            <div uib-dropdown class="navbar-dropdown" uib-dropdown-toggle>
+                <a>
+                    <span class="hidden-xs" translate-once="NAVBAR_FILE"></span>
+                </a>
+                <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
+                    <li ng-click="openNewProjectModal()"><a><i class="fa fa-plus-square"></i><span translate-once="NAVBAR_NEW_PROJECT"></span></a></li>
+                    <li ng-click="openLoadProject()"><a><i class="fa fa-folder-open"></i><span translate-once="NAVBAR_OPEN_PROJECT"></span></a></li>
+                    <li ng-click="save()"><a><i class="fa fa-floppy-o"></i><span translate-once="NAVBAR_SAVE"></span></a></li>
+                    <li class="divider"></li>
+                    <li ng-if="!model.onlineMode" ng-click="logout()"><a><i class="fa fa-sign-in" aria-hidden="true"></i><span translate-once="NAVBAR_LOGIN"></span></a>
+                    <li><a><i class="fa fa-power-off"></i><span translate-once="NAVBAR_QUIT"></span></a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- EDIT MENU -->
+            <div uib-dropdown class="navbar-dropdown" uib-dropdown-toggle>
+                <a>
+                    <span class="hidden-xs" translate-once="NAVBAR_EDIT"></span>
+                </a>
+                <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
+                    <li><a><i class="fa fa-undo"></i><span translate-once="NAVBAR_UNDO"></span></a></li>
+                    <li><a><i class="fa fa-repeat"></i><span translate-once="NAVBAR_REDO"></span></a></li>
+                    <li class="divider"></li>
+                    <li><a><i class="fa fa-cut"></i><span translate-once="NAVBAR_CUT"></span></a></li>
+                    <li><a><i class="fa fa-copy"></i><span translate-once="NAVBAR_COPY"></span></a>
+                    <li><a><i class="fa fa-paste"></i><span translate-once="NAVBAR_PASTE"></span></a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- WINDOW MENU -->
+            <div uib-dropdown class="navbar-dropdown" uib-dropdown-toggle>
+                <a>
+                    <span class="hidden-xs" translate-once="NAVBAR_WINDOW"></span>
+                </a>
+                <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
+                    <li ng-click="openContentBrowser()"><a><i class="fa fa-window-restore" aria-hidden="true"></i><span translate-once="NAVBAR_RESET_LAYOUT"></span></a></li>
+                    <li class="divider"></li>
+                    <li ng-click="showSceneHierarchy()"><a><i class="fa fa-sitemap" aria-hidden="true"></i><span translate-once="EDITOR_SCENE_HIERARCHY"></span></a></li>
+                    <li ng-click="showProjectExplorer()"><a><i class="fa fa-archive" aria-hidden="true"></i><span translate-once="EDITOR_PROJECT_EXPLORER"></span></a></li>
+                    <li ng-click="showInspector()"><a><i class="fa fa-sliders" aria-hidden="true"></i><span translate-once="EDITOR_INSPECTOR"></span></a></li>
+                    <li ng-click="showSceneView()"><a><i class="fa fa-picture-o" aria-hidden="true"></i><span translate-once="EDITOR_SCENE_VIEW"></span></a></li>
+                    <li ng-click="showConsole()"><a><i class="fa fa-terminal" aria-hidden="true"></i><span translate-once="EDITOR_CONSOLE"></span></a></li>
+                </ul>
+            </div>
+
+            <!-- HELP MENU -->
+            <div uib-dropdown class="navbar-dropdown" uib-dropdown-toggle>
+                <a>
+                    <span class="hidden-xs" translate-once="NAVBAR_HELP"></span>
+                </a>
+                <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
+                    <li><a><i class="fa fa-book" aria-hidden="true"></i><span translate-once="NAVBAR_TUTORIALS"></span></a></li>
+                    <li><a><i class="fa fa-info-circle" aria-hidden="true"></i><span translate-once="NAVBAR_ABOUT"></span></a></li>
+                </ul>
+            </div>
+        </ul>
+
+        <div class="navbar-center">
+            <div class="align-left">
+                <div class="sc-action-btn" ng-class="{'disabled': !canUndo()}" ng-click="undo()"><i class="fa fa-undo" aria-hidden="true"></i></div>
+                <div class="sc-action-btn" ng-class="{'disabled': !canRedo()}" ng-click="redo()"><i class="fa fa-repeat" aria-hidden="true"></i></div>
+            </div>
+            <div class="horizontal-space align-left"></div>
+            <div class="align-left">
+                <div class="sc-action-btn" ng-class="{'selected': isToolActive(1)}" ng-click="setActiveTool(1)"><i class="fa fa-hand-pointer-o" aria-hidden="true"></i></div>
+                <div class="sc-action-btn" ng-class="{'selected': isToolActive(2)}" ng-click="setActiveTool(2)"><i class="fa fa-arrows" aria-hidden="true"></i></div>
+                <div class="sc-action-btn" ng-class="{'selected': isToolActive(3)}" ng-click="setActiveTool(3)"><i class="fa fa-refresh" aria-hidden="true"></i></div>
+                <div class="sc-action-btn" ng-class="{'selected': isToolActive(4)}" ng-click="setActiveTool(4)"><i class="fa fa-expand" aria-hidden="true"></i></div>
+            </div>
+            <div class="horizontal-space align-left"></div>
+            <div class="align-left">
+                <div class="sc-action-btn"><i class="fa fa-play" aria-hidden="true"></i></div>
+                <div class="sc-action-btn disabled"><i class="fa fa-stop" aria-hidden="true"></i></div>
+            </div>
+        </div>
+
+
+        <!-- right menus -->
+        <ul class="nav navbar-nav navbar-right">
+
+            <!-- profile dropdown -->
+            <div ng-if="model.onlineMode" uib-dropdown class="profile-dropdown" uib-dropdown-toggle>
+                <a>
+                    <img src="{{::userInfo.details.avatar_url}}" alt="">
+                    <span class="hidden-xs">{{::userInfo.details.username}}</span> <b class="caret"></b>
+                </a>
+                <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
+                    <li><a><i class="fa fa-user"></i><span translate-once="PROFILE"></span></a></li>
+                    <li><a><i class="fa fa-cog"></i><span translate-once="SETTINGS"></span></a></li>
+                    <li><a ng-click="logout()"><i class="fa fa-sign-out"></i><span translate-once="LOGOUT"></span></a>
+                    </li>
+                </ul>
+            </div>
+
+        </ul>
+    </div>
+</nav>

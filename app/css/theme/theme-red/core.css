@@ -1,0 +1,53 @@
+body {
+  background-color: #2c2e2f; }
+
+.lm_header {
+  background-color: #2c2e2f; }
+
+.lm_item.lm_row {
+  background-color: #2c2e2f; }
+
+.li.lm_tab,
+.lm_header .lm_tab.lm_active {
+  box-shadow: none;
+  background-color: #27292a; }
+
+.lm_header .lm_tab {
+  box-shadow: none;
+  padding-bottom: 3px;
+  background-color: #222424; }
+
+.lm_maximised .lm_header {
+  background-color: #2c2e2f; }
+
+.lm_content {
+  color: #ccc;
+  background-color: #27292a; }
+
+.sc-theme-red .navbar {
+  color: #fff;
+  background: #e84e40;
+  border: none;
+  border-radius: 0; }
+  .sc-theme-red .navbar .sc-action-btn {
+    background: #ef8177; }
+    .sc-theme-red .navbar .sc-action-btn.selected, .sc-theme-red .navbar .sc-action-btn:hover {
+      background: #f4aba4; }
+    .sc-theme-red .navbar .sc-action-btn.disabled {
+      opacity: 0.6;
+      cursor: not-allowed !important; }
+      .sc-theme-red .navbar .sc-action-btn.disabled.selected, .sc-theme-red .navbar .sc-action-btn.disabled:hover {
+        background: #ef8177; }
+  .sc-theme-red .navbar a {
+    color: #fff; }
+    .sc-theme-red .navbar a:hover {
+      text-decoration: none; }
+  .sc-theme-red .navbar .nav .open {
+    background: #e53929; }
+  .sc-theme-red .navbar .navbar-dropdown:hover,
+  .sc-theme-red .navbar .profile-dropdown:hover {
+    background: #e53929; }
+  .sc-theme-red .navbar .dropdown-menu a {
+    color: #707070; }
+
+/*# sourceMappingURL=core.css.map */

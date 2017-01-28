@@ -1,0 +1,19 @@
+<div class="peEditorDisplayName">
+    {{::property.displayName}}
+</div>
+<div class="peEditorValues" ng-controller="FilepathCtrl">
+
+    <div class="input-group">
+        <!-- path input -->
+        <input type="text" class="form-control sc-input input-night" ng-readonly="property.readOnly"
+               ng-class="{'inconclusive' : hasMultipleDefinitions()}"
+               ng-model="model.bind" ng-change="onValueChange()" placeholder="">
+        <span class="input-group-btn">
+            <!-- search button -->
+            <button class="btn btn-grey btn-property" type="button" ng-click="showFileSearch()">
+                <i class="fa fa-search" aria-hidden="true"></i>
+            </button>
+        </span>
+    </div>
+
+</div>

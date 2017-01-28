@@ -1,0 +1,93 @@
+<div class="sc-login-page">
+    <div class="container sc-login-container vertical-center animated fadeIn" ng-controller="LoginCtrl">
+        <div class="row">
+            <div class="col-sm-6">
+                    <h2><b><span class="text-scarlet">{{'PRODUCT_TITLE' | translate}}</span> {{'GAME_STUDIO' |
+                        translate}}</b> <span class="headerInfo">{{'LOGIN' | translate}}</span></h2>
+
+                    <p class="text-grey">{{'LOGIN_SUBHEADER' | translate}}</p>
+                    <br/>
+
+                    <form name="loginForm" ng-submit="login(loginForm.$valid)" novalidate>
+
+                        <div class="form-group"
+                             ng-class="{'has-error': loginForm.$submitted && loginForm.username.$invalid }">
+                            <input type="text" class="form-control sc-input input-night" id="username" name="username"
+                                   ng-model="auth.identity" ng-required="true"
+                                   autocomplete="on" placeholder="{{'PLACEHOLDER_LOGIN_IDENTITY' | translate}}"
+                                   required>
+                            <div class="on-error">
+                            <span class="help-block" ng-show="loginForm.username.$error.required">
+                                <i class="icon-remove-sign"></i> {{ 'REQUIRED_FIELD' | translate }}
+                            </span>
+                            </div>
+                        </div>
+
+                        <div class="form-group"
+                             ng-class="{'has-error': loginForm.$submitted && loginForm.password.$invalid }">
+                            <input type="password" class="form-control sc-input input-night" id="password"
+                                   name="password"
+                                   ng-model="auth.password" ng-required="true"
+                                   autocomplete="on" placeholder="{{'PLACEHOLDER_LOGIN_PASSWORD' | translate}}"
+                                   required>
+                            <div class="on-error">
+                            <span class="help-block" ng-show="loginForm.password.$error.required">
+                                <i class="icon-remove-sign"></i> {{ 'REQUIRED_FIELD' | translate }}
+                            </span>
+                            </div>
+                        </div>
+
+                        <div class="checkbox-nice">
+                            <input ng-model="auth.remember" type="checkbox" id="remember-me">
+                            <label for="remember-me" class="text-grey">
+                                {{ 'REMEMBER_ME' | translate }}
+                            </label>
+                        </div>
+
+                        <br/>
+
+                        <div class="btn-group btn-group-justified">
+                            <label class="btn btn-dark text-left" ng-click="loginOffline()"
+                                   ng-disabled="loginState == LOGIN_STATE.AUTHENTICATING">
+                                <i class="fa fa-chain-broken" aria-hidden="true"></i> &nbsp;{{ 'LOGIN_OFFLINE' |
+                                translate}}
+                            </label>
+                            <label for="submit-form" class="btn btn-dark text-left" ng-click="loginForm.submit()"
+                                   ng-disabled="loginState == LOGIN_STATE.AUTHENTICATING">
+                                <i class="fa fa-sign-in"></i> &nbsp;{{ 'LOGIN' | translate }}
+                            </label>
+                        </div>
+                        <button id="submit-form" type="submit" style="display:none"></button>
+
+                        <!--<div class="col-md-6">
+                             <button ng-click="loginOffline()" type="button" class="btn btn-dark btn-block text-left" ng-disabled="loginState == LOGIN_STATE.AUTHENTICATING">
+                                 <i class="fa fa-chain-broken" aria-hidden="true"></i> &nbsp;{{ 'LOGIN_OFFLINE' | translate }}
+                             </button>
+                         </div>
+                         <div class="col-md-6">
+                             <button type="submit"  class="btn btn-dark btn-block text-left" ng-disabled="loginState == LOGIN_STATE.AUTHENTICATING">
+                                 <i class="fa fa-sign-in"></i> &nbsp;{{ 'LOGIN' | translate }}
+                             </button>
+                         </div>-->
+
+                        <br/><br/>
+
+                        <div class="alert alert-danger" role="alert" ng-if="loginState == LOGIN_STATE.FAILED">
+                            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                            <span class="sr-only">{{ 'ERROR' | translate }}:</span>
+                            {{ 'INVALID_CREDENTIALS' | translate }}
+                        </div>
+
+                        <br/>
+
+                        <a ng-click="changeView('register')" class="important-href text-bold left-padding">
+                            <i class="fa fa-plus-circle"></i> {{ 'CREATE_NEW_ACCOUNT' | translate }}
+                        </a> <br/>
+                        <a ng-href="forgot-password.html" class="left-padding">
+                            {{ 'FORGOT_PASSWORD' | translate }}
+                        </a>
+                    </form>
+            </div>
+        </div>
+    </div>
+</div>

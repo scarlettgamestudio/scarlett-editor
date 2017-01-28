@@ -1,0 +1,24 @@
+<div class="modal-header">
+    <h3 class="modal-title text-bold">{{'MODAL_NEW_PROJECT' | translate}}</h3>
+</div>
+<div class="modal-body">
+    <form>
+        <div class="form-group">
+            <label for="inProjectName" class="modal-label-input" ng-model="model.projectName" > {{'LABEL_PROJECT_NAME' | translate}} </label>
+            <input type="text" class="form-control sc-input input-night" id="inProjectName" placeholder="" ng-model="model.projectName">
+        </div>
+        <div class="row-fluid">
+            <div class="form-group">
+                <label class="modal-label-input">{{'LABEL_PROJECT_PATH' | translate}}</label>
+                <div class="input-group ">
+                    <input type="text" class="form-control sc-input input-night" ng-model="model.projectPath" />
+                    <a ng-click="openFileBrowser()" class="input-group-btn btn btn-grey btn-inline inline"><i class="fa fa-search" aria-hidden="true"></i></a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="btn btn-grey" type="button" ng-click="createProject()">{{'BUTTON_CREATE' | translate}}</button>
+    <button class="btn btn-grey" type="button" ng-click="close()">{{'BUTTON_CANCEL' | translate}}</button>
+</div>

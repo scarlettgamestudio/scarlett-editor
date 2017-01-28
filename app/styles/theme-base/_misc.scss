@@ -1,0 +1,141 @@
+.text-left {
+  text-align: left;
+}
+
+.text-bold {
+  font-weight: bold;
+}
+
+.center-text {
+  text-align: center;
+}
+
+.left-padding {
+  padding-left: map-get($default-collection, padding);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.on-error {
+  display: none;
+}
+
+.has-error .on-error {
+  display: block;
+}
+
+.vertical-center {
+  min-height: 100%;  /* Fallback for browsers do NOT support vh unit */
+  min-height: 100vh; /* These two lines are counted as one :-)       */
+
+  display: flex;
+  align-items: center;
+}
+
+.text-grey {
+  color: map-get($default-colors, medium-grey);
+}
+
+.text-scarlet {
+  color: map-get($default-colors, scarlet);
+}
+
+.align-left {
+  float: left;
+}
+
+.align-right {
+  float: right;
+}
+
+.text-align-right {
+  text-align: right;
+}
+
+.clearfix:before,
+.clearfix:after {
+  content: "";
+  display: table;
+}
+
+.clearfix:after {
+  clear: both;
+}
+
+.clearfix {
+  zoom: 1; /* ie 6/7 */
+}
+.horizontal-space {
+  width: 40px;
+  height: 1px;
+}
+
+.gutter {
+  width: 5px !important;
+  background-color: lighten(map_get($default-colors, grey-hound), 2%);
+}
+
+.dark-background {
+  background-color: darken(map-get($default-colors, dim-grey), 4);
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Chrome/Safari/Opera */
+  -khtml-user-select: none;    /* Konqueror */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* Non-prefixed version, currently
+                                 not supported by any browser */
+}
+
+.stack-item {
+  display:table-cell;
+  vertical-align: middle;
+}
+
+.stack-fill {
+  display:table-cell;
+  width:100%;
+  vertical-align: middle;
+}
+
+.right-padding {
+  padding-right: 8px;
+}
+
+.right-margin {
+  margin-right: 4px;
+}
+
+.fill-height {
+  height: 100vh;
+}
+
+.container-fixed {
+  bottom: 0;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+}
+
+.container-fixed .col {
+  height: 100%;
+  overflow: auto;
+}
+
+.row-xs-12 { height: 100%; }
+.row-xs-11 { height: 91.66666666666666%; }
+.row-xs-10 { height: 83.33333333333334%; }
+.row-xs-9 { height: 75%; }
+.row-xs-8 { height: 66.66666666666666%; }
+.row-xs-7 { height: 58.333333333333336%; }
+.row-xs-6 { height: 50%; }
+.row-xs-5 { height: 41.66666666666667%;}
+.row-xs-4 { height: 33.33333333333333%;}
+.row-xs-3 { height: 25%; }
+.row-xs-2 { height: 16.666666666666664%; }
+.row-xs-1 { height: 8.333333333333332%; }

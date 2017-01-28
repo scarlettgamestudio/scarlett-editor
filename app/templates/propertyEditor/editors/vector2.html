@@ -1,0 +1,25 @@
+<div class="peEditorDisplayName">
+    {{::property.displayName}}
+</div>
+<div class="peEditorValues">
+    <div class="row">
+        <div class="col-md-6">
+            <span class="stack-item right-padding">X</span>
+            <span class="stack-fill">
+                <input
+                        type="number" class="form-control sc-input input-night" ng-readonly="property.readOnly"
+                        ng-class="{'inconclusive' : hasMultipleDefinitions('x')}"
+                        ng-change="onValueChange('x')" ng-model="model.bind.x" placeholder="">
+            </span>
+        </div>
+        <div class="col-md-6">
+            <span class="stack-item right-padding">Y</span>
+            <span class="stack-fill">
+                <input
+                        type="number" class="form-control sc-input input-night" ng-readonly="property.readOnly"
+                        ng-class="{'inconclusive' : hasMultipleDefinitions('y')}"
+                        ng-change="onValueChange('y')" ng-model="model.bind.y" placeholder="">
+            </span>
+        </div>
+    </div>
+</div>

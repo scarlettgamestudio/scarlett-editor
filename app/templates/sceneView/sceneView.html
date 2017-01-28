@@ -1,0 +1,21 @@
+<div ng-controller="SceneViewCtrl" class="control-container still-container">
+
+    <!-- Toolbar info -->
+    <div class="toolbar clearfix">
+        <!-- aligned to left -->
+        <div title="Toggle Grid" class="button align-left" ng-click="toggleGrid()" ng-class="{'active' : model.extensions.gridExtension.enabled}"><i class="fa fa-th" aria-hidden="true"></i></div>
+        <div title="Snap to Grid" class="button align-left" ng-click="toggleSnapToGrid()" ng-class="{'active' : model.scene.snapToGrid}"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></div>
+
+        <!-- aligned to right -->
+        <div class="info align-right"><i class="fa fa-search" aria-hidden="true"></i> {{model.visualZoom}}%</div>
+        <div class="info right-margin align-right">
+            <i class="fa fa-video-camera" aria-hidden="true"></i>
+            <span class="display">x: {{getVisualCameraPosition().x}}</span>
+            <span class="display">y: {{getVisualCameraPosition().y}}</span>
+        </div>
+    </div>
+
+    <!-- Game Canvas -->
+    <canvas game-canvas input-handler tabindex="0"></canvas>
+
+</div>

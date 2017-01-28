@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html ng-app="scarlett">
+<head>
+    <!-- meta data -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+
+    <!-- global settings -->
+    <title>{{ 'PRODUCT_TITLE' | translate }} {{ 'GAME_STUDIO' | translate }}</title>
+
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="../node_modules/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="../node_modules/angular-ui-bootstrap/dist/ui-bootstrap-csp.css"/>
+    <link rel="stylesheet" type="text/css" href="css/libs/font-awesome.css"/>
+    <link rel="stylesheet" type="text/css" href="css/libs/nanoscroller.css"/>
+    <link rel="stylesheet" type="text/css" href="css/libs/animate.css"/>
+    <link rel="stylesheet" type="text/css" href="css/libs/treeview.css">
+    <link rel="stylesheet" type="text/css" href="css/libs/goldenlayout-base.css">
+    <link rel="stylesheet" type="text/css" href="css/libs/goldenlayout-dark-theme.css">
+    <!--<link rel="stylesheet" type="text/css" href="../node_modules/angular-perfect-scrollbar-2/node_modules/perfect-scrollbar/dist/css/perfect-scrollbar.css">-->
+    <link rel="stylesheet" type="text/css" href="css/libs/theme.css"/>
+
+    <!--<link rel="stylesheet" type="text/css" href="css/theme/custom.css"/>-->
+
+    <!-- custom theme css -->
+    <link rel="stylesheet" type="text/css" href="css/theme/theme-base/core.css"/>
+    <link rel="stylesheet" type="text/css" href="css/theme/theme-red/core.css"/>
+
+    <!-- colour picker related -->
+    <link rel="stylesheet" type="text/css" href="css/libs/colorpicker.css"/>
+
+    <!-- javascript 3rd party modules -->
+    <script type="text/javascript" src="../node_modules/angular/angular.min.js"></script>
+    <script type="text/javascript" src="../node_modules/angular-route/angular-route.min.js"></script>
+    <script type="text/javascript"
+            src="../node_modules/angular-validation-match/dist/angular-validation-match.min.js"></script>
+    <script type="text/javascript" src="../node_modules/angular-translate/dist/angular-translate.min.js"></script>
+    <script type="text/javascript"
+            src="../node_modules/angular-local-storage/dist/angular-local-storage.min.js"></script>
+    <script type="text/javascript" src="../node_modules/angular-ui-bootstrap/dist/ui-bootstrap.js"></script>
+    <script type="text/javascript" src="../node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
+    <script type="text/javascript" src="lib/ui-context-menu.js"></script>
+    <script type="text/javascript" src="lib/soapClient.js"></script>
+    <script type="text/javascript" src="lib/scarlett-framework.js"></script>
+    <script type="text/javascript" src="lib/corazon-treeview.js"></script>
+    <script type="text/javascript" src="lib/perfectScrollbar.js"></script>
+    <script type="text/javascript" src="lib/undo.js"></script>
+
+    <!-- colour picker related -->
+    <script type="text/javascript" src="lib/bootstrap-colorpicker-module.js"></script>
+
+    <script>window.$ = window.jQuery = require('../node_modules/jquery/dist/jquery.min.js');</script>
+    <script type="text/javascript" src="lib/goldenlayout.js"></script>
+
+    <!-- global scripts -->
+    <script type="text/javascript" src="scripts/general/utils.js"></script>
+    <script type="text/javascript" src="scripts/graphics/editorGameScene.js"></script>
+    <script type="text/javascript" src="scripts/commands/editPropertyCommand.js"></script>
+    <script type="text/javascript" src="scripts/commands/gameObjectSelectionCommand.js"></script>
+
+    <!-- core modules -->
+    <script type="text/javascript" src="scripts/general/angularHelper.js"></script>
+    <script type="text/javascript" src="core/remote.js"></script>
+    <script type="text/javascript" src="core/app.js"></script>
+    <script type="text/javascript" src="core/route.js"></script>
+
+    <!-- translation files -->
+    <script type="text/javascript" src="translations/en.js"></script>
+
+    <!-- services -->
+    <script type="text/javascript" src="services/logSvc.js"></script>
+    <script type="text/javascript" src="services/soapSvc.js"></script>
+    <script type="text/javascript" src="services/userSvc.js"></script>
+    <script type="text/javascript" src="services/dialogSvc.js"></script>
+    <script type="text/javascript" src="services/dataSvc.js"></script>
+    <script type="text/javascript" src="services/gameSvc.js"></script>
+    <script type="text/javascript" src="services/sceneSvc.js"></script>
+    <script type="text/javascript" src="services/scarlettSvc.js"></script>
+    <script type="text/javascript" src="services/modalSvc.js"></script>
+    <script type="text/javascript" src="services/assetSvc.js"></script>
+    <script type="text/javascript" src="services/refactorSvc.js"></script>
+
+    <!-- directives -->
+    <script type="text/javascript" src="directives/translateDrtv.js"></script>
+    <script type="text/javascript" src="directives/gameCanvasDrtv.js"></script>
+    <script type="text/javascript" src="directives/inputHandlerDrtv.js"></script>
+    <script type="text/javascript" src="directives/inputTextDrtv.js"></script>
+    <script type="text/javascript" src="directives/resizerDrtv.js"></script>
+
+    <!-- controllers -->
+    <script type="text/javascript" src="pages/login/loginCtrl.js"></script>
+    <script type="text/javascript" src="pages/register/registerCtrl.js"></script>
+    <script type="text/javascript" src="pages/main/mainCtrl.js"></script>
+    <script type="text/javascript" src="modals/newProject/newProjectModalCtrl.js"></script>
+    <script type="text/javascript" src="templates/propertyEditor/propertyEditorCtrl.js"></script>
+    <script type="text/javascript" src="templates/propertyEditor/propertyEditorHandlerCtrl.js"></script>
+    <script type="text/javascript" src="pages/hub/hubCtrl.js"></script>
+    <script type="text/javascript" src="modals/dialog/dialogModalCtrl.js"></script>
+    <script type="text/javascript" src="templates/contentBrowser/contentBrowserTreeCtrl.js"></script>
+    <script type="text/javascript" src="templates/sceneView/sceneViewCtrl.js"></script>
+    <script type="text/javascript" src="templates/sceneHierarchy/sceneHierarchyCtrl.js"></script>
+    <script type="text/javascript" src="templates/propertyEditor/editors/filepathCtrl.js"></script>
+    <script type="text/javascript" src="templates/propertyEditor/editors/colorCtrl.js"></script>
+    <script type="text/javascript" src="templates/contentBrowser/contentBrowserCtrl.js"></script>
+    <script type="text/javascript" src="pages/main/partials/navbarCtrl.js"></script>
+
+    <!-- asset containers -->
+    <script type="text/javascript" src="scripts/containers/assetContainer.js"></script>
+    <script type="text/javascript" src="scripts/containers/imageAssetContainer.js"></script>
+
+</head>
+<body class="noselect">
+<!-- main container div -->
+<div ng-view style="position:relative;width:100%;height:100%;overflow: hidden;"></div>
+</body>
+</html>
