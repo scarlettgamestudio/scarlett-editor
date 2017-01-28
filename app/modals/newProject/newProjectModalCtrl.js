@@ -36,8 +36,7 @@ app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 
             let projectData = [{
                 filename: "project.sc",
                 content: Objectify.createDataString(gameProject, true)
-            }
-            ];
+            }];
 
             let path = $scope.model.projectPath;
             path = Path.wrapDirectoryPath(path) + $scope.model.projectName + Path.TRAILING_SLASH;
