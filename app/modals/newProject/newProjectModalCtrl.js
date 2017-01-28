@@ -1,74 +1,78 @@
 app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'dialogSvc', 'dataSvc', 'gameSvc', '$rootScope', '$uibModalInstance', 'scarlettSvc',
-	function ($scope, logSvc, soapSvc, config, dialogSvc, dataSvc, gameSvc, $rootScope, $uibModalInstance, scarlettSvc) {
-		
-		$scope.model = {
-			projectName: '',
-			projectPath: ''
-		};
+    function ($scope, logSvc, soapSvc, config, dialogSvc, dataSvc, gameSvc, $rootScope, $uibModalInstance, scarlettSvc) {
 
-		$scope.openFileBrowser = function() {
-			NativeInterface.openDirectoryBrowser($scope.model.projectPath, function(result) {
-				if(result) {
-					$scope.model.projectPath = result;
-					$scope.$digest();
-				}
-			});
-		};
+        $scope.model = {
+            projectName: '',
+            projectPath: ''
+        };
 
-		$scope.close = function() {
-			$uibModalInstance.dismiss('cancel');
-		};
+        $scope.openFileBrowser = function () {
+            NativeInterface.openDirectoryBrowser($scope.model.projectPath, function (result) {
+                if (result) {
+                    $scope.model.projectPath = result;
+                    $scope.$digest();
+                }
+            });
+        };
 
-		$scope.createProject = function() {
-			if(!NativeInterface.pathExists($scope.model.projectPath)) {
-				dialogSvc.showDialog("Ups", "Please choose a valid project path", "alert");
-				return;
-			}
+        $scope.close = function () {
+            $uibModalInstance.dismiss('cancel');
+        };
 
-			if($scope.model.projectName.trim() === "") {
-				dialogSvc.showDialog("Ups", "Please fill the project name before continuing", "alert");
-				return;
-			}
+        $scope.createProject = function () {
+            if (!NativeInterface.pathExists($scope.model.projectPath)) {
+                dialogSvc.showDialog("Ups", "Please choose a valid project path", "alert");
+                return;
+            }
 
-			// create the game project object
-			var gameProject = scarlettSvc.generateProject($scope.model.projectName);
+            if ($scope.model.projectName.trim() === "") {
+                dialogSvc.showDialog("Ups", "Please fill the project name before continuing", "alert");
+                return;
+            }
 
-			var projectData = [{
-					filename: "project.sc",
-					content: Objectify.createDataString(gameProject, true)
-				}
-			];
+            // create the game project object
+            let gameProject = scarlettSvc.generateProject($scope.model.projectName);
 
-			var path = $scope.model.projectPath;
-			path = Path.wrapDirectoryPath(path) + $scope.model.projectName + Path.TRAILING_SLASH;
+            let projectData = [{
+                filename: "project.sc",
+                content: Objectify.createDataString(gameProject, true)
+            }
+            ];
 
-			// call the interface to create the project:
-			ScarlettInterface.createProject(path, projectData, function(result) {
-				if(result === true) {
-					// store the project information in the app data model
-					dataSvc.push("projects", {name: $scope.model.projectName, path: path, lastUpdate: new Date().getTime()});
-					dataSvc.save();
+            let path = $scope.model.projectPath;
+            path = Path.wrapDirectoryPath(path) + $scope.model.projectName + Path.TRAILING_SLASH;
 
-					// set the active project
-					scarlettSvc.setActiveProject(gameProject);
-					scarlettSvc.setActiveProjectPath(path);
-					scarlettSvc.updateActiveProjectFileMap();
+            // call the interface to create the project:
+            ScarlettInterface.createProject(path, projectData, function (result) {
+                if (result === true) {
+                    // store the project information in the app data model
+                    dataSvc.push("projects", {
+                        name: $scope.model.projectName,
+                        path: path,
+                        lastUpdate: new Date().getTime()
+                    });
+                    dataSvc.save();
 
-					// show the main view
-					$rootScope.changeView('main');
-					$rootScope.$apply();
+                    // set the active project
+                    scarlettSvc.setActiveProject(gameProject);
+                    scarlettSvc.setActiveProjectPath(path);
+                    scarlettSvc.updateActiveProjectFileMap();
 
-					$scope.close();
+                    // show the main view
+                    $rootScope.changeView('main');
+                    $rootScope.$apply();
 
-				} else if (result === 1) {
-					dialogSvc.showDialog("Ups", "The file path '" + path + "' already exists", "alert");
-				}
-			});
-		};
+                    $scope.close();
 
-		(function init() {
-			$scope.model.projectPath = ScarlettInterface.getApplicationFolderPath();
-		})();
-	}]
+                } else if (result === 1) {
+                    dialogSvc.showDialog("Ups", "The file path '" + path + "' already exists", "alert");
+                }
+            });
+        };
+
+        (function init() {
+            $scope.model.projectPath = ScarlettInterface.getApplicationFolderPath();
+        })();
+    }]
 );
 
