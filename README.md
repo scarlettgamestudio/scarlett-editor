@@ -1,5 +1,5 @@
-# Scarlett Framework
-Scarlett WebGL Graphics Framework repository
+# Scarlett Editor
+Scarlett 2D Game Editor repository
 
 ![alt tag](https://anlagehub.com/public/sc/images/editor-banner.png)
 
@@ -9,7 +9,11 @@ This README would normally document whatever steps are necessary to get your app
 
 ### What is this repository for? ###
 
-This repository contains the Scarlett Editor Module and associated libraries.
+This repository contains the Scarlett Editor Module and associated libraries. **At the moment this software is in Development Stage and not ready for production use.**
+
+### Which Operative System is compatible? ###
+
+The Scarlett Editor can run in all common Operative Systems including Windows, MacOS and Linux.
 
 ### How do I get set up? ###
 
