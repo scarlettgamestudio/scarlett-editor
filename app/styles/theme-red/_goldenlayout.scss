@@ -9,6 +9,11 @@
   box-shadow: none;
   background-color: darken(map-get($default-colors, grey-hound), 2);
 }
+.lm_header .lm_tab {
+  box-shadow: none;
+  padding-bottom: 3px;
+  background-color: darken(map-get($default-colors, grey-hound), 4);
+}
 .lm_maximised .lm_header {
   background-color: map-get($default-colors, grey-hound);
 }

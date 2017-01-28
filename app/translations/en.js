@@ -35,7 +35,7 @@ app.config(function ($translateProvider) {
 		EDITOR_SCENE_VIEW: "Scene View",
 		EDITOR_SCENE_HIERARCHY: "Scene Hierarchy",
 		EDITOR_PROJECT_EXPLORER: "Project Explorer",
-		EDITOR_INSPECTOR: "Property Editor",
+		EDITOR_INSPECTOR: "Inspector",
 		EDITOR_CONSOLE: "Console Logs",
 		EDITOR_CONTENT_BROWSER: "Content Browser",
 
@@ -113,6 +113,7 @@ app.config(function ($translateProvider) {
 		NAVBAR_HELP: "Help",
 		NAVBAR_TUTORIALS: "Tutorials",
 		NAVBAR_CONTENT_BROWSER: "Content Browser",
+		NAVBAR_RESET_LAYOUT: "Default Layout",
 		NAVBAR_ABOUT: "About",
 		NAVBAR_WINDOW: "Window",
 		NAVBAR_LOGIN: "Go to Login Page"

@@ -10,11 +10,11 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
     svc.activeProjectFileMap = null;
 
     function getAllFilesInDirectory(directory, deep) {
-        var files = [];
+        let files = [];
 
         directory.files.forEach(function (fileInfo) {
-            var filename = Path.getFilename(fileInfo.relativePath);
-            var extension = Path.getFileExtension(filename);
+            let filename = Path.getFilename(fileInfo.relativePath);
+            let extension = Path.getFileExtension(filename);
 
             // don't include private/hidden files
             if (filename[0] !== "." && config.IGNORED_FILE_EXTENSIONS.indexOf(extension) < 0) {
@@ -32,18 +32,11 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
     }
 
     svc.generateProject = function (name) {
-        return {
-            name: name,
-            settings: {},
-            editor: {
-                lastScene: null
-            },
-            content: {}
-        }
+        return new ProjectFile({name: name});
     };
 
     svc.promptLoadProject = function () {
-        var params = {
+        let params = {
             filters: [{name: 'Scarlett Project', extensions: ['sc']}]
         };
 
@@ -84,6 +77,10 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
             project["editor"] = {};
         }
 
+        if (!project["editor"].hasOwnProperty("layout")) {
+            project["editor"]["layout"] = null;
+        }
+
         if (!project.hasOwnProperty("content")) {
             project["content"] = {};
         }
@@ -98,6 +95,30 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
     };
 
     /**
+     * Returns the previously stored layout configuration (if any)
+     */
+    svc.getLayoutConfiguration = function() {
+        if (!isObjectAssigned(svc.activeProject)) {
+            return null;
+        }
+
+        return svc.activeProject.editor.layout;
+    };
+
+    /**
+     * Stores the active layout configuration into the active project editor layout state. This operation doesn't
+     * automatically update the project file on system, project save() is required to store changes into disk.
+     * @param configuration
+     */
+    svc.storeLayoutConfiguration = function(configuration) {
+        if (!isObjectAssigned(svc.activeProject)) {
+            return;
+        }
+
+        svc.activeProject.editor.layout = configuration;
+    };
+
+    /**
      * Saves a given project. If no project is provided, the active project is selected for saving
      * @param project
      */
@@ -107,7 +128,7 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
         if (project) {
             NativeInterface.writeFile(
                 Path.wrapDirectoryPath(svc.activeProjectPath) + "project.sc",
-                JSON.stringify(project, null, 4)
+                Objectify.createDataString(project, true)
             );
         }
     };
@@ -118,16 +139,22 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
      * @returns {Promise}
      */
     svc.loadProjectFile = function (path) {
-        var defer = $q.defer();
-        var gamefilePath = path.endsWith(".sc") ? path : Path.wrapDirectoryPath(path) + "project.sc";
+        let defer = $q.defer();
+        let gamefilePath = path.endsWith(".sc") ? path : Path.wrapDirectoryPath(path) + "project.sc";
 
         NativeInterface.readFile(gamefilePath, function (result) {
             if (result === false) {
                 // the file failed to load..
                 defer.reject(error);
+
             } else {
                 try {
-                    var gameProject = JSON.parse(result);
+                    let gameProject = Objectify.restoreFromString(result);
+
+                    if (!isObjectAssigned(gameProject)) {
+                        logSvc.warn("Unable to load game project, invalid project file source");
+                        defer.reject();
+                    }
 
                     svc.setupProject(gameProject, Path.getDirectory(path));
 
@@ -175,7 +202,7 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
                 svc.activeProject = gameProject;
 
                 // update the lastUpdated property
-                var savedData = dataSvc.findByProperty("projects", "path", path);
+                let savedData = dataSvc.findByProperty("projects", "path", path);
                 if (savedData) {
                     savedData.lastUpdate = new Date().getTime();
 

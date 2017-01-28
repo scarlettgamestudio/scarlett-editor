@@ -59,6 +59,14 @@ var app = angular.module('scarlett', dependencies)
 		BASIC: "basic",
 		SPRITE: "sprite"
 	},
+	WINDOW_TYPES: {
+		SCENE_HIERARCHY: "sceneHierarchy",
+		INSPECTOR: "inspector",
+		CONSOLE: "console",
+		SCENE_VIEW: "sceneView",
+		PROJECT_EXPLORER: "projectExplorer",
+		GAME_VIEW: "gameView"
+	},
 	EVENTS: {
 		CONTAINER_RESIZE: "onContainerResize",
 		GAME_OBJECT_ADDED: "onGameObjectAdded",
@@ -120,7 +128,7 @@ var app = angular.module('scarlett', dependencies)
 
 .config(function (localStorageServiceProvider) {
 	// set a unique prefix for our app:
-	localStorageServiceProvider.setPrefix('LSBGH7X-004');
+	localStorageServiceProvider.setPrefix('LSBGH7X-005');
 })
 
 .config(function ($translateProvider) {

@@ -12,7 +12,7 @@ app.factory("gameSvc", function ($rootScope, constants) {
 	 * Creates and associates a local game slot
 	 */
 	svc.createGame = function() {
-		var uid = generateUID();
+		let uid = generateUID();
 
 		// for now we simply assign the map key without any object
 		svc._gameMap[uid] = null;
@@ -75,7 +75,7 @@ app.factory("gameSvc", function ($rootScope, constants) {
 		svc._gameMap[uid].init({ignoreInputHandler: true});
 
 		// broadcast the game initialize event
-		$rootScope.$broadcast(constants.EVENTS.GAME_INITIALIZE, svc._gameMap[uid]);
+		//$rootScope.$broadcast(constants.EVENTS.GAME_INITIALIZE, svc._gameMap[uid]);
 
 		return true;
 	};

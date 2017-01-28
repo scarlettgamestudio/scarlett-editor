@@ -10,9 +10,10 @@
         <ul class="nav navbar-nav">
             <!-- in here will go specific view menus -->
 
+            <!-- FILE MENU -->
             <div uib-dropdown class="navbar-dropdown" uib-dropdown-toggle>
                 <a>
-                    <span class="hidden-xs" translate-once="NAVBAR_FILE"></span> </b>
+                    <span class="hidden-xs" translate-once="NAVBAR_FILE"></span>
                 </a>
                 <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
                     <li ng-click="openNewProjectModal()"><a><i class="fa fa-plus-square"></i><span translate-once="NAVBAR_NEW_PROJECT"></span></a></li>
@@ -25,9 +26,10 @@
                 </ul>
             </div>
 
+            <!-- EDIT MENU -->
             <div uib-dropdown class="navbar-dropdown" uib-dropdown-toggle>
                 <a>
-                    <span class="hidden-xs" translate-once="NAVBAR_EDIT"></span> </b>
+                    <span class="hidden-xs" translate-once="NAVBAR_EDIT"></span>
                 </a>
                 <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
                     <li><a><i class="fa fa-undo"></i><span translate-once="NAVBAR_UNDO"></span></a></li>
@@ -40,21 +42,26 @@
                 </ul>
             </div>
 
+            <!-- WINDOW MENU -->
             <div uib-dropdown class="navbar-dropdown" uib-dropdown-toggle>
                 <a>
-                    <span class="hidden-xs" translate-once="NAVBAR_WINDOW"></span> </b>
+                    <span class="hidden-xs" translate-once="NAVBAR_WINDOW"></span>
                 </a>
                 <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
-                    <li ng-click="openContentBrowser()"><a><i class="fa fa-archive" aria-hidden="true"></i><span translate-once="NAVBAR_CONTENT_BROWSER"></span></a></li>
+                    <li ng-click="openContentBrowser()"><a><i class="fa fa-window-restore" aria-hidden="true"></i><span translate-once="NAVBAR_RESET_LAYOUT"></span></a></li>
                     <li class="divider"></li>
-                    <li><a><i class="fa fa-book" aria-hidden="true"></i><span translate-once="NAVBAR_TUTORIALS"></span></a></li>
-                    <li><a><i class="fa fa-info-circle" aria-hidden="true"></i><span translate-once="NAVBAR_ABOUT"></span></a></li>
+                    <li ng-click="showSceneHierarchy()"><a><i class="fa fa-sitemap" aria-hidden="true"></i><span translate-once="EDITOR_SCENE_HIERARCHY"></span></a></li>
+                    <li ng-click="showProjectExplorer()"><a><i class="fa fa-archive" aria-hidden="true"></i><span translate-once="EDITOR_PROJECT_EXPLORER"></span></a></li>
+                    <li ng-click="showInspector()"><a><i class="fa fa-sliders" aria-hidden="true"></i><span translate-once="EDITOR_INSPECTOR"></span></a></li>
+                    <li ng-click="showSceneView()"><a><i class="fa fa-picture-o" aria-hidden="true"></i><span translate-once="EDITOR_SCENE_VIEW"></span></a></li>
+                    <li ng-click="showConsole()"><a><i class="fa fa-terminal" aria-hidden="true"></i><span translate-once="EDITOR_CONSOLE"></span></a></li>
                 </ul>
             </div>
 
+            <!-- HELP MENU -->
             <div uib-dropdown class="navbar-dropdown" uib-dropdown-toggle>
                 <a>
-                    <span class="hidden-xs" translate-once="NAVBAR_HELP"></span> </b>
+                    <span class="hidden-xs" translate-once="NAVBAR_HELP"></span>
                 </a>
                 <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
                     <li><a><i class="fa fa-book" aria-hidden="true"></i><span translate-once="NAVBAR_TUTORIALS"></span></a></li>

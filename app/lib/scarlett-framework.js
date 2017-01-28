@@ -10097,14 +10097,15 @@ RigidBody.prototype.onGameObjectScaleUpdated = function(value) {
 
 RigidBody.prototype.unload = function() {
 	// TODO: do this
-};;function ProjectFile (params) {
+};;function ProjectFile(params) {
     params = params || {};
 
     this.name = params.name || "New Project";
     this.settings = params.settings || {};
     this.editor = params.editor || {
-        lastScene: null
-    };
+            lastScene: null,
+            layout: null
+        };
     this.content = params.content || {};
 }
 
@@ -11666,7 +11667,7 @@ AttributeDictionary.addRule("sprite", "_source", {displayName: "Source", editor:
 AttributeDictionary.addRule("sprite", "_tint", {displayName: "Tint"});
 AttributeDictionary.addRule("sprite", "_texture", {visible: false});
 AttributeDictionary.addRule("sprite", "_wrapMode", {visible: false}); // temporary while we don't have cb's in editor
-AttributeDictionary.addRule("sprite", "_atlasElement", {displayName: "Sprite", available: function() { return isObjectAssigned(this._atlas) }});
+AttributeDictionary.addRule("sprite", "_atlasRegion", {displayName: "Region", available: function() { return isObjectAssigned(this._atlas) }});
 
 function Sprite(params) {
     params = params || {};
@@ -11676,7 +11677,7 @@ function Sprite(params) {
 
     // private properties:
     this._source = "";
-    this._atlasElement = "";
+    this._atlasRegion = "";
     this._tint = params.tint || Color.fromRGB(255, 255, 255);
     this._textureWidth = 0;
     this._textureHeight = 0;
@@ -11795,12 +11796,12 @@ Sprite.prototype._assignTextureFromPath = function(path) {
 };
 
 
-Sprite.prototype.getAtlasElement = function () {
-    return this._atlasElement;
+Sprite.prototype.getAtlasRegion = function () {
+    return this._atlasRegion;
 };
 
-Sprite.prototype.setAtlasElement = function (value) {
-    this._atlasElement = value;
+Sprite.prototype.setAtlasRegion = function (value) {
+    this._atlasRegion = value;
 };
 
 Sprite.prototype.getSource = function () {
@@ -14565,7 +14566,11 @@ Objectify.restoreArray = function (array) {
  * Creates a valid JSON "stringify" data object
  * @param object
  */
-Objectify.createDataString = function(object) {
+Objectify.createDataString = function(object, beautify) {
+    if (beautify) {
+        return JSON.stringify(Objectify.create(object), null, 4);
+    }
+
     return JSON.stringify(Objectify.create(object));
 };
 

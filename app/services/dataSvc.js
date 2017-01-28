@@ -19,7 +19,7 @@ app.factory("dataSvc", function (config, logSvc, localStorageService) {
         appData[key].push(data);
 
         if (appData[key].length > MAX_ARRAY_LENGTH) {
-            appData = appData.shift();
+            appData[key].shift();
         }
 
         return true;

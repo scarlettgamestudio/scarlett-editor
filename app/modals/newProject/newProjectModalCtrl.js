@@ -35,7 +35,7 @@ app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 
 
 			var projectData = [{
 					filename: "project.sc",
-					content: JSON.stringify(gameProject, null, 4)
+					content: Objectify.createDataString(gameProject, true)
 				}
 			];
 

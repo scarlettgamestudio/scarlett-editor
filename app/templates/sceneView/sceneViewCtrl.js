@@ -24,7 +24,7 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
         };
 
         $scope.updateGameBoundries = function (width, height) {
-            var game = gameSvc.getGame($scope.model.gameUID);
+            let game = gameSvc.getGame($scope.model.gameUID);
 
             if (game) {
                 // usually the width and height will be the same as the canvas container
@@ -78,6 +78,10 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
         };
 
         $scope.onCanvasClick = function (evt) {
+            if (!isObjectAssigned($scope.model.scene)) {
+                return;
+            }
+
             // every time the canvas is clicked set this as the active scene
             sceneSvc.setActiveGameScene($scope.model.scene);
         };
@@ -113,7 +117,7 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
         function initialize() {
             gameSvc.initializeGame($scope.model.gameUID, {target: $scope.model.canvasID});
 
-            var game = gameSvc.getGame($scope.model.gameUID);
+            let game = gameSvc.getGame($scope.model.gameUID);
 
             // is there a valid project scene available?
             if (!sceneSvc.getActiveGameScene()) {
@@ -122,16 +126,15 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
                     game: game,
                     backgroundColor: Color.fromRGB(39, 41, 42)
                 });
-                
+                sceneSvc.setActiveGameScene($scope.model.scene);
+
             } else {
                 $scope.model.scene = sceneSvc.getActiveGameScene();
+                game.changeScene($scope.model.scene);
 
             }
 
-            game.changeScene($scope.model.scene);
-            sceneSvc.setActiveGameScene($scope.model.scene);
-
-            var gridExtension = new GridExt({game: game});
+            let gridExtension = new GridExt({game: game});
             gridExtension.setGridColor(Color.fromRGB(49, 51, 52));
 
             game.addRenderExtension("debug", gridExtension);

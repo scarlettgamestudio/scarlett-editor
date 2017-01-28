@@ -7,12 +7,13 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 
         var myLayout = null;
         var activeModal = null;
+        var activeWindows = {};
         var sceneHierarchyLayoutConfiguration = {
             type: 'component',
             componentName: 'template',
             width: 22,
             componentState: {
-                templateId: 'sceneHierarchy',
+                templateId: constants.WINDOW_TYPES.SCENE_HIERARCHY,
                 url: 'templates/sceneHierarchy/sceneHierarchy.html'
             },
             title: $translate.instant("EDITOR_SCENE_HIERARCHY")
@@ -21,7 +22,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
             type: 'component',
             componentName: 'template',
             componentState: {
-                templateId: 'sceneView',
+                templateId: constants.WINDOW_TYPES.SCENE_VIEW,
                 url: 'templates/sceneView/sceneView.html'
             },
             title: $translate.instant("EDITOR_SCENE_VIEW")
@@ -32,7 +33,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
             minWidth: 340,
             componentName: 'template',
             componentState: {
-                templateId: 'inspector',
+                templateId: constants.WINDOW_TYPES.INSPECTOR,
                 url: 'templates/propertyEditor/propertyEditor.html'
             },
             title: $translate.instant("EDITOR_INSPECTOR")
@@ -43,7 +44,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
             minWidth: 340,
             componentName: 'template',
             componentState: {
-                templateId: 'inspector',
+                templateId: constants.WINDOW_TYPES.PROJECT_EXPLORER,
                 url: 'templates/contentBrowser/contentBrowser.html'
             },
             title: $translate.instant("EDITOR_CONTENT_BROWSER")
@@ -52,13 +53,13 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
             type: 'component',
             componentName: 'template',
             componentState: {
-                templateId: 'consoleView',
+                templateId: constants.WINDOW_TYPES.CONSOLE,
                 url: ''
             },
             height: 25,
             title: $translate.instant("EDITOR_CONSOLE")
         };
-        var layoutConfiguration = {
+        var defaultLayoutConfiguration = {
             settings: {
                 hasHeaders: true,
                 showPopoutIcon: false
@@ -111,6 +112,37 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
             });
         };
 
+        $scope.showWindow = function (configuration) {
+            // is window already active?
+            if (activeWindows[configuration.componentState.templateId]) {
+                return;
+            }
+
+            //myLayout.createDragSource("#editor-container", consoleLayoutConfiguration);
+            //myLayout.selectedItem.addChild( consoleLayoutConfiguration );
+            myLayout.root.contentItems[0].addChild(configuration);
+        };
+
+        $scope.showConsole = function () {
+            $scope.showWindow(consoleLayoutConfiguration);
+        };
+
+        $scope.showProjectExplorer = function () {
+            $scope.showWindow(contentBrowserLayoutConfiguration);
+        };
+
+        $scope.showSceneHierarchy = function () {
+            $scope.showWindow(sceneHierarchyLayoutConfiguration);
+        };
+
+        $scope.showSceneView = function () {
+            $scope.showWindow(sceneViewLayoutConfiguration);
+        };
+
+        $scope.showInspector = function () {
+            $scope.showWindow(propertyEditorLayoutConfiguration);
+        };
+
         $scope.openLoadProject = function () {
             scarlettSvc.promptLoadProject();
         };
@@ -143,13 +175,25 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 
             $scope.userInfo = userSvc.getUserInfo();
 
-            myLayout = new GoldenLayout(layoutConfiguration, "#editor-container");
+            myLayout = new GoldenLayout(scarlettSvc.getLayoutConfiguration() || defaultLayoutConfiguration, "#editor-container");
+
+            myLayout.on('itemDestroyed', function (item) {
+                if (item.config && item.config.componentState && item.config.componentState.templateId) {
+                    // delete from the active windows:
+                    delete activeWindows[item.config.componentState.templateId];
+                }
+            });
 
             myLayout.registerComponent('template', function (container, state) {
+                if (container._config && container._config.componentState && container._config.componentState.templateId) {
+                    // add to active windows:
+                    activeWindows[container._config.componentState.templateId] = true;
+                }
+
                 if (state.url && state.url.length > 0) {
                     $http.get(state.url, {cache: true}).then(function (response) {
                         // compile the html so we have all angular goodies:
-                        var html = $compile(response.data)($scope);
+                        let html = $compile(response.data)($scope);
                         container.getElement().html(html);
 
                         // assign events here:
@@ -165,7 +209,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
             });
 
             myLayout.on('stateChanged', function () {
-
+                scarlettSvc.storeLayoutConfiguration(myLayout.toConfig());
             });
 
             myLayout.on('initialised', function () {
@@ -177,7 +221,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
             };
 
             $scope.onKeyDown = function (e) {
-                var keys = [e.keyCode];
+                let keys = [e.keyCode];
 
                 if (e.ctrlKey) {
                     keys.push(Keys.Ctrl);
@@ -193,7 +237,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 
             $scope.onKeyUp = function (e) {
                 // note: in the editor
-                var keys = [e.keyCode];
+                let keys = [e.keyCode];
 
                 if (e.ctrlKey) {
                     keys.push(Keys.Ctrl);

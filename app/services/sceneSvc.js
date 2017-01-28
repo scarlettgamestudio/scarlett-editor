@@ -29,7 +29,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
 
     scope.$on(constants.EVENTS.GAME_OBJECT_REMOVED, (function (e, gameObject) {
         // remove from the selected objects if the case:
-        var idx = svc._selectedObjects.indexOfObject(gameObject);
+        let idx = svc._selectedObjects.indexOfObject(gameObject);
         if (idx >= 0) {
             // remove from the selected objects:
             svc._selectedObjects.splice(idx, 1);
@@ -80,7 +80,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
         }
 
         // first we get the scene data
-        var sceneData = svc._activeGameScene.objectify();
+        let sceneData = svc._activeGameScene.objectify();
 
         // the scene already exists on disc?
         if (svc._activeGameScenePath) {
@@ -89,7 +89,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
 
         } else {
             // it doesn't, let's query the user:
-            var params = {
+            let params = {
                 filters: [{name: '', extensions: ['ss']}]
             };
 
