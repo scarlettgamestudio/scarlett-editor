@@ -1,5 +1,5 @@
-# Scarlett Framework
-Scarlett WebGL Graphics Framework repository
+# Scarlett Editor
+Scarlett 2D Game Editor repository
 
 ![alt tag](https://anlagehub.com/public/sc/images/editor-banner.png)
 
