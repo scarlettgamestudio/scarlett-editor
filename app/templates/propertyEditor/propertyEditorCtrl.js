@@ -1,7 +1,7 @@
 app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
     function ($scope, logSvc, constants) {
 
-        var _LOG_CONTEXT = "propertyEditor ";
+        let _LOG_CONTEXT = "propertyEditor ";
 
         function resetModel() {
             $scope.model = {
@@ -18,14 +18,14 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
          * @returns {Array}
          */
         function getObjectOwnContainerProperties(object) {
-            var properties = [];
+            let properties = [];
 
             if (isObjectAssigned(object)) {
-                var targetType = getType(object);
-                var propertyNames = Object.getOwnPropertyNames(object);
+                let targetType = getType(object);
+                let propertyNames = Object.getOwnPropertyNames(object);
                 propertyNames.forEach(function (entry) {
                     if (entry.length > 0 && isObjectAssigned(object[entry])) {
-                        var customRule = AttributeDictionary.getRule(targetType, entry) || {};
+                        let customRule = AttributeDictionary.getRule(targetType, entry) || {};
 
                         // is this property supposed to be visible?
                         if (customRule.hasOwnProperty("visible") && customRule.visible === false) {
@@ -51,14 +51,18 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
          * @returns {Array}
          */
         function getObjectProperties(object) {
-            var properties = [];
+            let properties = [];
 
             if (isObjectAssigned(object)) {
-                var targetType = getType(object);
-                var propertyNames = Object.getOwnPropertyNames(object);
+                let targetType = getType(object);
+                let propertyNames = Object.getOwnPropertyNames(object);
                 propertyNames.forEach(function (entry) {
-                    if (entry.length > 0 && isObjectAssigned(object[entry])) {
-                        var customRule = AttributeDictionary.getRule(targetType, entry) || {};
+                    if (entry.length > 0) {
+                        let customRule = AttributeDictionary.getRule(targetType, entry) || {};
+
+                        if (!isObjectAssigned(object[entry])) {
+                            return;
+                        }
 
                         // is this property supposed to be visible?
                         if ((customRule.hasOwnProperty("visible") && customRule.visible === false) ||
@@ -67,11 +71,19 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                             return;
                         }
 
-                        var capitalName = capitalize(entry);
-                        var customEditor = customRule["editor"];
-                        var valid = true;
+                        let capitalName = capitalize(entry);
+                        let customEditor = customRule["editor"];
+                        let valid = true;
 
-                        var propertyModel = {
+                        let availability;
+                        if (customRule.hasOwnProperty("available") && isFunction(customRule.available)) {
+                            availability = customRule.available;
+
+                        } else {
+                            availability = function() { return true; };
+                        }
+
+                        let propertyModel = {
                             name: entry,
                             displayName: customRule.displayName || splitCamelCase(capitalName),
                             readOnly: customRule.readOnly || false,
@@ -81,6 +93,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                             editor: customEditor,
                             setter: customRule.setter,
                             getter: customRule.getter,
+                            available: availability,
                             hasDifferentAssignments: false,  // when true, it means the other selected targets have different values assigned
                             differentProperties: [] 		 // this array contains the property sub-property differences (for multi-selection)
                         };
@@ -94,7 +107,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                             if (entry.length < 2) {
                                 valid = false;
                             } else if (!propertyModel.setter || !propertyModel.getter) {
-                                // the setter/getter are not specified and this is a private variable
+                                // the setter/getter are not specified and this is a private letiable
                                 // so we either find them manually or invalidate the property:
                                 capitalName = capitalize(entry.slice(1));
 
@@ -127,7 +140,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
         }
 
         function createPropertyContainerFromObject(object) {
-            var type = getType(object);
+            let type = getType(object);
             return {
                 target: object,
                 displayName: splitCamelCase(capitalize(type)),
@@ -138,10 +151,10 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
         }
 
         function getPropertyContainers(object) {
-            var propertyContainers = [];
+            let propertyContainers = [];
             propertyContainers.push(createPropertyContainerFromObject(object));
 
-            var ownContainerProperties = getObjectOwnContainerProperties(object);
+            let ownContainerProperties = getObjectOwnContainerProperties(object);
             ownContainerProperties.forEach(function (property) {
                 propertyContainers.push(createPropertyContainerFromObject(object[property]));
             });
@@ -150,7 +163,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
         }
 
         function addTarget(target) {
-            var targetModel = {
+            let targetModel = {
                 object: target,
                 propertyContainers: getPropertyContainers(target)
             };
@@ -171,14 +184,14 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
         function getCommonContainers(targets) {
             // we need to lookup the containers that exist in all targets.
             // since they need to exist in all, there's no need to pick more than one target containers for comparison.
-            var commonContainers = [];
-            var baseContainers = targets[0].propertyContainers;
-            var valid;
+            let commonContainers = [];
+            let baseContainers = targets[0].propertyContainers;
+            let valid;
 
-            for (var i = 0; i < baseContainers.length; i++) {
+            for (let i = 0; i < baseContainers.length; i++) {
                 valid = true;
 
-                for (var j = 1; j < $scope.model.targets; j++) {
+                for (let j = 1; j < $scope.model.targets; j++) {
                     if (!containerTypeExists(baseContainers[i].type, targets[j])) {
                         valid = false;
                         $scope.model.hiddenContainers = true;
@@ -195,7 +208,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
         }
 
         function getContainerByType(containerHolder, type) {
-            for (var i = 0; i < containerHolder.length; i++) {
+            for (let i = 0; i < containerHolder.length; i++) {
                 if (containerHolder[i].type == type) {
                     return containerHolder[i];
                 }
@@ -204,7 +217,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
         }
 
         function getDifferentObjectProperties(objectA, objectB, property) {
-            var differences = [];
+            let differences = [];
 
             // this can only work if both objects are of the same kind and are both complex objects
             if (typeof objectA[property] !== "object" || (getType(objectA[property]) !== getType(objectB[property]))) {
@@ -212,7 +225,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             }
 
             // again, since these are both the same object type, they should have the same property names
-            var propertyNames = Object.getOwnPropertyNames(objectA[property]);
+            let propertyNames = Object.getOwnPropertyNames(objectA[property]);
             propertyNames.forEach(function (propertyName) {
                 // TODO: validate if there is a getter for each [private] property (if necessary)
                 if (propertyName.length > 0 && propertyName.substring(0, 1) !== "_") {
@@ -227,25 +240,25 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
 
         function getUnifiedPropertyContainers(targets) {
             // first get the common containers:
-            var unifiedContainers = getCommonContainers(targets);
+            let unifiedContainers = getCommonContainers(targets);
 
             // now we need to look through every common container and specify which values aren't equal in all and
             // flag them so the user can know (UI must take benefit from this)
             unifiedContainers.forEach(function (aContainer) {
                 // now let's get through the other targets containers and compare the property values for each.
                 // note that [i] starts at '1' because we know the unifiedContainers was formed from the first target
-                for (var i = 1; i < targets.length; i++) {
-                    var bContainer = getContainerByType(targets[i].propertyContainers, aContainer.type);
+                for (let i = 1; i < targets.length; i++) {
+                    let bContainer = getContainerByType(targets[i].propertyContainers, aContainer.type);
                     // after all those validations it would be a shame if the following condition is false, but better
                     // be safe than sorry:
                     if (bContainer && bContainer.properties.length == aContainer.properties.length) {
                         // now that we have the comparison container, let's go through the properties themselves
-                        for (var j = 0; j < bContainer.properties.length; j++) {
+                        for (let j = 0; j < bContainer.properties.length; j++) {
                             // a difference for this particular property was already found?
                             // when true, it means there is no need to validate because one difference is enough
                             if (!aContainer.properties[j].hasDifferentAssignments) {
-                                var va = $scope.getPropertyValue(aContainer, aContainer.properties[j]);
-                                var vb = $scope.getPropertyValue(bContainer, bContainer.properties[j]);
+                                let va = $scope.getPropertyValue(aContainer, aContainer.properties[j]);
+                                let vb = $scope.getPropertyValue(bContainer, bContainer.properties[j]);
 
                                 if (isFunction(va.equals) && isFunction(vb.equals)) {
                                     // both values have the 'equals' function defined, let's use it!
@@ -256,7 +269,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                             }
 
                             // now let's find the properties that have different values
-                            var propertyDifferences = getDifferentObjectProperties(aContainer.target, bContainer.target, aContainer.properties[j].name);
+                            let propertyDifferences = getDifferentObjectProperties(aContainer.target, bContainer.target, aContainer.properties[j].name);
 
                             // since more than two objects can be selected, we can't just push the differences to the property
                             // 'differentProperties' array, we need to check if it wasn't already added.
@@ -283,6 +296,10 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             $scope.setTargets([selected], true);
         };
 
+        $scope.onAssetLoaded = function(path) {
+            $scope.safeDigest();
+        };
+
         /**
          *
          */
@@ -300,8 +317,8 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 return false;
             }
 
-            for (var i = 0; i < $scope.model.propertyContainers.length; i++) {
-                for (var j = 0; j < $scope.model.propertyContainers[i].properties.length; j++) {
+            for (let i = 0; i < $scope.model.propertyContainers.length; i++) {
+                for (let j = 0; j < $scope.model.propertyContainers[i].properties.length; j++) {
                     if ($scope.model.propertyContainers[i].properties[j].hasDifferentAssignments === true) {
                         return true;
                     }
@@ -323,9 +340,9 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 return;
             }
 
-            var commands = [];
+            let commands = [];
             $scope.model.targets.forEach(function (target) {
-                var targetContainer = getContainerByType(target.propertyContainers, container.type);
+                let targetContainer = getContainerByType(target.propertyContainers, container.type);
                 if (targetContainer) {
                     if (!subPropertyName) {
                         commands.push(new EditPropertyCommand(targetContainer.target, property.name, targetContainer.target[property.name], value));
@@ -339,9 +356,8 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             AngularHelper.commandHistory.store(commands);
 
             function syncToContainerAction(targetContainer) {
-                var type = property.type.toLowerCase();
-
-                var targetValue = value;
+                let type = property.type.toLowerCase();
+                let targetValue = value;
 
                 // is this a multiple target selection and the sub properties aren't all equal?
                 if ($scope.model.multipleTargets && subPropertyName && property.differentProperties.length > 0) {
@@ -352,11 +368,11 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 }
 
                 if (property.setter) {
-                    var rule = SetterDictionary.getRule(type);
+                    let rule = SetterDictionary.getRule(type);
                     // this setter has a definition (rule) applied?
                     if (rule) {
                         // yes, it means the setter will be made using the user defined order
-                        var args = [];
+                        let args = [];
                         rule.forEach(function (entry) {
                             if (isObjectAssigned(targetValue[entry])) {
                                 args.push(targetValue[entry]);
@@ -365,6 +381,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
 
                         //property.setter.apply(targetContainer.target, args);
                         targetContainer.target[property.name].set.apply(targetContainer.target[property.name], args);
+
                     } else {
                         // this doesn't have any rules so we are supposing it's a single value setter:
                         property.setter.call(targetContainer.target, targetValue);
@@ -378,18 +395,19 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             if ($scope.model.multipleTargets) {
                 // this has a multiple target selection so all targets must be synced:
                 $scope.model.targets.forEach(function (target) {
-                    var targetContainer = getContainerByType(target.propertyContainers, container.type);
+                    let targetContainer = getContainerByType(target.propertyContainers, container.type);
                     if (targetContainer) {
                         syncToContainerAction(targetContainer);
                     }
                 });
+
             } else {
                 syncToContainerAction(container);
             }
 
             // set the following variables to false since we just set the same value for all targets:
             if (subPropertyName) {
-                var index = property.differentProperties.indexOf(subPropertyName);
+                let index = property.differentProperties.indexOf(subPropertyName);
                 if (index >= 0) {
                     property.differentProperties.splice(index, 1);
                 }
@@ -450,12 +468,14 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             // event subscription:
             EventManager.subscribe(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, $scope.onGameObjectSelectionChanged, this);
             EventManager.subscribe(AngularHelper.constants.EVENTS.ASSET_SELECTION, $scope.onAssetSelected, this);
+            EventManager.subscribe(SC.EVENTS.CONTENT_ASSET_LOADED, $scope.onAssetLoaded, this);
 
         })();
 
         $scope.$on("$destroy", (function () {
             EventManager.removeSubscription(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, $scope.onGameObjectSelectionChanged);
             EventManager.removeSubscription(AngularHelper.constants.EVENTS.ASSET_SELECTION, $scope.onAssetSelected);
+            EventManager.removeSubscription(SC.EVENTS.CONTENT_ASSET_LOADED, $scope.onAssetLoaded);
 
         }).bind(this));
     }]
