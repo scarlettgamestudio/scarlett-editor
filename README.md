@@ -9,7 +9,7 @@ This README would normally document whatever steps are necessary to get your app
 
 ### What is this repository for? ###
 
-This repository contains the Scarlett Editor Module and associated libraries.
+This repository contains the Scarlett Editor Module and associated libraries. **At the moment this software is in Development Stage and not ready for production use.**
 
 ### How do I get set up? ###
 
