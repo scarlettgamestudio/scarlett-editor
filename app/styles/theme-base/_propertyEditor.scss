@@ -10,6 +10,21 @@
     }
   }
 
+  .peEmptyPanel {
+    text-align: center;
+    vertical-align: middle;
+    top: 50%;
+    transform: translateY(-50%);
+    position: relative;
+
+    span {
+      padding: 4px;
+      color: lighten(map-get($default-colors, grey), 8);
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+  }
+
   .pePanel {
 
     input[type=number]::-webkit-inner-spin-button,

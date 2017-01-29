@@ -30,6 +30,7 @@ app.config(function ($translateProvider) {
 		COMMON_MULTIPLE: 'Multiple',
 		COMMON_SELECTED: 'Selected',
 		COMMON_SEARCH: 'Search',
+        COMMON_NOTHING_SELECTED: "No objects selected",
 
 		EDITOR_GAME_VIEW: "Game View",
 		EDITOR_SCENE_VIEW: "Scene View",

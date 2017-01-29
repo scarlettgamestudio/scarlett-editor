@@ -1,34 +1,40 @@
-<div id="scenePropertyEditor" class="peContainer noselect" ng-controller="PropertyEditorCtrl">
-    <div class="pePanel" ng-repeat="container in model.propertyContainers">
+<perfect-scrollbar class="scroll-wrapper">
+    <div id="scenePropertyEditor" class="peContainer noselect fill-parent" ng-controller="PropertyEditorCtrl">
+        <div ng-show="model.propertyContainers.length > 0" class="pePanel" ng-repeat="container in model.propertyContainers">
 
-        <!-- header, first element of each target, contains the type of the target -->
-        <div class="peHeader" ng-click="toggleVisibility(container)">
-            <i class="fa fa-sliders" aria-hidden="true" ng-if="$index === 0"></i>
-            <i class="fa" ng-class="{'fa-caret-down' : container.open, 'fa-caret-right' : !container.open}"
-               aria-hidden="true" ng-if="$index > 0"></i>
-            <span class="peHeaderText">
-                {{container.displayName}}
-                <span ng-if="model.multipleTargets && $index === 0">- ({{model.targets.length}}) {{'COMMON_SELECTED' | translate}}</span>
-            </span>
+            <!-- header, first element of each target, contains the type of the target -->
+            <div class="peHeader" ng-click="toggleVisibility(container)">
+                <i class="fa fa-sliders" aria-hidden="true" ng-if="$index === 0"></i>
+                <i class="fa" ng-class="{'fa-caret-down' : container.open, 'fa-caret-right' : !container.open}"
+                   aria-hidden="true" ng-if="$index > 0"></i>
+                <span class="peHeaderText">
+                    {{container.displayName}}
+                    <span ng-if="model.multipleTargets && $index === 0">- ({{model.targets.length}}) {{'COMMON_SELECTED' | translate}}</span>
+                </span>
+            </div>
+
+            <!-- properties of the target -->
+            <div class="peEditorContainer" ng-show="container.open">
+                <div class="peEditor" ng-repeat="property in container.properties"
+                     ng-controller="PropertyEditorHandlerCtrl">
+                    <div ng-show="property.available == null || property.available.apply(container.target)" ng-include="getEditorUrl(property.editor || property.type)"></div>
+                </div>
+            </div>
+
+            <!-- separator -->
+            <hr>
+
         </div>
 
-        <!-- properties of the target -->
-        <div class="peEditorContainer" ng-show="container.open">
-            <div class="peEditor" ng-repeat="property in container.properties"
-                 ng-controller="PropertyEditorHandlerCtrl">
-                <div ng-show="property.available == null || property.available.apply(container.target)" ng-include="getEditorUrl(property.editor || property.type)"></div>
+        <div class="peEmptyPanel" ng-show="model.propertyContainers.length == 0">
+            <span>{{'COMMON_NOTHING_SELECTED' | translate}}</span>
+        </div>
+
+        <div class="pePanel" ng-if="containsMultipleDefinitions()">
+            <div class="peLabel">
+                <div class="peMultipleDefinitionsLabel"></div>
+                <span>Multiple Definitions</span>
             </div>
         </div>
-
-        <!-- separator -->
-        <hr>
-
     </div>
-
-    <div class="pePanel" ng-if="containsMultipleDefinitions()">
-        <div class="peLabel">
-            <div class="peMultipleDefinitionsLabel"></div>
-            <span>Multiple Definitions</span>
-        </div>
-    </div>
-</div>
+</perfect-scrollbar>

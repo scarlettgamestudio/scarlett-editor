@@ -631,6 +631,17 @@ button.btn {
     padding: 3px; }
     .peContainer .btn-property i {
       color: #313334 !important; }
+  .peContainer .peEmptyPanel {
+    text-align: center;
+    vertical-align: middle;
+    top: 50%;
+    transform: translateY(-50%);
+    position: relative; }
+    .peContainer .peEmptyPanel span {
+      padding: 4px;
+      color: #4b4e4f;
+      border-radius: 4px;
+      font-size: 0.9em; }
   .peContainer .pePanel input[type=number]::-webkit-inner-spin-button,
   .peContainer .pePanel input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
