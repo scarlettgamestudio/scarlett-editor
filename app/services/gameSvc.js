@@ -75,7 +75,7 @@ app.factory("gameSvc", function ($rootScope, constants) {
 		svc._gameMap[uid].init({ignoreInputHandler: true});
 
 		// broadcast the game initialize event
-		//$rootScope.$broadcast(constants.EVENTS.GAME_INITIALIZE, svc._gameMap[uid]);
+		$rootScope.$broadcast(constants.EVENTS.GAME_INITIALIZE, svc._gameMap[uid]);
 
 		return true;
 	};

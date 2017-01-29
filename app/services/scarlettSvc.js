@@ -186,10 +186,12 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
 
     svc.setActiveProjectPath = function (path) {
         svc.activeProjectPath = path;
+        GameManager.activeProjectPath = Path.wrapDirectoryPath(Path.getDirectory(path));
     };
 
     svc.setActiveProject = function (project) {
         svc.activeProject = project;
+        GameManager.activeProject = project;
     };
 
     svc.createFullPath = function(relativePath) {
