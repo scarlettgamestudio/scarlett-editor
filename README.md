@@ -17,7 +17,7 @@ The Scarlett Editor can run in all common Operative Systems including Windows, M
 
 ### How do I get set up? ###
 
-* Install NodeJS (6.x or higher is recommended)
+* Install NodeJS (6.x is recommended)
 * Install GruntJS by running "npm install -g grunt-cli" in your computer terminal
 * Install Ruby
 * Install Ruby Sass by running "gem install sass" in your computer terminal
