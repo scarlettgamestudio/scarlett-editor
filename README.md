@@ -38,7 +38,7 @@ The Scarlett Editor can run in all common Operative Systems including Windows, M
 
 This project uses the latest Ecma6 Javascript features and therefore if you are using an IDE such as IntelliJ or Webstorm it might detect code errors when using the default settings.
 
-To allow Ecma6 syntax make sure to change the Javascript Version in the settings menu (Settings->Languages & Frameworks->Javascript).
+To allow Ecma6 syntax make sure to change the Javascript Version in the settings menu (Settings -> Languages & Frameworks -> Javascript).
 
 ### Development Hints ###
 
