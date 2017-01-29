@@ -45,6 +45,7 @@ To allow Ecma6 syntax make sure to change the Javascript Version in the settings
 * All main source code can be found in the /app and /modules folders
 * AngularJS 1.6+ is the main framework being used in this project
 * The execution container is powered by ElectronJS 
+* Online Services are not configured in this Development version, you can either configure a personal server using the scarlett-webserver project or use the application in offline-mode.
 
 ### Who do I talk to? ###
 
