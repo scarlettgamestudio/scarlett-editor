@@ -15,7 +15,13 @@ This repository contains the Scarlett Editor Module and associated libraries. **
 
 The Scarlett Editor can run in all common Operative Systems including Windows, MacOS and Linux.
 
-### How do I get set up? ###
+### How do I get set up for runtime? ###
+
+* Install NodeJS (6.x is recommended)
+* Open a terminal in the project root folder and execute "npm install" for dependency resolution
+* In the same folder, execute "npm start" to initialize the software.
+
+### How do I get set up for development? ###
 
 * Install NodeJS (6.x is recommended)
 * Install GruntJS by running "npm install -g grunt-cli" in your computer terminal
@@ -24,7 +30,7 @@ The Scarlett Editor can run in all common Operative Systems including Windows, M
 * Open a terminal in the project root folder and execute "npm install" for dependency resolution
 * In the same folder, execute "npm start" to initialize the software.
 
-### Optional Setup ###
+### Extra Development Setup ###
 
 * To activate automatic project build on code change (including styling modifications) simply run "grunt" on the root folder. 
 
