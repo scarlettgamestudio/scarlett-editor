@@ -33,6 +33,7 @@ app.config(function ($translateProvider) {
 
 		EDITOR_GAME_VIEW: "Game View",
 		EDITOR_SCENE_VIEW: "Scene View",
+		EDITOR_ATLAS_EDITOR: "Atlas Editor",
 		EDITOR_SCENE_HIERARCHY: "Scene Hierarchy",
 		EDITOR_PROJECT_EXPLORER: "Project Explorer",
 		EDITOR_INSPECTOR: "Inspector",

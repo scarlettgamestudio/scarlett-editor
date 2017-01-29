@@ -2,98 +2,10 @@
  * Created by John on 12/12/15.
  */
 
-app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', '$rootScope', '$translate', '$uibModal', '$http', '$compile', 'scarlettSvc', 'constants', 'sceneSvc', '$timeout', 'modalSvc',
-    function ($scope, logSvc, soapSvc, config, userSvc, $rootScope, $translate, $uibModal, $http, $compile, scarlettSvc, constants, sceneSvc, $timeout, modalSvc) {
+app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', '$rootScope', '$translate', '$uibModal', 'scarlettSvc', 'constants', 'sceneSvc', '$timeout', 'modalSvc', 'layoutSvc',
+    function ($scope, logSvc, soapSvc, config, userSvc, $rootScope, $translate, $uibModal, scarlettSvc, constants, sceneSvc, $timeout, modalSvc, layoutSvc) {
 
-        var myLayout = null;
         var activeModal = null;
-        var activeWindows = {};
-        var sceneHierarchyLayoutConfiguration = {
-            type: 'component',
-            componentName: 'template',
-            width: 22,
-            componentState: {
-                templateId: constants.WINDOW_TYPES.SCENE_HIERARCHY,
-                url: 'templates/sceneHierarchy/sceneHierarchy.html'
-            },
-            title: $translate.instant("EDITOR_SCENE_HIERARCHY")
-        };
-        var sceneViewLayoutConfiguration = {
-            type: 'component',
-            componentName: 'template',
-            componentState: {
-                templateId: constants.WINDOW_TYPES.SCENE_VIEW,
-                url: 'templates/sceneView/sceneView.html'
-            },
-            title: $translate.instant("EDITOR_SCENE_VIEW")
-        };
-        var propertyEditorLayoutConfiguration = {
-            type: 'component',
-            width: 20,
-            minWidth: 340,
-            componentName: 'template',
-            componentState: {
-                templateId: constants.WINDOW_TYPES.INSPECTOR,
-                url: 'templates/propertyEditor/propertyEditor.html'
-            },
-            title: $translate.instant("EDITOR_INSPECTOR")
-        };
-        var contentBrowserLayoutConfiguration = {
-            type: 'component',
-            height: 38,
-            minWidth: 340,
-            componentName: 'template',
-            componentState: {
-                templateId: constants.WINDOW_TYPES.PROJECT_EXPLORER,
-                url: 'templates/contentBrowser/contentBrowser.html'
-            },
-            title: $translate.instant("EDITOR_CONTENT_BROWSER")
-        };
-        var consoleLayoutConfiguration = {
-            type: 'component',
-            componentName: 'template',
-            componentState: {
-                templateId: constants.WINDOW_TYPES.CONSOLE,
-                url: ''
-            },
-            height: 25,
-            title: $translate.instant("EDITOR_CONSOLE")
-        };
-        var defaultLayoutConfiguration = {
-            settings: {
-                hasHeaders: true,
-                showPopoutIcon: false
-            },
-            labels: {
-                close: $translate.instant("ACTION_CLOSE"),
-                maximise: $translate.instant("ACTION_MAXIMIZE"),
-                minimise: $translate.instant("ACTION_MINIMIZE"),
-                popout: $translate.instant("ACTION_POPOUT")
-            },
-            dimensions: {
-                borderWidth: 4,
-                headerHeight: 20,
-            },
-            content: [{
-                type: 'row',
-                content: [
-                    {
-                        type: 'column',
-                        content: [
-                            {
-                                type: 'row',
-                                content: [
-                                    sceneHierarchyLayoutConfiguration,
-                                    sceneViewLayoutConfiguration
-                                ]
-                            },
-                            contentBrowserLayoutConfiguration
-                        ]
-                    },
-                    propertyEditorLayoutConfiguration,
-                ]
-            }]
-        };
 
         $scope.model = {
             onlineMode: userSvc.isLoggedIn()
@@ -112,35 +24,28 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
             });
         };
 
-        $scope.showWindow = function (configuration) {
-            // is window already active?
-            if (activeWindows[configuration.componentState.templateId]) {
-                return;
-            }
-
-            //myLayout.createDragSource("#editor-container", consoleLayoutConfiguration);
-            //myLayout.selectedItem.addChild( consoleLayoutConfiguration );
-            myLayout.root.contentItems[0].addChild(configuration);
-        };
-
         $scope.showConsole = function () {
-            $scope.showWindow(consoleLayoutConfiguration);
+            layoutSvc.addWindow(constants.WINDOW_TYPES.CONSOLE);
         };
 
         $scope.showProjectExplorer = function () {
-            $scope.showWindow(contentBrowserLayoutConfiguration);
+            layoutSvc.addWindow(constants.WINDOW_TYPES.PROJECT_EXPLORER);
         };
 
         $scope.showSceneHierarchy = function () {
-            $scope.showWindow(sceneHierarchyLayoutConfiguration);
+            layoutSvc.addWindow(constants.WINDOW_TYPES.SCENE_HIERARCHY);
+        };
+
+        $scope.showAtlasEditor = function () {
+            layoutSvc.addWindow(constants.WINDOW_TYPES.ATLAS_EDITOR);
         };
 
         $scope.showSceneView = function () {
-            $scope.showWindow(sceneViewLayoutConfiguration);
+            layoutSvc.addWindow(constants.WINDOW_TYPES.SCENE_VIEW);
         };
 
         $scope.showInspector = function () {
-            $scope.showWindow(propertyEditorLayoutConfiguration);
+            layoutSvc.addWindow(constants.WINDOW_TYPES.INSPECTOR);
         };
 
         $scope.openLoadProject = function () {
@@ -175,49 +80,10 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
 
             $scope.userInfo = userSvc.getUserInfo();
 
-            myLayout = new GoldenLayout(scarlettSvc.getLayoutConfiguration() || defaultLayoutConfiguration, "#editor-container");
-
-            myLayout.on('itemDestroyed', function (item) {
-                if (item.config && item.config.componentState && item.config.componentState.templateId) {
-                    // delete from the active windows:
-                    delete activeWindows[item.config.componentState.templateId];
-                }
-            });
-
-            myLayout.registerComponent('template', function (container, state) {
-                if (container._config && container._config.componentState && container._config.componentState.templateId) {
-                    // add to active windows:
-                    activeWindows[container._config.componentState.templateId] = true;
-                }
-
-                if (state.url && state.url.length > 0) {
-                    $http.get(state.url, {cache: true}).then(function (response) {
-                        // compile the html so we have all angular goodies:
-                        let html = $compile(response.data)($scope);
-                        container.getElement().html(html);
-
-                        // assign events here:
-                        container.on("resize", function () {
-                            $scope.$broadcast(constants.EVENTS.CONTAINER_RESIZE, state.templateId);
-                        });
-
-                        if (state.templateId == "inspector") {
-                            // do stuff here?
-                        }
-                    });
-                }
-            });
-
-            myLayout.on('stateChanged', function () {
-                scarlettSvc.storeLayoutConfiguration(myLayout.toConfig());
-            });
-
-            myLayout.on('initialised', function () {
-
-            });
+            layoutSvc.createLayout("#editor-container");
 
             $scope.onWindowResize = function () {
-                myLayout.updateSize();
+                layoutSvc.updateSize();
             };
 
             $scope.onKeyDown = function (e) {
@@ -271,13 +137,19 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
             };
 
             $scope.onWindowFocus = function (e) {
-
+                // trigger events here if needed..
             };
+
+            $scope.$on("$destroy", (function () {
+                // destroy and clear active layout manager:
+                layoutSvc.destroyLayout();
+
+            }).bind(this));
 
             $timeout((function () {
                 // running this under the $timeout guarantees that the controller will be initialized only when the base
                 // html is rendered, therefore having correct size calculations (important).
-                myLayout.init();
+                layoutSvc.initLayout();
 
                 window.addEventListener("resize", $scope.onWindowResize);
                 window.addEventListener("keyup", $scope.onKeyUp);

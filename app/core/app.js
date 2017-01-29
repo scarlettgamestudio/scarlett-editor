@@ -64,6 +64,7 @@ var app = angular.module('scarlett', dependencies)
 		INSPECTOR: "inspector",
 		CONSOLE: "console",
 		SCENE_VIEW: "sceneView",
+		ATLAS_EDITOR: "atlasEditor",
 		PROJECT_EXPLORER: "projectExplorer",
 		GAME_VIEW: "gameView"
 	},
