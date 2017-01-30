@@ -48,5 +48,11 @@
     a {
       color: map-get($default-colors, dirty-grey);
     }
+
+    li.disabled {
+      a  {
+        color: map-get($default-colors, fade-grey);
+      }
+    }
   }
 }

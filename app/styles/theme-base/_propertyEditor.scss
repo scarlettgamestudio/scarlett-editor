@@ -165,7 +165,7 @@
         }
 
         .color-preview {
-          border: none;
+          border: 1px solid map-get($default-colors, dim-grey);
           position: relative;
 
           &.inconclusive {

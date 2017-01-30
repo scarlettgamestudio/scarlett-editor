@@ -293,6 +293,10 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             $scope.setTargets([selected], true);
         };
 
+        $scope.onObjectsSelected = function(selected) {
+            $scope.setTargets(selected, true);
+        };
+
         $scope.onAssetLoaded = function(path) {
             $scope.safeDigest();
         };
@@ -465,6 +469,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             // event subscription:
             EventManager.subscribe(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, $scope.onGameObjectSelectionChanged, this);
             EventManager.subscribe(AngularHelper.constants.EVENTS.ASSET_SELECTION, $scope.onAssetSelected, this);
+            EventManager.subscribe(AngularHelper.constants.EVENTS.OBJECTS_SELECTION, $scope.onObjectsSelected, this);
             EventManager.subscribe(SC.EVENTS.CONTENT_ASSET_LOADED, $scope.onAssetLoaded, this);
 
         })();
@@ -472,6 +477,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
         $scope.$on("$destroy", (function () {
             EventManager.removeSubscription(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, $scope.onGameObjectSelectionChanged);
             EventManager.removeSubscription(AngularHelper.constants.EVENTS.ASSET_SELECTION, $scope.onAssetSelected);
+            EventManager.removeSubscription(AngularHelper.constants.EVENTS.OBJECTS_SELECTION, $scope.onObjectsSelected);
             EventManager.removeSubscription(SC.EVENTS.CONTENT_ASSET_LOADED, $scope.onAssetLoaded);
 
         }).bind(this));

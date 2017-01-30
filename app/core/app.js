@@ -81,7 +81,8 @@ var app = angular.module('scarlett', dependencies)
 		COMMAND_HISTORY_CHANGED: "onCommandHistoryChanged",
 		VIEW_CHANGED: "onViewChanged",
 		ACTIVE_FOLDER_NODE_CHANGED: "onActiveFolderNodeChanged",
-		ASSET_SELECTION: "onAssetSelection"
+		ASSET_SELECTION: "onAssetSelection",
+        OBJECTS_SELECTION: "onObjectsSelection"
 	},
 	CONTAINERS: {
 		SCENE_VIEW: "sceneView"

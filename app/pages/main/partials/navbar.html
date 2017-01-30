@@ -32,8 +32,10 @@
                     <span class="hidden-xs" translate-once="NAVBAR_EDIT"></span>
                 </a>
                 <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
-                    <li><a><i class="fa fa-undo"></i><span translate-once="NAVBAR_UNDO"></span></a></li>
-                    <li><a><i class="fa fa-repeat"></i><span translate-once="NAVBAR_REDO"></span></a></li>
+                    <li ng-class="{'disabled': !canUndo()}" ng-click="undo()"><a><i class="fa fa-undo"></i><span translate-once="NAVBAR_UNDO"></span></a></li>
+                    <li ng-class="{'disabled': !canRedo()}" ng-click="redo()"><a><i class="fa fa-repeat"></i><span translate-once="NAVBAR_REDO"></span></a></li>
+                    <li class="divider"></li>
+                    <li ng-click="editGameScene()"><a><i class="fa fa-picture-o"></i><span translate-once="CTX_GAME_SCENE"></span></a></li>
                     <li class="divider"></li>
                     <li><a><i class="fa fa-cut"></i><span translate-once="NAVBAR_CUT"></span></a></li>
                     <li><a><i class="fa fa-copy"></i><span translate-once="NAVBAR_COPY"></span></a>

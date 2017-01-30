@@ -730,7 +730,7 @@ button.btn {
       .peContainer .pePanel .peEditorContainer .peEditor input[type="checkbox"]:checked {
         background: #969696; }
       .peContainer .pePanel .peEditorContainer .peEditor .color-preview {
-        border: none;
+        border: 1px solid #313334;
         position: relative; }
         .peContainer .pePanel .peEditorContainer .peEditor .color-preview.inconclusive {
           background: repeating-linear-gradient(45deg, #313334, #313334 6px, #2c2e2f 6px, #2c2e2f 12px); }

@@ -11054,7 +11054,12 @@ GameProject.prototype.toJSON = function() {
 	};
 };
 
-;/**
+;AttributeDictionary.addRule("gameScene", "_game", {visible: false});
+AttributeDictionary.addRule("gameScene", "_gameObjects", {visible: false});
+AttributeDictionary.addRule("gameScene", "_camera", {visible: false});
+AttributeDictionary.addRule("gameScene", "_spriteBatch", {visible: false});
+
+/**
  * GameScene class
  */
 function GameScene(params) {

@@ -24,30 +24,6 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
             });
         };
 
-        $scope.showConsole = function () {
-            layoutSvc.addWindow(constants.WINDOW_TYPES.CONSOLE);
-        };
-
-        $scope.showProjectExplorer = function () {
-            layoutSvc.addWindow(constants.WINDOW_TYPES.PROJECT_EXPLORER);
-        };
-
-        $scope.showSceneHierarchy = function () {
-            layoutSvc.addWindow(constants.WINDOW_TYPES.SCENE_HIERARCHY);
-        };
-
-        $scope.showAtlasEditor = function () {
-            layoutSvc.addWindow(constants.WINDOW_TYPES.ATLAS_EDITOR);
-        };
-
-        $scope.showSceneView = function () {
-            layoutSvc.addWindow(constants.WINDOW_TYPES.SCENE_VIEW);
-        };
-
-        $scope.showInspector = function () {
-            layoutSvc.addWindow(constants.WINDOW_TYPES.INSPECTOR);
-        };
-
         $scope.openLoadProject = function () {
             scarlettSvc.promptLoadProject();
         };

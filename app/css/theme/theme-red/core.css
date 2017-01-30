@@ -49,5 +49,7 @@ body {
     background: #e53929; }
   .sc-theme-red .navbar .dropdown-menu a {
     color: #707070; }
+  .sc-theme-red .navbar .dropdown-menu li.disabled a {
+    color: #ccc; }
 
 /*# sourceMappingURL=core.css.map */

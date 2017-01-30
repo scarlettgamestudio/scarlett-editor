@@ -1,3 +1,7 @@
+AttributeDictionary.inherit("editorGameScene", "gameScene");
+AttributeDictionary.addRule("editorGameScene", "snapToGrid", {visible: false});
+AttributeDictionary.addRule("editorGameScene", "snapGridSize", {visible: false});
+
 /**
  * EditorGameScene
  */
@@ -13,7 +17,7 @@ function EditorGameScene(params) {
 	this._colors = {
 		selection: Color.fromRGBA(100.0, 149.0, 237.0, 0.275)
 	};
-	this._mat = mat4.create(); // temporary matrix that can be used in multiple situations
+	//this._mat = mat4.create(); // temporary matrix that can be used in multiple situations
 	this._startCameraPosition = null;
 	this._selectedObjects = [];
 	this._subjectsMethod = null;
@@ -88,6 +92,10 @@ EditorGameScene.prototype.initialize = function () {
 	EventManager.subscribe(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, this._gameObjectsSelectionChanged, this);
 };
 
+EditorGameScene.prototype.getType = function() {
+    return "EditorGameScene";
+};
+
 EditorGameScene.prototype.unload = function () {
 	// remove subscriptions:
 	EventManager.removeSubscription(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, this._gameObjectsSelectionChanged);
@@ -101,7 +109,7 @@ EditorGameScene.prototype.unload = function () {
  * @param evt
  */
 EditorGameScene.prototype.onMouseWheel = function (evt) {
-	var wheelY = evt.deltaY;
+	let wheelY = evt.deltaY;
 	this._camera.zoom += 0.032 * (wheelY > 0 ? 1 : -1) * this._camera.zoom;
 	this._camera.zoom = MathHelper.clamp(this._camera.zoom, 0.01, 8.0);
 };
@@ -123,7 +131,7 @@ EditorGameScene.prototype.onMouseDown = function (evt) {
 		// left button:
 		case 0:
 			if (this._selectedObjects.length > 0) {
-				var method = this._handleMouseArtifactCollision(evt);
+				let method = this._handleMouseArtifactCollision(evt);
 				// is there something that we should take care of?
 				if (method) {
 					this._subjectsMethod = method;
@@ -154,7 +162,7 @@ EditorGameScene.prototype.onMouseDown = function (evt) {
  * @param evt
  */
 EditorGameScene.prototype.onMouseMove = function (evt) {
-	var handled = false; // when true, "further" operations shall take this in consideration as it means something is already being operated
+	let handled = false; // when true, "further" operations shall take this in consideration as it means something is already being operated
 
 	if (this._mouseState.dragging) {
 		this._mouseState.lastPosition = this._camera.screenToWorldCoordinates(evt.offsetX, evt.offsetY);
@@ -245,7 +253,7 @@ EditorGameScene.prototype.lateRender = function (delta) {
 };
 
 EditorGameScene.prototype.setSelectedObjects = function (gameObjects, broadcast, disableSelectionHistory) {
-	var selected = [];
+	let selected = [];
 	gameObjects.forEach(function (elem) {
 		selected.push({
 			gameObject: elem,
@@ -260,7 +268,7 @@ EditorGameScene.prototype.setSelectedObjects = function (gameObjects, broadcast,
 	if (Keyboard.isKeyDown(Keys.Ctrl)) {
 		selected.forEach((function (node) {
 			// now we need to verify if the node is already selected, if so, we must toggle it (remove it)
-			var idx = this._selectedObjects.indexOfObject(node);
+            let idx = this._selectedObjects.indexOfObject(node);
 			console.log(node);
 			if (idx >= 0) {
 				this._selectedObjects.splice(idx, 1);
@@ -289,8 +297,8 @@ EditorGameScene.prototype.setSelectedObjects = function (gameObjects, broadcast,
 /** private functions **/
 
 EditorGameScene.prototype._handleKeyboardInput = function (delta) {
-	var keyboardState = Keyboard.getState();
-	var sceneOperations = 0;
+    let keyboardState = Keyboard.getState();
+    let sceneOperations = 0;
 
 	// is the canvas focused?
 	if (AngularHelper.isActiveCanvasFocused()) {
@@ -331,11 +339,11 @@ EditorGameScene.prototype._gameObjectsSelectionChanged = function (selected, ori
 
 EditorGameScene.prototype._scaleSubject = function (subject, mx, my, scaleX, scaleY, invertX, invertY) {
 	// note: change mouse coordinates (controller) to world coordinates..
-	var direction = subject.gameObject.transform.getRotation();
-	var normDirection = direction % MathHelper.PI2;
-	var baseWidth = subject.gameObject.getBaseWidth();
-	var baseHeight = subject.gameObject.getBaseHeight();
-	var origin = subject.gameObject.getOrigin();
+    let direction = subject.gameObject.transform.getRotation();
+    let normDirection = direction % MathHelper.PI2;
+    let baseWidth = subject.gameObject.getBaseWidth();
+    let baseHeight = subject.gameObject.getBaseHeight();
+    let origin = subject.gameObject.getOrigin();
 
 	if (this.snapToGrid) {
 		mx -= mx % this.snapGridSize;
@@ -357,12 +365,12 @@ EditorGameScene.prototype._scaleSubject = function (subject, mx, my, scaleX, sca
 	// sum the direction of the mouse movement to the existing in the object:
 	direction += Math.atan2(my, mx);
 
-	var h = Math.sqrt((mx * mx) + (my * my)); // in here we get the hypotenuse of the offset movement
-	var ox = scaleX ? (invertX ? -h : h) * Math.cos(direction) : 0;
-	var oy = scaleY ? (invertY ? -h : h) * Math.sin(direction) : 0;
+    let h = Math.sqrt((mx * mx) + (my * my)); // in here we get the hypotenuse of the offset movement
+    let ox = scaleX ? (invertX ? -h : h) * Math.cos(direction) : 0;
+    let oy = scaleY ? (invertY ? -h : h) * Math.sin(direction) : 0;
 
-	var newScaleX = subject.originalTransform.getScale().x + mx / baseWidth;
-	var newScaleY = subject.originalTransform.getScale().y + my / baseHeight;
+    let newScaleX = subject.originalTransform.getScale().x + mx / baseWidth;
+    let newScaleY = subject.originalTransform.getScale().y + my / baseHeight;
 
 	subject.gameObject.transform.setPosition(
 		Math.round(subject.originalTransform.getPosition().x + ox * (invertX ? 1 - origin.x : origin.x)),  //((ox * (scaleX ? (invertX ? 1 - origin.x : origin.x) : 0.5)) * (invertX ? -1 : 1))),
@@ -377,9 +385,9 @@ EditorGameScene.prototype._scaleSubject = function (subject, mx, my, scaleX, sca
 };
 
 EditorGameScene.prototype._updateSubjects = function (evt) {
-	var broadcastChange = false;
-	var diffx = (this._mouseState.lastPosition.x - this._mouseState.startPosition.x);
-	var diffy = (this._mouseState.lastPosition.y - this._mouseState.startPosition.y);
+    let broadcastChange = false;
+    let diffx = (this._mouseState.lastPosition.x - this._mouseState.startPosition.x);
+    let diffy = (this._mouseState.lastPosition.y - this._mouseState.startPosition.y);
 
 	//console.log("LEPOS. " + JSON.stringify(this._mouseState.startPosition) + "-" + JSON.stringify(this._mouseState.lastPosition));
 
@@ -427,8 +435,8 @@ EditorGameScene.prototype._updateSubjects = function (evt) {
 				break;
 
 			case EditorGameScene.TRANSFORM_STATE.MOVE:
-				var newX = Math.round(subject.originalTransform.getPosition().x - ((this._mouseState.startScreenPosition.x - evt.offsetX) * this._camera.zoom));
-				var newY = Math.round(subject.originalTransform.getPosition().y - ((this._mouseState.startScreenPosition.y - evt.offsetY) * this._camera.zoom));
+                let newX = Math.round(subject.originalTransform.getPosition().x - ((this._mouseState.startScreenPosition.x - evt.offsetX) * this._camera.zoom));
+                let newY = Math.round(subject.originalTransform.getPosition().y - ((this._mouseState.startScreenPosition.y - evt.offsetY) * this._camera.zoom));
 
 				if (this.snapToGrid) {
 					newX -= newX % this.snapGridSize;
@@ -462,17 +470,17 @@ EditorGameScene.prototype._clearSubjectsMethod = function () {
  * @private
  */
 EditorGameScene.prototype._generateGameObjectArtifactData = function (gameObject, asArray) {
-	var artifacts = asArray ? [] : {};
-	var bulk = EditorGameScene.DIMENSIONS.ARTIFACT_RECTANGLE_BULK * this._camera.zoom;
-	var boundary = gameObject.getBoundary();
+    let artifacts = asArray ? [] : {};
+    let bulk = EditorGameScene.DIMENSIONS.ARTIFACT_RECTANGLE_BULK * this._camera.zoom;
+    let boundary = gameObject.getBoundary();
 
-	var topMiddlePosition = new Vector2((boundary.topLeft.x + boundary.topRight.x) / 2.0, (boundary.topLeft.y + boundary.topRight.y) / 2.0);
-	var leftMiddlePosition = new Vector2((boundary.topLeft.x + boundary.bottomLeft.x) / 2.0, (boundary.topLeft.y + boundary.bottomLeft.y) / 2.0);
-	var bottomMiddlePosition = new Vector2((boundary.bottomLeft.x + boundary.bottomRight.x) / 2.0, (boundary.bottomLeft.y + boundary.bottomRight.y) / 2.0);
-	var rightMiddlePosition = new Vector2((boundary.bottomRight.x + boundary.topRight.x) / 2.0, (boundary.bottomRight.y + boundary.topRight.y) / 2.0);
+    let topMiddlePosition = new Vector2((boundary.topLeft.x + boundary.topRight.x) / 2.0, (boundary.topLeft.y + boundary.topRight.y) / 2.0);
+    let leftMiddlePosition = new Vector2((boundary.topLeft.x + boundary.bottomLeft.x) / 2.0, (boundary.topLeft.y + boundary.bottomLeft.y) / 2.0);
+    let bottomMiddlePosition = new Vector2((boundary.bottomLeft.x + boundary.bottomRight.x) / 2.0, (boundary.bottomLeft.y + boundary.bottomRight.y) / 2.0);
+    let rightMiddlePosition = new Vector2((boundary.bottomRight.x + boundary.topRight.x) / 2.0, (boundary.bottomRight.y + boundary.topRight.y) / 2.0);
 
 	// note: the higher the priority value, the "more priority" it has
-	var artifactDictionary = [
+    let artifactDictionary = [
 		{
 			name: "ORIGIN",
 			origin: gameObject.transform.getPosition(),
@@ -535,7 +543,7 @@ EditorGameScene.prototype._generateGameObjectArtifactData = function (gameObject
 	}
 
 	artifactDictionary.forEach(function (elem) {
-		var obj = {
+        let obj = {
 			name: elem.name,
 			boundary: Boundary.fromVector2(elem.origin, bulk),
 			priority: elem.priority,
@@ -559,16 +567,16 @@ EditorGameScene.prototype._generateGameObjectArtifactData = function (gameObject
  * @private
  */
 EditorGameScene.prototype._handleMouseArtifactCollision = function (evt) {
-	var worldPosition = this._camera.screenToWorldCoordinates(evt.offsetX, evt.offsetY);
-	var mouseBoundary = Boundary.fromVector2(worldPosition, EditorGameScene.DIMENSIONS.MOUSE_COLLISION_BULK);
-	var bulk = EditorGameScene.DIMENSIONS.ARTIFACT_RECTANGLE_BULK * this._camera.zoom;
-	var method = null;
+    let worldPosition = this._camera.screenToWorldCoordinates(evt.offsetX, evt.offsetY);
+    let mouseBoundary = Boundary.fromVector2(worldPosition, EditorGameScene.DIMENSIONS.MOUSE_COLLISION_BULK);
+    //let bulk = EditorGameScene.DIMENSIONS.ARTIFACT_RECTANGLE_BULK * this._camera.zoom;
+    let method = null;
 
 	// let's check on all the game scene game objects if there is a selection collision detected:
 	this._selectedObjects.forEach((function (selected) {
-		var activeArtifact = null;
+        let activeArtifact = null;
 		if (selected.gameObject.collidesWithPoint(worldPosition)) {
-			var artifactData = this._generateGameObjectArtifactData(selected.gameObject, true);
+            let artifactData = this._generateGameObjectArtifactData(selected.gameObject, true);
 
 			// ok, without further considerations, let's apply the default method (MOVE) if enabled
 			if (this._isMoveEnabled()) {
@@ -623,7 +631,7 @@ EditorGameScene.prototype._handleMouseArtifactCollision = function (evt) {
 };
 
 EditorGameScene.prototype._onSubjectMethodOver = function () {
-	var commands = [];
+    let commands = [];
 	this._selectedObjects.forEach((function (subject) {
 		switch (this._subjectsMethod) {
 			case EditorGameScene.TRANSFORM_STATE.SCALE_TOP_LEFT:
@@ -678,27 +686,27 @@ EditorGameScene.prototype._renderSelectedObjectsArtifacts = function (delta) {
 		return;
 	}
 
-	var rectangleBulk = EditorGameScene.DIMENSIONS.ARTIFACT_RECTANGLE_BULK * this._camera.zoom;
-	var rectangleHalfBulk = rectangleBulk / 2;
-	var minorRectangleBulk = rectangleBulk / 1.28;
-	var minorRectangleHalfBulk = minorRectangleBulk / 2;
-	var originBulk = 6 * this._camera.zoom;
+    let rectangleBulk = EditorGameScene.DIMENSIONS.ARTIFACT_RECTANGLE_BULK * this._camera.zoom;
+    let rectangleHalfBulk = rectangleBulk / 2;
+    let minorRectangleBulk = rectangleBulk / 1.28;
+    let minorRectangleHalfBulk = minorRectangleBulk / 2;
+    let originBulk = 6 * this._camera.zoom;
 
-	var boundaryColor = Color.Orange;
-	var scaleColor = Color.SunFlower;
+    let boundaryColor = Color.Orange;
+    let scaleColor = Color.SunFlower;
 
 	// TODO: Handle small objects. Depending on the selected game object size, show different artifacts.
 
 	this._selectedObjects.forEach((function (selected) {
-		var elem = selected.gameObject;
+        let elem = selected.gameObject;
 
 		if (!elem.enabled) {
 			return;
 		}
 
-		var vertices = elem.getBoundary();
-		var position = elem.transform.getPosition();
-		var rotation = elem.transform.getRotation();
+        let vertices = elem.getBoundary();
+        let position = elem.transform.getPosition();
+        let rotation = elem.transform.getRotation();
 
 		//this._primitiveRender.drawLine(position, selected.originalTransform.getPosition(), 1, Color.Orange);
 
@@ -719,10 +727,10 @@ EditorGameScene.prototype._renderSelectedObjectsArtifacts = function (delta) {
 
 				// sides
 				// note: we need to calculate the mid point for each two vertex combination (see more at: http://www.purplemath.com/modules/midpoint.htm)
-				var topMiddlePosition = new Vector2((vertices.topLeft.x + vertices.topRight.x) / 2.0, (vertices.topLeft.y + vertices.topRight.y) / 2.0);
-				var leftMiddlePosition = new Vector2((vertices.topLeft.x + vertices.bottomLeft.x) / 2.0, (vertices.topLeft.y + vertices.bottomLeft.y) / 2.0);
-				var bottomMiddlePosition = new Vector2((vertices.bottomLeft.x + vertices.bottomRight.x) / 2.0, (vertices.bottomLeft.y + vertices.bottomRight.y) / 2.0);
-				var rightMiddlePosition = new Vector2((vertices.bottomRight.x + vertices.topRight.x) / 2.0, (vertices.bottomRight.y + vertices.topRight.y) / 2.0);
+                let topMiddlePosition = new Vector2((vertices.topLeft.x + vertices.topRight.x) / 2.0, (vertices.topLeft.y + vertices.topRight.y) / 2.0);
+                let leftMiddlePosition = new Vector2((vertices.topLeft.x + vertices.bottomLeft.x) / 2.0, (vertices.topLeft.y + vertices.bottomLeft.y) / 2.0);
+                let bottomMiddlePosition = new Vector2((vertices.bottomLeft.x + vertices.bottomRight.x) / 2.0, (vertices.bottomLeft.y + vertices.bottomRight.y) / 2.0);
+                let rightMiddlePosition = new Vector2((vertices.bottomRight.x + vertices.topRight.x) / 2.0, (vertices.bottomRight.y + vertices.topRight.y) / 2.0);
 
 				this._primitiveRender.drawRectangle(new Rectangle(topMiddlePosition.x - minorRectangleHalfBulk, topMiddlePosition.y - minorRectangleHalfBulk, rectangleBulk, minorRectangleBulk), scaleColor, rotation);
 				this._primitiveRender.drawRectangle(new Rectangle(leftMiddlePosition.x - minorRectangleHalfBulk, leftMiddlePosition.y - minorRectangleHalfBulk, rectangleBulk, minorRectangleBulk), scaleColor, rotation);
@@ -765,15 +773,15 @@ EditorGameScene.prototype._refreshSelectedObjectsData = function () {
  * @private
  */
 EditorGameScene.prototype._handleSelection = function (intersection, topLevelOnly, disableSelectionHistory) {
-	var selectionRectangle = Rectangle.fromVectors(this._mouseState.startPosition, this._mouseState.lastPosition);
-	var gameObjects = this.getAllGameObjects();
-	var selected = [];
+    let selectionRectangle = Rectangle.fromVectors(this._mouseState.startPosition, this._mouseState.lastPosition);
+    let gameObjects = this.getAllGameObjects();
+    let selected = [];
 
 	// let's check on all the game scene game objects if there is a selection collision detected:
 	gameObjects.forEach((function (obj) {
 		// is the object enabled ?
 		if (obj.enabled) {
-			var add = intersection ? obj.collidesWithPoint(this._mouseState.startPosition) : selectionRectangle.contains(obj.getRectangleBoundary());
+            let add = intersection ? obj.collidesWithPoint(this._mouseState.startPosition) : selectionRectangle.contains(obj.getRectangleBoundary());
 
 			// collision was detected?
 			if (add) {
@@ -812,7 +820,7 @@ EditorGameScene.prototype._renderMouse = function (delta) {
 	if (this._mouseState.dragging && this._mouseState.startPosition != this._mouseState.lastPosition) {
 		// cool, is this a selection (left button)?
 		if (this._mouseState.button === 0 && this._subjectsMethod == null) {
-			var rectangle = Rectangle.fromVectors(this._mouseState.startPosition, this._mouseState.lastPosition);
+            let rectangle = Rectangle.fromVectors(this._mouseState.startPosition, this._mouseState.lastPosition);
 			this._primitiveRender.drawRectangle(rectangle, this._colors.selection);
 		}
 
