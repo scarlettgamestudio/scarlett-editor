@@ -1,7 +1,7 @@
 # Scarlett Editor
 Scarlett 2D Game Editor repository
 
-![alt tag](https://anlagehub.com/public/sc/images/editor-banner.png)
+![alt tag](http://scarlett.anlagehub.com/public/images/editor-banner.png)
 
 # README #
 
