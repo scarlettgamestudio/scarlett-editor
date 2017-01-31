@@ -12,8 +12,8 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
             $scope.model.scene = scene;
 
         }).bind(this));
-        
-        $scope.updateGameBoundries = function (width, height) {
+
+        $scope.updateGameBoundaries = function (width, height) {
             let game = gameSvc.getGame();
 
             if (game) {

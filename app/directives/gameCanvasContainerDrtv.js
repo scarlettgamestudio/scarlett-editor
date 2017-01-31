@@ -25,7 +25,7 @@ app.directive('gameCanvasContainer', function (constants, $timeout, gameSvc, sce
             let width = element[0].parentNode.clientWidth;
             let height = element[0].parentNode.clientHeight;
 
-            scope.updateGameBoundries(width, height);
+            scope.updateGameBoundaries(width, height);
 
             scope.updateVisualZoom();
         });
