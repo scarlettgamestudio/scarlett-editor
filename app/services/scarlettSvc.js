@@ -161,9 +161,6 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
                     GameManager.activeProject = gameProject;
                     GameManager.activeProjectPath = Path.wrapDirectoryPath(Path.getDirectory(gamefilePath));
 
-                    // broadcast the event so other components know
-                    $rootScope.$broadcast(constants.EVENTS.PROJECT_LOADED, gameProject);
-
                     defer.resolve(gameProject);
 
                 } catch (error) {
@@ -192,6 +189,9 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
     svc.setActiveProject = function (project) {
         svc.activeProject = project;
         GameManager.activeProject = project;
+
+        // broadcast the event so other components know
+        $rootScope.$broadcast(constants.EVENTS.PROJECT_LOADED, project);
     };
 
     svc.createFullPath = function(relativePath) {
@@ -201,7 +201,7 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
     svc.openProject = function (path) {
         svc.loadProjectFile(path).then(
             function (gameProject) {
-                svc.activeProject = gameProject;
+                svc.setActiveProject(gameProject);
 
                 // update the lastUpdated property
                 let savedData = dataSvc.findByProperty("projects", "path", path);

@@ -3,28 +3,18 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
 
         $scope.model = {
             visualZoom: 100,
-            gameUID: null,
-            canvasID: null,
-            canvasElem: null,
             scene: null,
             lastWidth: null,
-            lastHeight: null,
-            extensions: {
-                gridExtension: null
-            }
+            lastHeight: null
         };
 
         $scope.$on(constants.EVENTS.GAME_SCENE_CHANGED, (function (e, scene) {
             $scope.model.scene = scene;
 
         }).bind(this));
-
-        $scope.getCanvasID = function () {
-            return $scope.model.canvasID;
-        };
-
+        
         $scope.updateGameBoundries = function (width, height) {
-            let game = gameSvc.getGame($scope.model.gameUID);
+            let game = gameSvc.getGame();
 
             if (game) {
                 // usually the width and height will be the same as the canvas container
@@ -55,15 +45,19 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
         };
 
         $scope.toggleGrid = function () {
-            $scope.model.extensions.gridExtension.enabled = !$scope.model.extensions.gridExtension.enabled;
+            let gridExtension = gameSvc.getRenderExtension(constants.RENDER_EXTENSIONS.GRID);
+            if (gridExtension) {
+                gridExtension.enabled = !gridExtension.enabled;
+            }
         };
 
         $scope.toggleSnapToGrid = function() {
+            let gridExtension = gameSvc.getRenderExtension(constants.RENDER_EXTENSIONS.GRID);
             $scope.model.scene.snapToGrid = !$scope.model.scene.snapToGrid;
 
-            if ($scope.model.scene.snapToGrid) {
+            if ($scope.model.scene.snapToGrid && gridExtension) {
                 // update the grid size to guarantee the size is the same:
-                $scope.model.scene.snapGridSize = $scope.model.extensions.gridExtension.getGridSize();
+                $scope.model.scene.snapGridSize = gridExtension.getGridSize();
             }
         };
 
@@ -89,7 +83,6 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
         $scope.onCanvasMouseDown = function (evt) {
             // trigger mouse down event:
             $scope.model.scene.onMouseDown(evt);
-            AngularHelper.activeCanvas = $scope.model.canvasElem;
             AngularHelper.focusElement(AngularHelper.activeCanvas);
         };
 
@@ -109,61 +102,19 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
             $scope.model.scene.onMouseOut(evt);
         };
 
-        $scope.$on('$destroy', function () {
-            // TODO: validate if this work
-            gameSvc.removeGame($scope.model.gameUID);
-        });
-
         function initialize() {
-            gameSvc.initializeGame($scope.model.gameUID, {target: $scope.model.canvasID});
-
-            let game = gameSvc.getGame($scope.model.gameUID);
-
-            // is there a valid project scene available?
-            if (!sceneSvc.getActiveGameScene()) {
-                // nope, let's create a new one:
-                $scope.model.scene = new EditorGameScene({
-                    game: game,
-                    backgroundColor: Color.fromRGB(39, 41, 42)
-                });
-                sceneSvc.setActiveGameScene($scope.model.scene);
-
-            } else {
-                $scope.model.scene = sceneSvc.getActiveGameScene();
-                game.changeScene($scope.model.scene);
-
-            }
-
-            let gridExtension = new GridExt({game: game});
-            gridExtension.setGridColor(Color.fromRGB(49, 51, 52));
-
-            game.addRenderExtension("debug", gridExtension);
-
-            $scope.model.extensions.gridExtension = gridExtension;
-
-            // to be safe, if the last width/height was set, let's use them :)
-            if ($scope.lastWidth != null && $scope.lastHeight != null) {
-                $scope.updateGameBoundries($scope.lastWidth, $scope.lastHeight);
-            }
-
-            $scope.updateVisualZoom();
-
             EventManager.subscribe(AngularHelper.constants.EVENTS.VIEW_CHANGED, $scope.onViewChanged, this);
-
-            $scope.$on("$destroy", function () {
-                EventManager.removeSubscription(AngularHelper.constants.EVENTS.VIEW_CHANGED, $scope.onViewChanged);
-            });
-
-            $scope.model.canvasElem = document.getElementById($scope.model.canvasID);
-            AngularHelper.activeCanvas = $scope.model.canvasElem;
+            EventManager.subscribe(AngularHelper.constants.EVENTS.LAYOUT_DESTROYED, $scope.onLayoutDestroyed, this);
         }
 
         $scope.onViewChanged = function() {
             $scope.updateVisualZoom();
         };
 
-        $scope.model.gameUID = gameSvc.createGame();
-        $scope.model.canvasID = "canvas_" + $scope.model.gameUID;
+        $scope.onLayoutDestroyed = function() {
+            EventManager.removeSubscription(AngularHelper.constants.EVENTS.VIEW_CHANGED, $scope.onViewChanged);
+            EventManager.removeSubscription(AngularHelper.constants.EVENTS.LAYOUT_DESTROYED, $scope.onViewChanged);
+        };
 
         // set this on timeout without a time value so it's executed when the content is loaded:
         $timeout(initialize);

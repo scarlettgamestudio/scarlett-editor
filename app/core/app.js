@@ -82,7 +82,12 @@ var app = angular.module('scarlett', dependencies)
 		VIEW_CHANGED: "onViewChanged",
 		ACTIVE_FOLDER_NODE_CHANGED: "onActiveFolderNodeChanged",
 		ASSET_SELECTION: "onAssetSelection",
-        OBJECTS_SELECTION: "onObjectsSelection"
+        OBJECTS_SELECTION: "onObjectsSelection",
+		LAYOUT_CHANGED: "onLayoutChanged",
+		LAYOUT_DESTROYED: "onLayoutDestroyed"
+	},
+	RENDER_EXTENSIONS: {
+		GRID: "gridExt"
 	},
 	CONTAINERS: {
 		SCENE_VIEW: "sceneView"

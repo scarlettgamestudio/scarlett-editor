@@ -53,6 +53,10 @@ app.controller('NavbarCtrl',
                 }
             };
 
+            $scope.resetLayout = function() {
+                layoutSvc.restoreToDefault();
+            };
+
             $scope.isToolActive = function (id) {
                 return EditorGameScene.activeTransformTool == id;
             };

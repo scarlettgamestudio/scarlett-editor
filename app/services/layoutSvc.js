@@ -7,6 +7,7 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
     let layout = null;
     let activeWindows = {};
     let windowMapping = {};
+    let elemTarget = "";
     let sceneHierarchyLayoutConfiguration = {
         type: 'component',
         componentName: 'template',
@@ -126,6 +127,8 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
     };
 
     svc.createLayout = function (target) {
+        elemTarget = target;
+
         if (isObjectAssigned(layout)) {
             logSvc.warn("The layout manager is already initialized. Call destroy() before creating a new instance.");
             return;
@@ -178,6 +181,15 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         layout.destroy();
         layout = null;
         activeWindows = {};
+
+        EventManager.emit(AngularHelper.constants.EVENTS.LAYOUT_DESTROYED);
+    };
+
+    svc.restoreToDefault = function() {
+        scarlettSvc.storeLayoutConfiguration(defaultLayoutConfiguration);
+        svc.destroyLayout();
+        svc.createLayout(elemTarget);
+        svc.initLayout();
     };
 
     svc.updateSize = function () {

@@ -2,83 +2,117 @@
  * Created by John
  */
 
-app.factory("gameSvc", function ($rootScope, constants) {
-	var svc = {};
+app.factory("gameSvc", function ($rootScope, constants, logSvc, $compile) {
+    let svc = {};
 
-	// this map holds all the games associated by a generated unique id (key)
-	svc._gameMap = {};
+    // this map holds all the games associated by a generated unique id (key)
+    svc._activeGame = null;
+    svc._activeCanvas = null;
+    svc._activeCanvasID = null;
 
-	/**
-	 * Creates and associates a local game slot
-	 */
-	svc.createGame = function() {
-		let uid = generateUID();
+    svc._extensions = {};
 
-		// for now we simply assign the map key without any object
-		svc._gameMap[uid] = null;
+    /**
+     * Removes a game
+     * @param
+     */
+    svc.removeGame = function () {
+        if (isObjectAssigned(svc._activeGame)) {
+            svc._activeGame.unload();
+            svc._activeGame = null;
+            svc._extensions = {};
+        }
+    };
 
-		return uid;
-	};
+    /**
+     * Get a game
+     */
+    svc.getGame = function () {
+        return svc._activeGame;
+    };
 
-	/**
-	 * Removes a game
-	 * @param uid
-	 */
-	svc.removeGame = function(uid) {
-		if(svc._gameMap[uid]) {
-			svc._gameMap[uid].unload();
-			delete svc._gameMap[uid];
-		}
-	};
+    /**
+     *
+     * @returns {Object|*|null}
+     */
+    svc.getGameCanvas = function () {
+        return svc._activeCanvas;
+    };
 
-	/**
-	 * Get a game
-	 * @param uid
-	 */
-	svc.getGame = function(uid) {
-		return svc._gameMap[uid];
-	};
+    /**
+     * creates a basic game object instance
+     * @param name
+     */
+    svc.createGameObject = function (name) {
+        name = name || "Game Object";
 
-	/**
-	 * creates a basic game object instance
-	 * @param name
-	 */
-	svc.createGameObject = function(name) {
-		name = name || "Game Object";
+        return new GameObject({name: name});
+    };
 
-		return new GameObject({name: name});
-	};
+    /**
+     * creates a sprite object instance
+     * @param name
+     */
+    svc.createSpriteObject = function (name) {
+        name = name || "Sprite";
 
-	/**
-	 * creates a sprite object instance
-	 * @param name
-	 */
-	svc.createSpriteObject = function(name) {
-		name = name || "Sprite";
+        return new Sprite({name: name});
+    };
 
-		return new Sprite({name: name});
-	};
+    /**
+     *
+     */
+    svc.createOrGetGameCanvas = function () {
+        if (isObjectAssigned(svc._activeCanvas)) {
+            return svc._activeCanvas;
+        }
 
-	/**
-	 * Initializes a game
-	 * @param uid
-	 * @param settings
-	 * @returns {boolean}
-	 */
-	svc.initializeGame = function(uid, settings) {
-		if(!svc._gameMap.hasOwnProperty(uid)) {
-			// the slot wasn't assigned yet..
-			return false;
-		}
+        svc._activeCanvasID = "game-canvas-" + generateUID();
+        svc._activeCanvas = angular.element('<canvas id="' + svc._activeCanvasID + '" game-canvas input-handler tabindex="0"></canvas>');
+        AngularHelper.activeCanvas = svc._activeCanvas[0];
 
-		svc._gameMap[uid] = new Game(settings);
-		svc._gameMap[uid].init({ignoreInputHandler: true});
+        return svc._activeCanvas;
+    };
 
-		// broadcast the game initialize event
-		$rootScope.$broadcast(constants.EVENTS.GAME_INITIALIZE, svc._gameMap[uid]);
+    svc.addRenderExtension = function(name, extension) {
+        if (!isObjectAssigned(svc._activeGame)) {
+            logSvc.warn("Cannot assign a render extension to a non existent game");
+            return;
+        }
+        svc._extensions[name] = extension;
+        svc._activeGame.addRenderExtension(name, extension);
+    };
 
-		return true;
-	};
+    /**
+     *
+     * @param name
+     */
+    svc.getRenderExtension = function(name) {
+        return svc._extensions[name];
+    };
 
-	return svc;
+    /**
+     * Initializes a game
+     * @returns {Object}
+     */
+    svc.createOrGetGame = function () {
+        if (isObjectAssigned(svc._activeGame)) {
+            return svc._activeGame;
+        }
+
+        svc._activeGame = new Game({target: svc._activeCanvasID});
+        svc._activeGame.init({ignoreInputHandler: true});
+
+        let gridExtension = new GridExt({game:  svc._activeGame});
+        gridExtension.setGridColor(Color.fromRGB(49, 51, 52));
+
+        svc.addRenderExtension(constants.RENDER_EXTENSIONS.GRID, gridExtension);
+
+        // broadcast the game initialize event
+        $rootScope.$broadcast(constants.EVENTS.GAME_INITIALIZE, svc._activeGame);
+
+        return svc._activeGame;
+    };
+
+    return svc;
 });

@@ -10,7 +10,7 @@ app.directive('selectText', function($timeout) {
                 element[0].focus();
 
                 // get argument trimmed length
-                var valueLength = value.toString().trim().length;
+                let valueLength = value.toString().trim().length;
 
                 // if the argument is an empty string, select all of it
                 if(valueLength === 0) {
@@ -18,9 +18,9 @@ app.directive('selectText', function($timeout) {
                 }
                 else {
                     // get extension
-                    var extension = Path.getFileExtension(value);
+                    let extension = Path.getFileExtension(value);
                     // store extension length
-                    var extensionLength = extension.trim().length;
+                    let extensionLength = extension.trim().length;
                     // select until extension
                     element[0].setSelectionRange(0, valueLength - extensionLength);
                 }

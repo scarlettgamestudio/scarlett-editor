@@ -12,10 +12,13 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
     svc._activeGameScene = null; // the active game scene, all operations on the scene should be made with this consideration
     svc._selectedObjects = [];
 
-    scope.$on(constants.EVENTS.GAME_INITIALIZE, (function (e, project) {
+    scope.$on(constants.EVENTS.PROJECT_LOADED, (function (e, project) {
         svc._activeGameScene = null;
         svc._activeGameScenePath = null;
 
+    }).bind(this));
+
+    scope.$on(constants.EVENTS.GAME_INITIALIZE, (function (e, project) {
         if (project.editor && project.editor.lastScene) {
             svc.loadSceneFromFile(scarlettSvc.getActiveProjectPath() + project.editor.lastScene);
         }
