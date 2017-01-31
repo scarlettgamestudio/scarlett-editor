@@ -628,9 +628,11 @@ button.btn {
   cursor: default; }
   .peContainer .btn-property {
     height: auto !important;
-    padding: 3px; }
+    padding: 0 4px; }
     .peContainer .btn-property i {
       color: #313334 !important; }
+  .peContainer .input-group > .form-control, .peContainer .input-group > .input-group-addon, .peContainer .input-group > .input-group-btn > .btn {
+    line-height: inherit; }
   .peContainer .peEmptyPanel {
     text-align: center;
     vertical-align: middle;
@@ -686,17 +688,18 @@ button.btn {
   .peContainer .pePanel .peEditorContainer {
     padding-bottom: 8px; }
     .peContainer .pePanel .peEditorContainer .peEditor {
-      font-size: 0.90em;
-      padding: 2px 10px;
+      font-size: 0.86em;
+      padding: 1px 10px;
       -webkit-box-sizing: border-box;
       -moz-box-sizing: border-box;
-      box-sizing: border-box; }
+      box-sizing: border-box;
+      margin-bottom: 1px; }
       .peContainer .pePanel .peEditorContainer .peEditor .peEditorDisplayName {
         float: left;
         width: 25%;
         overflow: hidden;
         text-overflow: ellipsis;
-        padding: 4px 0; }
+        margin-top: 2px; }
       .peContainer .pePanel .peEditorContainer .peEditor .peImagePreview {
         width: 100%;
         height: 240px;
@@ -715,7 +718,7 @@ button.btn {
         float: left;
         width: 75%; }
       .peContainer .pePanel .peEditorContainer .peEditor input {
-        padding: 1px 2px;
+        padding: 0px 2px;
         font-size: 0.96em; }
         .peContainer .pePanel .peEditorContainer .peEditor input.inconclusive {
           background: repeating-linear-gradient(45deg, #313334, #313334 6px, #2c2e2f 6px, #2c2e2f 12px); }
@@ -723,10 +726,11 @@ button.btn {
         -webkit-appearance: none;
         -moz-appearance: none;
         box-sizing: border-box;
-        width: 15px;
-        height: 15px;
+        width: 14px;
+        height: 14px;
         cursor: pointer;
-        outline: none; }
+        outline: none;
+        margin-top: 2px; }
       .peContainer .pePanel .peEditorContainer .peEditor input[type="checkbox"]:checked {
         background: #969696; }
       .peContainer .pePanel .peEditorContainer .peEditor .color-preview {
