@@ -32,7 +32,7 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
         };
 
         $scope.getVisualCameraPosition = function () {
-            if($scope.model.scene && $scope.model.scene.getCamera()) {
+            if ($scope.model.scene && $scope.model.scene.getCamera()) {
                 return {
                     x: Math.round($scope.model.scene.getCamera().x),
                     y: Math.round($scope.model.scene.getCamera().y)
@@ -44,6 +44,13 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
             }
         };
 
+        $scope.isGridExtensionEnabled = function () {
+            let gridExtension = gameSvc.getRenderExtension(constants.RENDER_EXTENSIONS.GRID);
+            if (gridExtension) {
+                return gridExtension.enabled;
+            }
+        };
+
         $scope.toggleGrid = function () {
             let gridExtension = gameSvc.getRenderExtension(constants.RENDER_EXTENSIONS.GRID);
             if (gridExtension) {
@@ -51,7 +58,7 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
             }
         };
 
-        $scope.toggleSnapToGrid = function() {
+        $scope.toggleSnapToGrid = function () {
             let gridExtension = gameSvc.getRenderExtension(constants.RENDER_EXTENSIONS.GRID);
             $scope.model.scene.snapToGrid = !$scope.model.scene.snapToGrid;
 
@@ -107,11 +114,11 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
             EventManager.subscribe(AngularHelper.constants.EVENTS.LAYOUT_DESTROYED, $scope.onLayoutDestroyed, this);
         }
 
-        $scope.onViewChanged = function() {
+        $scope.onViewChanged = function () {
             $scope.updateVisualZoom();
         };
 
-        $scope.onLayoutDestroyed = function() {
+        $scope.onLayoutDestroyed = function () {
             EventManager.removeSubscription(AngularHelper.constants.EVENTS.VIEW_CHANGED, $scope.onViewChanged);
             EventManager.removeSubscription(AngularHelper.constants.EVENTS.LAYOUT_DESTROYED, $scope.onViewChanged);
         };
