@@ -6,7 +6,7 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             uid: 0,
             search: "",
             contentView: [],
-            zoom: 2,
+            zoom: 1,
             selectedNode: null,
             availableFileTypes: null
         };

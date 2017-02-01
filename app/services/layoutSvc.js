@@ -49,7 +49,7 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
     };
     let contentBrowserLayoutConfiguration = {
         type: 'component',
-        height: 38,
+        height: 32,
         minWidth: 340,
         componentName: 'template',
         componentState: {

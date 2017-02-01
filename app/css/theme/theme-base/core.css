@@ -162,7 +162,7 @@ hr {
   height: 8.333333333333332%; }
 
 .navbar {
-  height: 44px;
+  height: 42px;
   position: relative;
   min-height: 0;
   margin-bottom: 0; }
@@ -184,9 +184,9 @@ hr {
     padding-right: 0; }
   .navbar .navbar-logo {
     width: 56px;
-    height: 44px;
+    height: 42px;
     float: left;
-    line-height: 44px;
+    line-height: 42px;
     text-align: center;
     font-weight: bold;
     font-size: 24px; }
@@ -199,7 +199,7 @@ hr {
     transform: translateX(-50%); }
   .navbar .navbar-dropdown,
   .navbar .profile-dropdown {
-    line-height: 44px;
+    line-height: 42px;
     padding: 0 10px;
     cursor: pointer; }
     .navbar .navbar-dropdown .simple-dropdown,
@@ -247,7 +247,7 @@ hr {
   right: 0;
   left: 0;
   bottom: 0;
-  top: 44px;
+  top: 42px;
   display: flex; }
   .content-wrapper .side-nav-bar {
     width: 56px;
@@ -730,7 +730,7 @@ button.btn {
         height: 14px;
         cursor: pointer;
         outline: none;
-        margin-top: 2px; }
+        margin-top: 3px; }
       .peContainer .pePanel .peEditorContainer .peEditor input[type="checkbox"]:checked {
         background: #969696; }
       .peContainer .pePanel .peEditorContainer .peEditor .color-preview {
