@@ -2,8 +2,8 @@
  * Created by John on 12/12/15.
  */
 
-app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', '$rootScope', '$translate', '$uibModal', 'scarlettSvc', 'constants', 'sceneSvc', '$timeout', 'modalSvc', 'layoutSvc',
-    function ($scope, logSvc, soapSvc, config, userSvc, $rootScope, $translate, $uibModal, scarlettSvc, constants, sceneSvc, $timeout, modalSvc, layoutSvc) {
+app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', '$rootScope', '$translate', '$uibModal', 'scarlettSvc', 'constants', 'sceneSvc', '$timeout', 'modalSvc', 'layoutSvc', 'gameSvc',
+    function ($scope, logSvc, soapSvc, config, userSvc, $rootScope, $translate, $uibModal, scarlettSvc, constants, sceneSvc, $timeout, modalSvc, layoutSvc, gameSvc) {
 
         var activeModal = null;
 
@@ -108,12 +108,27 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
             };
 
             $scope.onWindowBlur = function (e) {
+                logSvc.log("Editor Windows lost focus");
+
                 // clear stuff that might generate issues:
                 Keyboard.clearKeys();
+
+                // we don't want the engine to consume unnecessary resources from the user machine therefore we
+                // pause the game when the editor window is not focused:
+                let game = gameSvc.getGame();
+                if (isObjectAssigned(game)) {
+                    game.pauseGame();
+                }
             };
 
             $scope.onWindowFocus = function (e) {
+                logSvc.log("Editor Windows gain focus");
+
                 // trigger events here if needed..
+                let game = gameSvc.getGame();
+                if (isObjectAssigned(game)) {
+                    game.resumeGame();
+                }
             };
 
             $scope.$on("$destroy", (function () {

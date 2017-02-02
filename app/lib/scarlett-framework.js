@@ -10572,15 +10572,24 @@ Game.prototype._onAnimationFrame = function (timestamp) {
     }
 
     // request a new animation frame:
-    requestAnimationFrame(this._onAnimationFrame.bind(this));
+    if (!this._paused) {
+        requestAnimationFrame(this._onAnimationFrame.bind(this));
+
+    } else {
+        // when the game is paused it's a good idea to wait a few ms before requesting a new animation frame to
+        // save some machine resources...
+        setTimeout(function() {
+            requestAnimationFrame(self._onAnimationFrame.bind(self));
+        }, 100);
+    }
 };
 
 Game.prototype.pauseGame = function () {
-    this._pause = true;
+    this._paused = true;
 };
 
 Game.prototype.resumeGame = function () {
-    this._pause = false;
+    this._paused = false;
 };
 
 Game.prototype.getShaderManager = function () {
