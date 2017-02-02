@@ -37,8 +37,8 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
                 return "fa-folder";
             }
 
-            var filename = node.name;
-            var extension = Path.getFileExtension(filename).toLowerCase();
+            let filename = node.name;
+            let extension = Path.getFileExtension(filename).toLowerCase();
 
             switch (extension) {
                 // atlas
@@ -150,8 +150,12 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
 
             let container = assetSvc.getAssetContainer(file.attributes.path);
 
-            if (container) {
+            if (isObjectAssigned(container)) {
                 EventManager.emit(constants.EVENTS.ASSET_SELECTION, container);
+
+            } else {
+                // no asset container was found, so clear selection
+                EventManager.emit(constants.EVENTS.OBJECTS_SELECTION, []);
             }
         };
 
