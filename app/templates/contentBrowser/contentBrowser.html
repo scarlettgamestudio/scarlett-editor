@@ -10,7 +10,8 @@
                         class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" uib-dropdown-menu role="menu" aria-labelledby="create-menu">
-                    <li role="menuitem" ng-repeat="type in model.types" ng-click="createContentObject(type)"><a>{{getFilterDisplayName(type)}}</a>
+                    <li role="menuitem" ng-class="{'divider': item === null}" ng-repeat="item in model.createItems" ng-click="item.action()">
+                        <a ng-if="item != null"><i class="fa {{::item.icon}}"></i> {{::item.title}}</a>
                     </li>
                 </ul>
             </div>

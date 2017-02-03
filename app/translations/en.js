@@ -88,6 +88,8 @@ app.config(function ($translateProvider) {
 		CTX_FOLDER: 'Folder',
 
 		ASSET_ATLAS_FILENAME: "Atlas.atl",
+		ASSET_GAME_SCENE_FILENAME: "GameScene.ss",
+        ASSET_JS_SCRIPT_FILENAME: "Script.js",
 
 		CTX_ADD_FROM_FOLDER: 'Add From Folder',
 
