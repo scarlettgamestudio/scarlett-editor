@@ -2,7 +2,7 @@
  * Created by John
  */
 
-app.factory("assetSvc", function (config, logSvc, scarlettSvc, $q) {
+app.factory("assetSvc", function (config, logSvc, scarlettSvc, gameSvc, $q) {
 
     var svc = {};
 
@@ -88,6 +88,16 @@ app.factory("assetSvc", function (config, logSvc, scarlettSvc, $q) {
 
     svc.createTextureAtlas = function () {
         return new TextureAtlas();
+    };
+
+    // creates a new game scene
+    svc.createGameScene = function () {
+        return new GameScene({game: gameSvc.getGame(), backgroundColor: Color.fromRGB(39, 41, 42)});
+    };
+
+    // creates a new JS script
+    svc.createJSScript = function () {
+        //TODO: create js file
     };
 
     return svc;

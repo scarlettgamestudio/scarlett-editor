@@ -1,5 +1,7 @@
 /**
  * Created by Luis on 30/08/2016.
+ * Based on angular-bootstrap-colorpicker: https://github.com/buberdds/angular-bootstrap-colorpicker
+ * Not added through npm because the pull request isn't yet merged in the original repository
  */
 
 angular.module('colorpicker.module', [])

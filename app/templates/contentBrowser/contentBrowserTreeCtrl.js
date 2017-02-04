@@ -2,6 +2,7 @@ app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlet
     function ($scope, logSvc, config, scarlettSvc, sceneSvc, $translate, constants, refactorSvc, assetSvc) {
 
 
+
         $scope.createItemsContextMenuOptions =
             ['<i class="fa fa-plus-square"></i>' + $translate.instant("CTX_CREATE"), [
                 ['<i class="fa fa-folder-o"></i>' + $translate.instant("CTX_FOLDER"), function ($itemScope) {
@@ -9,10 +10,10 @@ app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlet
                 }],
                 null,
                 ['<i class="fa fa-picture-o"></i>' + $translate.instant("CTX_GAME_SCENE"), function ($itemScope) {
-
+                    $scope.createAsset($translate.instant("ASSET_GAME_SCENE_FILENAME"), assetSvc.createGameScene());
                 }],
                 ['<i class="fa fa-file-code-o"></i>' + $translate.instant("CTX_JS_SCRIPT"), function ($itemScope) {
-
+                    $scope.createAsset($translate.instant("ASSET_JS_SCRIPT_FILENAME"), assetSvc.createJSScript());
                 }],
                 ['<i class="fa fa-object-group"></i>' + $translate.instant("CTX_ATLAS"), function ($itemScope) {
                     $scope.createAsset($translate.instant("ASSET_ATLAS_FILENAME"), assetSvc.createTextureAtlas());

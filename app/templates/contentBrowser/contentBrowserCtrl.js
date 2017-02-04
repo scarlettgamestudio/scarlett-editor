@@ -1,6 +1,38 @@
 app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', 'constants', '$translate', '$timeout', '$http', '$compile', 'assetSvc', 'refactorSvc',
     function ($scope, logSvc, config, scarlettSvc, sceneSvc, constants, $translate, $timeout, $http, $compile, assetSvc, refactorSvc) {
 
+        let _createItems = [
+            {
+                title: $translate.instant("CTX_FOLDER"),
+                action: function () {
+                    $scope.addFolder();
+                },
+                icon: "fa-folder-o"
+            },
+            null,
+            {
+                title: $translate.instant("CTX_GAME_SCENE"),
+                action: function () {
+                    $scope.createAsset($translate.instant("ASSET_GAME_SCENE_FILENAME"), assetSvc.createGameScene());
+                },
+                icon: "fa-picture-o"
+            },
+            {
+                title: $translate.instant("CTX_JS_SCRIPT"),
+                action: function () {
+                    $scope.createAsset($translate.instant("ASSET_JS_SCRIPT_FILENAME"), assetSvc.createJSScript());
+                },
+                icon: "fa-file-code-o"
+            },
+            {
+                title: $translate.instant("CTX_ATLAS"),
+                action: function () {
+                    $scope.createAsset($translate.instant("ASSET_ATLAS_FILENAME"), assetSvc.createTextureAtlas());
+                },
+                icon: "fa-object-group"
+            }
+        ];
+
         $scope.model = {
             tree: [],
             uid: 0,
@@ -8,7 +40,8 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             contentView: [],
             zoom: 1,
             selectedNode: null,
-            availableFileTypes: null
+            availableFileTypes: null,
+            createItems: _createItems
         };
 
         $scope.contentClass = function () {
@@ -251,6 +284,10 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             }, function () {
                 logSvc.error("Error while saving asset: " + asset);
             });
+        };
+
+        $scope.addGameScene = function(){
+
         };
 
         $scope.addFolder = function () {

@@ -14,7 +14,6 @@ app.factory("gameSvc", function ($rootScope, constants, logSvc, $compile) {
 
     /**
      * Removes a game
-     * @param
      */
     svc.removeGame = function () {
         if (isObjectAssigned(svc._activeGame)) {

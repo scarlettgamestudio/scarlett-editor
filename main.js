@@ -42,7 +42,7 @@ app.on('ready', function () {
 
 	// emmited when the window is shown:
 	mainWindow.on('show', function() {
-		// this doesn't work on all operative systems (validate in future versions)
+		// TODO: this doesn't work on all operative systems (validate in future versions)
 
 	});
 
