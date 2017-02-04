@@ -13,7 +13,7 @@
             <span class="stack-item right-padding">R</span>
             <span class="stack-fill">
                 <input
-                        type="number" class="form-control sc-input input-night center-text" readonly="{{::property.readOnly}}"
+                        type="number" class="form-control sc-input input-night center-text" ng-readonly="property.readOnly"
                         ng-class="{'inconclusive' : hasMultipleDefinitions('r')}"
                         ng-change="prepareChange('r')" ng-model="color.r" placeholder="">
             </span>
@@ -22,7 +22,7 @@
             <span class="stack-item right-padding">G</span>
             <span class="stack-fill">
                 <input
-                        type="number" class="form-control sc-input input-night center-text" readonly="{{::property.readOnly}}"
+                        type="number" class="form-control sc-input input-night center-text" ng-readonly="property.readOnly"
                         ng-class="{'inconclusive' : hasMultipleDefinitions('g')}"
                         ng-change="prepareChange('g')" ng-model="color.g" placeholder="">
             </span>
@@ -31,7 +31,7 @@
             <span class="stack-item right-padding">B</span>
             <span class="stack-fill">
                 <input
-                        type="number" class="form-control sc-input input-night center-text" readonly="{{::property.readOnly}}"
+                        type="number" class="form-control sc-input input-night center-text" ng-readonly="property.readOnly"
                         ng-class="{'inconclusive' : hasMultipleDefinitions('b')}"
                         ng-change="prepareChange('b')" ng-model="color.b" placeholder="">
             </span>
@@ -40,7 +40,7 @@
             <span class="stack-item right-padding">A</span>
             <span class="stack-fill">
                 <input
-                        type="number" class="form-control sc-input input-night center-text" readonly="{{::property.readOnly}}"
+                        type="number" class="form-control sc-input input-night center-text" ng-readonly="property.readOnly"
                         ng-class="{'inconclusive' : hasMultipleDefinitions('a')}"
                         ng-change="prepareChange('a')" ng-model="color.a" placeholder="">
             </span>

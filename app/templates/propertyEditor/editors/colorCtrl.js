@@ -11,7 +11,7 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
             color: ''
         };
 
-        var updateColor = function (property, colorValue) {
+        let updateColor = function (property, colorValue) {
             if ($scope.color[property] == undefined || colorValue == undefined) {
                 return;
             }
@@ -38,10 +38,10 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
             }
 
             // parse string to float and store color individual values
-            var r = parseFloat(color[0]);
-            var g = parseFloat(color[1]);
-            var b = parseFloat(color[2]);
-            var a = $scope.color.a;
+            let r = parseFloat(color[0]);
+            let g = parseFloat(color[1]);
+            let b = parseFloat(color[2]);
+            let a = $scope.color.a;
 
             // since we don't always have alpha (e.g., #fff), we should check if we have more than 3 elements
             if (color["length"] > 3) {
@@ -71,8 +71,8 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
         // called when the color picker selected color changes
         $scope.onColorChanged = function (color) {
             // rgba string pattern
-            var pattern = /rgba?\(\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*\)/;
-            var result;
+            let pattern = /rgba?\(\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*\)/;
+            let result;
 
             // execute regex pattern and check for matches
             if ((result = pattern.exec(color)) !== null) {
@@ -81,10 +81,10 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
                 }
 
                 // parse string to float and store color individual values
-                var r = parseFloat(result[1]);
-                var g = parseFloat(result[2]);
-                var b = parseFloat(result[3]);
-                var a = parseFloat(result[4]);
+                let r = parseFloat(result[1]);
+                let g = parseFloat(result[2]);
+                let b = parseFloat(result[3]);
+                let a = parseFloat(result[4]);
 
                 // something has changed?
                 if ($scope.color.r != r || $scope.color.g != g || $scope.color.b != b || $scope.color.a != a) {
@@ -122,7 +122,7 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
         $scope.prepareChange = function (property) {
 
             // color value ranging from 0 to 255
-            var value255 = $scope.color[property];
+            let value255 = $scope.color[property];
 
             if (value255 == undefined || value255 == null) {
                 value255 = 0;
@@ -141,10 +141,6 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
             updateColor(property, value255);
 
             $scope.onValueChange(property);
-        };
-
-        $scope.prepareChange = function(property) {
-
         };
 
         $scope.getPreviewStyleNoAlpha = function () {
