@@ -835,17 +835,22 @@ button.btn {
   overflow: hidden;
   text-overflow: ellipsis;
 }*/
-.angular-bootstrap-contextmenu .dropdown-menu {
+.dropdown-menu {
   padding: 4px 0;
   font-size: 0.95em; }
-.angular-bootstrap-contextmenu .dropdown-menu .divider {
+
+.dropdown-menu .divider {
   margin: 4px 0; }
-.angular-bootstrap-contextmenu .dropdown-menu > li > a:hover,
-.angular-bootstrap-contextmenu .dropdown-menu > li > a:focus {
+
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus {
   background-color: #e0e0e0; }
-.angular-bootstrap-contextmenu .dropdown-menu > li > a {
-  line-height: 1.6; }
-.angular-bootstrap-contextmenu .dropdown-menu > .disabled > a, .angular-bootstrap-contextmenu .dropdown-menu > .disabled > a:focus, .angular-bootstrap-contextmenu .dropdown-menu > .disabled > a:hover {
+
+.dropdown-menu > li > a {
+  line-height: 1.6;
+  padding: 1px 30px; }
+
+.dropdown-menu > .disabled > a, .dropdown-menu > .disabled > a:focus, .dropdown-menu > .disabled > a:hover {
   color: #ccc; }
 
 .scroll-wrapper {

@@ -5,7 +5,7 @@
 app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', '$rootScope', '$translate', '$uibModal', 'scarlettSvc', 'constants', 'sceneSvc', '$timeout', 'modalSvc', 'layoutSvc', 'gameSvc',
     function ($scope, logSvc, soapSvc, config, userSvc, $rootScope, $translate, $uibModal, scarlettSvc, constants, sceneSvc, $timeout, modalSvc, layoutSvc, gameSvc) {
 
-        var activeModal = null;
+        let activeModal = null;
 
         $scope.model = {
             onlineMode: userSvc.isLoggedIn()
