@@ -29,6 +29,5 @@ app.directive('gameCanvasContainer', function (constants, $timeout, gameSvc, sce
 
             scope.updateVisualZoom();
         });
-
     };
 });

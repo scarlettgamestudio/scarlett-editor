@@ -49,7 +49,7 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
     };
     let contentBrowserLayoutConfiguration = {
         type: 'component',
-        height: 32,
+        height: 36,
         minWidth: 340,
         componentName: 'template',
         componentState: {
@@ -57,6 +57,17 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
             url: 'templates/contentBrowser/contentBrowser.html'
         },
         title: $translate.instant("EDITOR_CONTENT_BROWSER")
+    };
+    let scriptEditorLayoutConfiguration = {
+        type: 'component',
+        height: 36,
+        minWidth: 340,
+        componentName: 'template',
+        componentState: {
+            templateId: constants.WINDOW_TYPES.PROJECT_EXPLORER,
+            url: 'templates/scriptEditor/scriptEditor.html'
+        },
+        title: $translate.instant("EDITOR_SCRIPT_EDITOR")
     };
     let consoleLayoutConfiguration = {
         type: 'component',
@@ -170,6 +181,17 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         layout.on('initialised', function () {
             // ..
         });
+
+        layout.on('tabChanged', function(args) {
+            try {
+                let windowId = args._activeContentItem.config.componentState.templateId;
+                if (isObjectAssigned(windowId)) {
+                    $rootScope.$broadcast(constants.EVENTS.CONTAINER_RESIZE, windowId);
+                }
+            } catch(e) {
+                logSvc.error("Failure while processing tab changed event: " + e);
+            }
+        });
     };
 
     svc.destroyLayout = function () {
@@ -217,6 +239,7 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         windowMapping[constants.WINDOW_TYPES.SCENE_VIEW] = sceneViewLayoutConfiguration;
         windowMapping[constants.WINDOW_TYPES.PROJECT_EXPLORER] = contentBrowserLayoutConfiguration;
         windowMapping[constants.WINDOW_TYPES.INSPECTOR] = propertyEditorLayoutConfiguration;
+        windowMapping[constants.WINDOW_TYPES.SCRIPT_EDITOR] = scriptEditorLayoutConfiguration;
     })();
 
     return svc;

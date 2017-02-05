@@ -5,27 +5,27 @@ body {
   background-color: #2c2e2f; }
 
 .lm_header {
-  background-color: #2c2e2f; }
+  background-color: #2a2b2c; }
 
 .lm_item.lm_row {
-  background-color: #2c2e2f; }
+  background-color: #2a2b2c; }
 
 .li.lm_tab,
 .lm_header .lm_tab.lm_active {
   box-shadow: none;
-  background-color: #27292a; }
+  background-color: #2c2e2f; }
 
 .lm_header .lm_tab {
   box-shadow: none;
   padding-bottom: 3px;
-  background-color: #222424; }
+  background-color: #2a2b2c; }
 
 .lm_maximised .lm_header {
   background-color: #2c2e2f; }
 
 .lm_content {
   color: #ccc;
-  background-color: #27292a; }
+  background-color: #2c2e2f; }
 
 .sc-theme-red .navbar {
   color: #fff;

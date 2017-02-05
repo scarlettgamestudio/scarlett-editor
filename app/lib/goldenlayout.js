@@ -3872,6 +3872,7 @@ lm.utils.copy( lm.items.Stack.prototype, {
 		contentItem._$show();
 		this.emit( 'activeContentItemChanged', contentItem );
 		this.emitBubblingEvent( 'stateChanged' );
+        this.emitBubblingEvent( 'tabChanged', contentItem );
 	},
 
 	getActiveContentItem: function() {

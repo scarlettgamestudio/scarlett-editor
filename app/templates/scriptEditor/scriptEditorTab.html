@@ -1,0 +1,15 @@
+<div class="fill-parent" ng-controller="scriptEditorTabCtrl">
+    <div ui-ace="{
+          useWrapMode : true,
+          showGutter: true,
+          mode: 'ace/mode/javascript',
+          theme: 'ace/theme/twilight',
+          firstLineNumber: 1,
+          onLoad: aceLoaded,
+          basePath: 'ace/',
+          themePath: 'theme',
+          workerPath: 'worker',
+          modePath: 'mode',
+          onChange: aceChanged}">
+    </div>
+</div>

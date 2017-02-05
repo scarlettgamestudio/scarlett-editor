@@ -26,6 +26,9 @@ hr {
 .left-padding {
   padding-left: 10px; }
 
+.no-overflow {
+  overflow: hidden; }
+
 .clickable {
   cursor: pointer; }
 
@@ -122,8 +125,7 @@ hr {
   top: 0; }
 
 .container-fixed .col {
-  height: 100%;
-  overflow: auto; }
+  height: 100%; }
 
 .row-xs-12 {
   height: 100%; }
@@ -169,7 +171,6 @@ hr {
   .navbar .sc-action-btn {
     padding: 2px 12px;
     margin: 0;
-    margin-right: 1px;
     float: left;
     font-size: 1.1em;
     cursor: pointer; }
@@ -296,7 +297,7 @@ hr {
   font-size: 0.9em;
   position: absolute;
   width: 100%;
-  background: #27292a; }
+  background: #2c2e2f; }
   .control-container .toolbar .button {
     padding: 0px 4px;
     margin: 2px;
@@ -306,7 +307,7 @@ hr {
     .control-container .toolbar .button.active {
       background: #383b3c; }
   .control-container .toolbar .info {
-    background: #252627;
+    background: #2a2b2c;
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 0.89em; }
@@ -384,11 +385,10 @@ hr {
     max-width: 96px;
     font-size: 0.92em; }
   .tool-container .tool-container-body .content-item {
-    width: 54px;
+    width: 90px;
     height: 54px;
     margin: 4px 4px 0;
-    border-bottom: 3px solid #2c2e2f;
-    background: #313334;
+    background: #333637;
     display: block;
     overflow: hidden;
     border-radius: 4px;
@@ -396,14 +396,11 @@ hr {
     text-align: center;
     font-size: 28px; }
     .tool-container .tool-container-body .content-item:hover {
-      border-bottom: 3px solid #333637;
-      background: #383b3c; }
+      background: #333637; }
     .tool-container .tool-container-body .content-item.directory {
-      border-bottom: 3px solid #333637;
-      background: #383b3c; }
+      background: #333637; }
       .tool-container .tool-container-body .content-item.directory:hover {
-        border-bottom: 3px solid #3b3d3f;
-        background: #404344; }
+        background: #333637; }
     .tool-container .tool-container-body .content-item.texture {
       border-color: #f1c40f;
       background-color: #dab10d; }
@@ -504,7 +501,8 @@ hr {
   .sc-login-page .sc-hub-container,
   .sc-login-page .sc-login-container {
     max-width: 960px;
-    margin: 0 auto; }
+    margin: 0 auto;
+    overflow: hidden; }
     .sc-hub .sc-hub-container .row,
     .sc-hub .sc-hub-container .input-group,
     .sc-hub .sc-hub-container .checkbox-nice,
@@ -922,6 +920,36 @@ input[type=range]::-webkit-slider-thumb {
   cursor: pointer;
   margin-top: -3px; }
 
+.nav-tabs {
+  background: #2c2e2f;
+  border: none !important; }
+
+.nav-tabs > li > a {
+  border: none !important;
+  padding: 4px 0;
+  color: #838383 !important;
+  border-radius: 0 !important;
+  font-size: 0.90em; }
+  .nav-tabs > li > a:hover {
+    background: #2e3132 !important; }
+
+.nav-tabs > li.active > a {
+  color: #888;
+  background: #313334 !important;
+  border: none !important; }
+
+.tab-content {
+  height: 100%; }
+  .tab-content .tab-pane {
+    height: 100%; }
+
+.scriptEditorContainer {
+  height: 100%; }
+  .scriptEditorContainer .ace_editor {
+    height: 100%; }
+  .scriptEditorContainer .tab-content {
+    padding-bottom: 26px; }
+
 .split-panes {
   left: 0px;
   right: 0px;
@@ -953,7 +981,7 @@ input[type=range]::-webkit-slider-thumb {
 .split-panes.horizontal > .split-pane2 {
   left: 50%;
   right: 0px;
-  border-left: 2px solid #2c2e2f; }
+  border-left: 2px solid #2a2b2c; }
 
 /* Vertical */
 .split-panes.vertical > .split-handler {

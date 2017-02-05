@@ -30,6 +30,10 @@ app.controller('NavbarCtrl',
                 layoutSvc.addWindow(constants.WINDOW_TYPES.SCENE_VIEW);
             };
 
+            $scope.showScriptEditor = function () {
+                layoutSvc.addWindow(constants.WINDOW_TYPES.SCRIPT_EDITOR);
+            };
+
             $scope.showInspector = function () {
                 layoutSvc.addWindow(constants.WINDOW_TYPES.INSPECTOR);
             };

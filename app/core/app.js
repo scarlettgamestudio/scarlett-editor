@@ -10,7 +10,8 @@ var dependencies = [
 	'cz-tree',
 	'ui.bootstrap.contextMenu',
 	'angular-perfect-scrollbar-2',
-	'colorpicker.module'
+	'colorpicker.module',
+	'ui.ace'
 ];
 
 var app = angular.module('scarlett', dependencies)
@@ -66,7 +67,8 @@ var app = angular.module('scarlett', dependencies)
 		SCENE_VIEW: "sceneView",
 		ATLAS_EDITOR: "atlasEditor",
 		PROJECT_EXPLORER: "projectExplorer",
-		GAME_VIEW: "gameView"
+		GAME_VIEW: "gameView",
+		SCRIPT_EDITOR: "scriptEditor"
 	},
 	EVENTS: {
 		CONTAINER_RESIZE: "onContainerResize",
@@ -84,7 +86,8 @@ var app = angular.module('scarlett', dependencies)
 		ASSET_SELECTION: "onAssetSelection",
         OBJECTS_SELECTION: "onObjectsSelection",
 		LAYOUT_CHANGED: "onLayoutChanged",
-		LAYOUT_DESTROYED: "onLayoutDestroyed"
+		LAYOUT_DESTROYED: "onLayoutDestroyed",
+		TAB_CHANGED: "onTabChanged",
 	},
 	RENDER_EXTENSIONS: {
 		GRID: "gridExt"

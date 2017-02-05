@@ -1,0 +1,30 @@
+.nav-tabs {
+  background: map-get($default-colors, grey-hound);
+  border: none !important;
+}
+
+.nav-tabs>li>a {
+  border: none !important;
+  padding: 4px 0;
+  color: darken(map-get($default-colors, light-grey), 2) !important;
+  border-radius: 0 !important;
+  font-size: 0.90em;
+
+  &:hover {
+    background: lighten(map-get($default-colors, grey-hound), 1%) !important;
+  }
+}
+
+.nav-tabs>li.active>a {
+  color: map-get($default-colors, light-grey);
+  background: lighten(map-get($default-colors, grey-hound), 2%) !important;
+  border: none !important;
+}
+
+.tab-content {
+  height: 100%;
+
+  .tab-pane {
+    height: 100%;
+  }
+}

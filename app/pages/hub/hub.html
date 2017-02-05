@@ -3,10 +3,11 @@
          ng-controller="HubCtrl">
 
         <div class="row row-xs-12">
-            <div class="col col-md-6">
+            <div class="col col-md-6 no-overflow">
                 <h2>
                     <b>
-                        <span class="text-scarlet">{{'PRODUCT_TITLE' | translate}}</span> {{'GAME_STUDIO' | translate}}
+                        <span class="text-scarlet">{{'PRODUCT_TITLE' | translate}}</span> {{'GAME_STUDIO' |
+                        translate}}
                     </b>
                     <span class="headerInfo">{{'LABEL_HUB' | translate}}</span>
                 </h2>
@@ -29,18 +30,26 @@
 
                 <hr>
                 <div class="loadedProjectsContainer">
-                    <!-- project list -->
-                    <div class="projectDetails" ng-repeat="project in model.projects | orderBy: '-lastUpdate' | limitTo: 5" ng-click="openProject(project.path)" >
-                        <div class="projectTitle">{{::project.name}}</div>
-                        <div class="projectPath"><i class="fa fa-folder-open" aria-hidden="true"></i> {{::project.path}}</div>
-                    </div>
+                    <perfect-scrollbar class="scroll-wrapper" style="max-height:300px">
+                        <!-- project list -->
+                        <div class="projectDetails"
+                             ng-repeat="project in model.projects | orderBy: '-lastUpdate' | limitTo: 10"
+                             ng-click="openProject(project.path)">
+                            <div class="projectTitle">{{::project.name}}</div>
+                            <div class="projectPath"><i class="fa fa-folder-open" aria-hidden="true"></i>
+                                {{::project.path}}
+                            </div>
+                        </div>
 
-                    <!-- no projects available -->
-                    <div ng-show="model.projects.length === 0" class="text-grey"> There aren't previously loaded projects</div>
+                        <!-- no projects available -->
+                        <div ng-show="model.projects.length === 0" class="text-grey"> There aren't previously loaded
+                            projects
+                        </div>
+
+                    </perfect-scrollbar>
                 </div>
                 <hr>
             </div>
-
         </div>
         <div class="col-md-6">
         </div>

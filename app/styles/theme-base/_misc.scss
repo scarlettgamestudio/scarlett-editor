@@ -14,6 +14,10 @@
   padding-left: map-get($default-collection, padding);
 }
 
+.no-overflow {
+  overflow: hidden;
+}
+
 .clickable {
   cursor: pointer;
 }
@@ -124,7 +128,6 @@
 
 .container-fixed .col {
   height: 100%;
-  overflow: auto;
 }
 
 .row-xs-12 { height: 100%; }

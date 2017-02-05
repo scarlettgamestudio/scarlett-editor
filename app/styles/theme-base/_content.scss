@@ -75,7 +75,7 @@
     font-size: 0.9em;
     position: absolute;
     width: 100%;
-    background: darken(map-get($default-colors, grey-hound), 2%);
+    background: map-get($default-colors, grey-hound);
 
     .button {
       padding: 0px 4px;
@@ -90,7 +90,7 @@
     }
 
     .info {
-      background: darken(map-get($default-colors, grey-hound), 3%);
+      background: darken(map-get($default-colors, grey-hound), 1%);
       padding: 2px 6px;
       border-radius: 4px;
       font-size: 0.89em;
@@ -221,11 +221,10 @@
     }
 
     .content-item {
-      width: $_itemSize;
+      width:  90px;
       height: $_itemSize;
       margin: 4px 4px 0;
-      border-bottom: 3px solid map-get($default-colors, grey-hound);
-      background: lighten(map-get($default-colors, grey-hound), 2);
+      background: lighten(map-get($default-colors, grey-hound), 3);
       display: block;
       overflow: hidden;
       border-radius: 4px;
@@ -234,17 +233,14 @@
       font-size: 28px;
 
       &:hover {
-        border-bottom: 3px solid lighten(map-get($default-colors, grey-hound), 3);
-        background: lighten(map-get($default-colors, grey-hound), 5);
+        background: lighten(map-get($default-colors, grey-hound), 3);
       }
 
       &.directory {
-        border-bottom: 3px solid lighten(map-get($default-colors, grey-hound), 3);
-        background: lighten(map-get($default-colors, grey-hound), 5);
+        background: lighten(map-get($default-colors, grey-hound), 3);
 
         &:hover {
-          border-bottom: 3px solid lighten(map-get($default-colors, grey-hound), 6);
-          background: lighten(map-get($default-colors, grey-hound), 8);
+          background: lighten(map-get($default-colors, grey-hound), 3);
         }
       }
 
