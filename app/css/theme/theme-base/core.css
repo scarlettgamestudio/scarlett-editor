@@ -547,7 +547,8 @@ hr {
 
 button.btn {
   padding: 6px 18px;
-  color: #ccc; }
+  color: #ccc;
+  border-bottom: none; }
   button.btn.btn-scarlet {
     border-color: #e42c1c;
     background-color: #e84e40; }
