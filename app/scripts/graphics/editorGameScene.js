@@ -381,6 +381,7 @@ EditorGameScene.prototype._updateSubjects = function (evt) {
 	var diffx = (this._mouseState.lastPosition.x - this._mouseState.startPosition.x);
 	var diffy = (this._mouseState.lastPosition.y - this._mouseState.startPosition.y);
 
+	// TODO: fix scale while object is rotated...
 	//console.log("LEPOS. " + JSON.stringify(this._mouseState.startPosition) + "-" + JSON.stringify(this._mouseState.lastPosition));
 
 	this._selectedObjects.forEach((function (subject) {
