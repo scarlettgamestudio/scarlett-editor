@@ -34,6 +34,12 @@ The Scarlett Editor can run in all common Operative Systems including Windows, M
 
 * To activate automatic project build on code change (including styling modifications) simply run "grunt" on the root folder. 
 
+### Recommended Code Editors ###
+
+* IntelliJ Ultimate or Webstorm
+* Visual Studio Code
+* Atom
+
 ### IntelliJ/Webstorm Users ###
 
 This project uses the latest Ecma6 Javascript features and therefore if you are using an IDE such as IntelliJ or Webstorm it might detect code errors when using the default settings.
