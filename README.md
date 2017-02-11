@@ -36,7 +36,7 @@ The Scarlett Editor can run in all common Operative Systems including Windows, M
 
 ### Recommended Code Editors ###
 
-* IntelliJ Ultimate or Webstorm
+* Webstorm or IntelliJ Ultimate
 * Visual Studio Code
 * Atom
 
