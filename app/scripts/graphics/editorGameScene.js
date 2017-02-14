@@ -21,7 +21,7 @@ function EditorGameScene(params) {
 	this._startCameraPosition = null;
 	this._selectedObjects = [];
 	this._subjectsMethod = null;
-	this._lastKeyboardState = Keyboard.getState();
+	this._lastKeyboardState = Keyboard.instance.getState();
 	this._mouseState = {
 		startPosition: null,
 		lastPosition: null,
@@ -265,7 +265,7 @@ EditorGameScene.prototype.setSelectedObjects = function (gameObjects, broadcast,
 	});
 
 	// add to current selection (ctrl key is being pressed) ?
-	if (Keyboard.isKeyDown(Keys.Ctrl)) {
+	if (Keyboard.instance.isKeyDown(Keys.Ctrl)) {
 		selected.forEach((function (node) {
 			// now we need to verify if the node is already selected, if so, we must toggle it (remove it)
             let idx = this._selectedObjects.indexOfObject(node);
@@ -297,7 +297,7 @@ EditorGameScene.prototype.setSelectedObjects = function (gameObjects, broadcast,
 /** private functions **/
 
 EditorGameScene.prototype._handleKeyboardInput = function (delta) {
-    let keyboardState = Keyboard.getState();
+    let keyboardState = Keyboard.instance.getState();
     let sceneOperations = 0;
 
 	// is the canvas focused?
@@ -328,7 +328,7 @@ EditorGameScene.prototype._handleKeyboardInput = function (delta) {
 		EventManager.emit(AngularHelper.constants.EVENTS.VIEW_CHANGED);
 	}
 
-	this._lastKeyboardState = Keyboard.getState();
+	this._lastKeyboardState = Keyboard.instance.getState();
 };
 
 EditorGameScene.prototype._gameObjectsSelectionChanged = function (selected, origin) {
