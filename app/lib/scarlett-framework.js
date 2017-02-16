@@ -13592,206 +13592,451 @@ AttributeDictionary.addRule("gameScene", "_spriteBatch", {visible: false});
 /**
  * GameScene class
  */
-function GameScene(params) {
-    params = params || {};
+class GameScene {
 
-    if (!params.game) {
-        throw "cannot create a game scene without the game parameter";
-    }
+    //#region Constructors
 
-    // public properties:
+    /**
+     *
+     * @param params
+     */
+    constructor(params) {
+        params = params || {};
 
-    this.name = params.name || "GameScene";
-
-    // private properties:
-    this._uid = generateUID();
-    this._game = params.game || null;
-    this._backgroundColor = params.backgroundColor || Color.CornflowerBlue;
-    this._gameObjects = params.gameObjects || [];
-    this._camera = params.camera || new Camera2D(0, 0, this._game.getVirtualResolution().width, this._game.getVirtualResolution().height); // the default scene camera
-    this._spriteBatch = new SpriteBatch(params.game);
-}
-
-GameScene.prototype.getUID = function () {
-    return this._uid;
-};
-
-GameScene.prototype.getPhysicsWorld = function () {
-    return this._game.getPhysicsEngine().world;
-};
-
-GameScene.prototype.getCamera = function () {
-    return this._camera
-};
-
-GameScene.prototype.setGame = function (game) {
-    this._game = game;
-};
-
-GameScene.prototype.getGame = function () {
-    return this._game;
-};
-
-GameScene.prototype.setBackgroundColor = function (color) {
-    this._backgroundColor = color;
-};
-
-GameScene.prototype.getBackgroundColor = function () {
-    return this._backgroundColor;
-};
-
-GameScene.prototype.addGameObject = function (gameObject, index) {
-    // let's be safe, make sure to remove parent if any
-    gameObject.removeParent();
-
-    if (isObjectAssigned(index)) {
-        this._gameObjects.insert(index, gameObject);
-    } else {
-        this._gameObjects.push(gameObject);
-    }
-};
-
-GameScene.prototype.getGameObjects = function () {
-    return this._gameObjects;
-};
-
-GameScene.prototype.removeGameObject = function (gameObject) {
-    for (var i = this._gameObjects.length - 1; i >= 0; i--) {
-        if (this._gameObjects[i].getUID() == gameObject.getUID()) {
-            return this._gameObjects.splice(i, 1);
+        if (!params.game) {
+            throw "cannot create a game scene without the game parameter";
         }
+
+        // public properties:
+
+        this.name = params.name || "GameScene";
+
+        // private properties:
+        this._uid = generateUID();
+        this._game = params.game || null;
+        this._backgroundColor = params.backgroundColor || Color.CornflowerBlue;
+        this._gameObjects = params.gameObjects || [];
+        // the default scene camera
+        this._camera = params.camera || new Camera2D(0, 0,
+                this._game.getVirtualResolution().width, this._game.getVirtualResolution().height);
+        this._spriteBatch = new SpriteBatch(params.game);
     }
-};
 
-/**
- * Returns an array with all the game objects of this scene. All child game objects are included.
- */
-GameScene.prototype.getAllGameObjects = function () {
-    var result = [];
+    //#endregion
 
-    function recursive(gameObjects) {
-        gameObjects.forEach(function (elem) {
-            result.push(elem);
-            recursive(elem.getChildren());
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return new GameScene({
+            game: GameManager.activeGame,
+            backgroundColor: Color.restore(data.backgroundColor),
+            camera: Camera2D.restore(data.camera),
+            gameObjects: Objectify.restoreArray(data.gameObjects)
         });
     }
 
-    recursive(this._gameObjects);
+    //#endregion
 
-    return result;
-};
-
-GameScene.prototype.prepareRender = function () {
-    var gl = this._game.getRenderContext().getContext();
-
-    // set clear color and clear the screen:
-    gl.clearColor(this._backgroundColor.r, this._backgroundColor.g, this._backgroundColor.b, this._backgroundColor.a);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-};
-
-GameScene.prototype.sceneLateUpdate = function (delta) {
-    Matter.Engine.update(this._game.getPhysicsEngine(), 1000 / 60);
-};
-
-GameScene.prototype.sceneUpdate = function (delta) {
-    // let's render all game objects on scene:
-    for (var i = 0; i < this._gameObjects.length; i++) {
-        this._gameObjects[i].update(delta);
+    getUID() {
+        return this._uid;
     }
-};
 
-GameScene.prototype.sceneRender = function (delta) {
-    // let's render all game objects on scene:
-    for (var i = 0; i < this._gameObjects.length; i++) {
-        this._gameObjects[i].render(delta, this._spriteBatch);
+    getPhysicsWorld() {
+        return this._game.getPhysicsEngine().world;
     }
-};
 
-GameScene.prototype.flushRender = function() {
-    // all draw data was stored, now let's actually render stuff into the screen!
-    this._spriteBatch.flush();
-};
+    getCamera() {
+        return this._camera
+    }
 
-GameScene.prototype.objectify = function () {
-    return {
-        name: this.name,
-        camera: this._camera.objectify(),
-        backgroundColor: this._backgroundColor.objectify(),
-        gameObjects: Objectify.array(this._gameObjects)
-    };
-};
+    setGame(game) {
+        this._game = game;
+    }
 
-GameScene.restore = function (data) {
-    return new GameScene({
-        game: GameManager.activeGame,
-        backgroundColor: Color.restore(data.backgroundColor),
-        camera: Camera2D.restore(data.camera),
-        gameObjects: Objectify.restoreArray(data.gameObjects)
-    });
-};
+    getGame() {
+        return this._game;
+    }
 
-GameScene.prototype.unload = function () {
+    setBackgroundColor(color) {
+        this._backgroundColor = color;
+    }
 
-};;/**
+    getBackgroundColor() {
+        return this._backgroundColor;
+    }
+
+    addGameObject(gameObject, index) {
+        // let's be safe, make sure to remove parent if any
+        gameObject.removeParent();
+
+        if (isObjectAssigned(index)) {
+            this._gameObjects.insert(index, gameObject);
+        } else {
+            this._gameObjects.push(gameObject);
+        }
+    }
+
+    getGameObjects() {
+        return this._gameObjects;
+    }
+
+    removeGameObject(gameObject) {
+        for (let i = this._gameObjects.length - 1; i >= 0; i--) {
+            if (this._gameObjects[i].getUID() == gameObject.getUID()) {
+                return this._gameObjects.splice(i, 1);
+            }
+        }
+    }
+
+    /**
+     * Returns an array with all the game objects of this scene. All child game objects are included.
+     */
+    getAllGameObjects() {
+        let result = [];
+
+        // TODO: make it a private function
+        function recursive(gameObjects) {
+            gameObjects.forEach(function (elem) {
+                result.push(elem);
+                recursive(elem.getChildren());
+            });
+        }
+
+        recursive(this._gameObjects);
+
+        return result;
+    }
+
+    prepareRender() {
+        let gl = this._game.getRenderContext().getContext();
+
+        // set clear color and clear the screen:
+        gl.clearColor(this._backgroundColor.r, this._backgroundColor.g, this._backgroundColor.b, this._backgroundColor.a);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+    }
+
+    sceneLateUpdate(delta) {
+        Matter.Engine.update(this._game.getPhysicsEngine(), 1000 / 60);
+    }
+
+    sceneUpdate(delta) {
+        // let's render all game objects on scene:
+        for (let i = 0; i < this._gameObjects.length; i++) {
+            this._gameObjects[i].update(delta);
+        }
+    }
+
+    sceneRender(delta) {
+        // let's render all game objects on scene:
+        for (let i = 0; i < this._gameObjects.length; i++) {
+            this._gameObjects[i].render(delta, this._spriteBatch);
+        }
+    }
+
+    flushRender() {
+        // all draw data was stored, now let's actually render stuff into the screen!
+        this._spriteBatch.flush();
+    }
+
+    objectify() {
+        return {
+            name: this.name,
+            camera: this._camera.objectify(),
+            backgroundColor: this._backgroundColor.objectify(),
+            gameObjects: Objectify.array(this._gameObjects)
+        };
+    }
+
+    unload() {
+
+    }
+
+    //#endregion
+
+};/**
  * PrimitiveBatch class for on demand direct drawing
  */
-function PrimitiveBatch(game) {
-    if (!isGame(game)) {
-        throw error("Cannot create primitive render, the Game object is missing from the parameters");
+class PrimitiveBatch {
+
+    //#region Constructors
+
+    /**
+     *
+     * @param game
+     */
+    constructor(game) {
+        if (!isGame(game)) {
+            throw error("Cannot create primitive render, the Game object is missing from the parameters");
+        }
+
+        // public properties:
+
+
+        // private properties:
+        this._game = game;
+        this._gl = game.getRenderContext().getContext();
+        this._primitiveShader = new PrimitiveShader();
+        this._vertexBuffer = this._gl.createBuffer();
+        this._colorBuffer = this._gl.createBuffer();
+
+        this._rectangleVertexData = [];
+        this._rectangleColorData = [];
+        this._rectangleCount = 0;
+
+        this._transformMatrix = new Matrix4();
+        this._rectangleData = new Float32Array([
+            0.0, 0.0,
+            1.0, 0.0,
+            0.0, 1.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            1.0, 1.0
+        ]);
     }
 
-    // public properties:
+    //#endregion
 
+    //#region Methods
 
-    // private properties:
-    this._game = game;
-    this._gl = game.getRenderContext().getContext();
-    this._primitiveShader = new PrimitiveShader();
-    this._vertexBuffer = this._gl.createBuffer();
-    this._colorBuffer = this._gl.createBuffer();
+    unload() {
+        this._gl.deleteBuffer(this._vertexBuffer);
+        this._gl.deleteBuffer(this._colorBuffer);
 
-    this._rectangleVertexData = [];
-    this._rectangleColorData = [];
-    this._rectangleCount = 0;
+        this._primitiveShader.unload();
+    }
 
-    this._transformMatrix = new Matrix4();
-    this._rectangleData = new Float32Array([
-        0.0, 0.0,
-        1.0, 0.0,
-        0.0, 1.0,
-        0.0, 1.0,
-        1.0, 0.0,
-        1.0, 1.0
-    ]);
-}
+    begin() {
+        //let gl = this._gl;
+        // bind buffers
+        //gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+    }
 
-PrimitiveBatch.prototype.unload = function () {
-    gl.deleteBuffer(this._vertexBuffer);
-    gl.deleteBuffer(this._colorBuffer);
+    clear() {
+        this._rectangleVertexData = [];
+        this._rectangleColorData = [];
+        this._rectangleCount = 0;
+    }
 
-    this._primitiveShader.unload();
-};
+    flush() {
+        let gl = this._gl;
+        let cameraMatrix = this._game.getActiveCamera().getMatrix();
 
-PrimitiveBatch.prototype.begin = function () {
-    //let gl = this._gl;
-    // bind buffers
-    //gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-};
+        this._game.getShaderManager().useShader(this._primitiveShader);
 
-PrimitiveBatch.prototype.clear = function () {
-    this._rectangleVertexData = [];
-    this._rectangleColorData = [];
-    this._rectangleCount = 0;
-};
+        // draw rectangles?
+        if (this._rectangleCount > 0) {
+            // position buffer
+            gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
 
-PrimitiveBatch.prototype.flush = function () {
-    let gl = this._gl;
-    let cameraMatrix = this._game.getActiveCamera().getMatrix();
+            gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+            gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
 
-    this._game.getShaderManager().useShader(this._primitiveShader);
+            // set uniforms
+            gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, cameraMatrix);
 
-    // draw rectangles?
-    if (this._rectangleCount > 0) {
+            for (let i = 0; i < this._rectangleCount; i++) {
+                this._transformMatrix.identity();
+                this._transformMatrix.translate([this._rectangleVertexData[i].x, this._rectangleVertexData[i].y, 0]);
+                this._transformMatrix.scale([this._rectangleVertexData[i].width, this._rectangleVertexData[i].height, 0])
+
+                gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
+                gl.uniform4f(this._primitiveShader.uniforms.uColor._location,
+                    this._rectangleColorData[i].r, this._rectangleColorData[i].g, this._rectangleColorData[i].b, this._rectangleColorData[i].a);
+
+                gl.drawArrays(gl.TRIANGLES, 0, 6);
+            }
+        }
+
+        this.clear();
+    }
+
+    drawPoint(vector, size, color) {
+
+    }
+
+    storeRectangle(rectangle, color) {
+        this._rectangleColorData.push(color);
+        this._rectangleVertexData.push(rectangle);
+        this._rectangleCount++;
+    }
+
+    drawLine(vectorA, vectorB, thickness, color) {
+
+    }
+
+    //#endregion
+
+};/**
+ * PrimitiveRender class for on demand direct drawing
+ */
+class PrimitiveRender {
+
+    //#region Constructors
+
+    /**
+     *
+     * @param game
+     */
+    constructor(game) {
+        if (!isGame(game)) {
+            throw "Cannot create primitive render, the Game object is missing from the parameters";
+        }
+
+        // private properties:
+        this._game = game;
+        this._gl = game.getRenderContext().getContext();
+        this._primitiveShader = new PrimitiveShader();
+        this._vertexBuffer = this._gl.createBuffer();
+        this._transformMatrix = new Matrix4();
+        this._rectangleData = new Float32Array([
+            0.0, 0.0,
+            1.0, 0.0,
+            0.0, 1.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            1.0, 1.0
+        ]);
+        this._pointData = new Float32Array([
+            0.0, 0.0
+        ]);
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    unload() {
+        this._gl.deleteBuffer(this._vertexBuffer);
+        this._primitiveShader.unload();
+    }
+
+    drawPoint(vector, size, color) {
+        // TODO: refactor this method
+        let gl = this._gl;
+
+        this._game.getShaderManager().useShader(this._primitiveShader);
+
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this._pointData, gl.STATIC_DRAW);
+
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
+
+        // calculate transformation matrix:
+        this._transformMatrix.identity();
+        this._transformMatrix.translate([vector.x, vector.y, 0]);
+
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+        gl.uniform1f(this._primitiveShader.uniforms.uPointSize._location, size);
+
+        gl.drawArrays(gl.POINTS, 0, 1);
+    }
+
+    drawTriangle(vectorA, vectorB, vectorC, color) {
+        let gl = this._gl;
+        let transformMatrix = this._transformMatrix;
+
+        this._game.getShaderManager().useShader(this._primitiveShader);
+
+        let triangleData = new Float32Array([
+            vectorA.x, vectorA.y,
+            vectorB.x, vectorB.y,
+            vectorC.x, vectorC.y
+        ]);
+
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, triangleData, gl.STATIC_DRAW);
+
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+
+        // calculate transformation matrix (if not provided):
+        this._transformMatrix.identity();
+
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix.asArray());
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
+
+    drawCircle(position, radius, iterations, color) {
+        let gl = this._gl;
+
+        this._game.getShaderManager().useShader(this._primitiveShader);
+
+        let triangleData = [];
+        for (let i = 0; i < iterations; i++) {
+            triangleData.push(position.x + (radius * Math.cos(i * MathHelper.PI2 / iterations)));
+            triangleData.push(position.y + (radius * Math.sin(i * MathHelper.PI2 / iterations)));
+        }
+        triangleData = new Float32Array(triangleData);
+
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, triangleData, gl.STATIC_DRAW);
+
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
+
+        this._transformMatrix.identity();
+
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+        gl.drawArrays(gl.TRIANGLE_FAN, 0, iterations);
+    }
+
+    drawRectangle(rectangle, color, rotation) {
+        let gl = this._gl;
+        let transformMatrix = this._transformMatrix;
+
+        this._game.getShaderManager().useShader(this._primitiveShader);
+
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
+
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+
+        // calculate transformation matrix (if not provided):
+        this._transformMatrix.identity();
+        this._transformMatrix.translate([rectangle.x, rectangle.y, 0]);
+
+        // rotate the rectangle?
+        if (rotation) {
+            this._transformMatrix.translate([rectangle.width / 2, rectangle.height / 2, 0]);
+            this._transformMatrix.rotate([0.0, 0.0, 1.0], rotation);
+            this._transformMatrix.translate([-rectangle.width / 2, -rectangle.height / 2, 0]);
+        }
+
+        this._transformMatrix.scale([rectangle.width, rectangle.height, 0]);
+
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix.asArray());
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+    }
+
+    drawRectangleFromMatrix(matrix, color) {
+        let gl = this._gl;
+
+        this._game.getShaderManager().useShader(this._primitiveShader);
+
         // position buffer
         gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
@@ -13800,235 +14045,43 @@ PrimitiveBatch.prototype.flush = function () {
         gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
 
         // set uniforms
-        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, cameraMatrix);
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, matrix);
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
 
-        for (let i = 0; i < this._rectangleCount; i++) {
-            this._transformMatrix.identity();
-            this._transformMatrix.translate([this._rectangleVertexData[i].x, this._rectangleVertexData[i].y, 0]);
-            this._transformMatrix.scale([this._rectangleVertexData[i].width, this._rectangleVertexData[i].height, 0])
-
-            gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-            gl.uniform4f(this._primitiveShader.uniforms.uColor._location,
-                this._rectangleColorData[i].r, this._rectangleColorData[i].g, this._rectangleColorData[i].b, this._rectangleColorData[i].a);
-
-            gl.drawArrays(gl.TRIANGLES, 0, 6);
-        }
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
     }
 
-    this.clear();
-};
+    drawLine(vectorA, vectorB, thickness, color) {
+        let gl = this._gl;
+        //gl.lineWidth(thickness); // not all implementations support this
 
-PrimitiveBatch.prototype.drawPoint = function (vector, size, color) {
+        this._game.getShaderManager().useShader(this._primitiveShader);
 
-};
+        let pointData = new Float32Array([
+            vectorA.x, vectorA.y,
+            vectorB.x, vectorB.y
+        ]);
 
-PrimitiveBatch.prototype.storeRectangle = function (rectangle, color) {
-    this._rectangleColorData.push(color);
-    this._rectangleVertexData.push(rectangle);
-    this._rectangleCount++;
-};
+        // position buffer
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, pointData, gl.STATIC_DRAW);
 
-PrimitiveBatch.prototype.drawLine = function (vectorA, vectorB, thickness, color) {
+        gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
 
-};;/**
- * PrimitiveRender class for on demand direct drawing
- */
-function PrimitiveRender(game) {
-    if (!isGame(game)) {
-        throw "Cannot create primitive render, the Game object is missing from the parameters";
+        this._transformMatrix.identity();
+
+        // set uniforms
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
+        gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
+        gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
+
+        gl.drawArrays(gl.LINES, 0, 2);
     }
 
-    // private properties:
-    this._game = game;
-    this._gl = game.getRenderContext().getContext();
-    this._primitiveShader = new PrimitiveShader();
-    this._vertexBuffer = this._gl.createBuffer();
-    this._transformMatrix = new Matrix4();
-    this._rectangleData = new Float32Array([
-        0.0, 0.0,
-        1.0, 0.0,
-        0.0, 1.0,
-        0.0, 1.0,
-        1.0, 0.0,
-        1.0, 1.0
-    ]);
-    this._pointData = new Float32Array([
-        0.0, 0.0
-    ]);
-}
-
-PrimitiveRender.prototype.unload = function () {
-    gl.deleteBuffer(this._vertexBuffer);
-
-    this._primitiveShader.unload();
-};
-
-PrimitiveRender.prototype.drawPoint = function (vector, size, color) {
-    // TODO: refactor this method
-    let gl = this._gl;
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._pointData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
-
-    // calculate transformation matrix:
-    this._transformMatrix.identity();
-    this._transformMatrix.translate([vector.x, vector.y, 0]);
-
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
-    gl.uniform1f(this._primitiveShader.uniforms.uPointSize._location, size);
-
-    gl.drawArrays(gl.POINTS, 0, 1);
-};
-
-PrimitiveRender.prototype.drawTriangle = function (vectorA, vectorB, vectorC, color) {
-    let gl = this._gl;
-    let transformMatrix = this._transformMatrix;
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    let triangleData = new Float32Array([
-        vectorA.x, vectorA.y,
-        vectorB.x, vectorB.y,
-        vectorC.x, vectorC.y
-    ]);
-
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, triangleData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
-
-    // calculate transformation matrix (if not provided):
-    this._transformMatrix.identity();
-
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
-
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-};
-
-PrimitiveRender.prototype.drawCircle = function (position, radius, iterations, color) {
-    let gl = this._gl;
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    let triangleData = [];
-    for (let i = 0; i < iterations; i++) {
-        triangleData.push(position.x + (radius * Math.cos(i * MathHelper.PI2 / iterations)));
-        triangleData.push(position.y + (radius * Math.sin(i * MathHelper.PI2 / iterations)));
-    }
-    triangleData = new Float32Array(triangleData);
-
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, triangleData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
-
-    this._transformMatrix.identity();
-
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
-
-    gl.drawArrays(gl.TRIANGLE_FAN, 0, iterations);
-};
-
-PrimitiveRender.prototype.drawRectangle = function (rectangle, color, rotation) {
-    let gl = this._gl;
-    let transformMatrix = this._transformMatrix;
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
-
-    // calculate transformation matrix (if not provided):
-    this._transformMatrix.identity();
-    this._transformMatrix.translate([rectangle.x, rectangle.y, 0]);
-
-    // rotate the rectangle?
-    if (rotation) {
-        this._transformMatrix.translate([rectangle.width / 2, rectangle.height / 2, 0]);
-        this._transformMatrix.rotate([0.0, 0.0, 1.0], rotation);
-        this._transformMatrix.translate([-rectangle.width / 2, -rectangle.height / 2, 0]);
-    }
-
-    this._transformMatrix.scale([rectangle.width, rectangle.height, 0]);
-
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
-
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-};
-
-PrimitiveRender.prototype.drawRectangleFromMatrix = function (matrix, color) {
-    let gl = this._gl;
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
-
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, matrix);
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
-
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
-};
-
-PrimitiveRender.prototype.drawLine = function (vectorA, vectorB, thickness, color) {
-    let gl = this._gl;
-    //gl.lineWidth(thickness); // not all implementations support this
-
-    this._game.getShaderManager().useShader(this._primitiveShader);
-
-    let pointData = new Float32Array([
-        vectorA.x, vectorA.y,
-        vectorB.x, vectorB.y
-    ]);
-
-    // position buffer
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, pointData, gl.STATIC_DRAW);
-
-    gl.enableVertexAttribArray(this._primitiveShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._primitiveShader.attributes.aVertexPosition, 2, this._gl.FLOAT, false, 0, 0);
-
-    this._transformMatrix.identity();
-
-    // set uniforms
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uMatrix._location, false, this._game.getActiveCamera().getMatrix());
-    gl.uniformMatrix4fv(this._primitiveShader.uniforms.uTransform._location, false, this._transformMatrix.asArray());
-    gl.uniform4f(this._primitiveShader.uniforms.uColor._location, color.r, color.g, color.b, color.a);
-
-    gl.drawArrays(gl.LINES, 0, 2);
-};;/**
+    //#endregion
+};/**
  * Scripts singleton
  * @constructor
  */
@@ -14119,92 +14172,116 @@ Scripts.generateComponent = function (scriptName) {
 };;/**
  * Sound class
  */
-function Sound(audio) {
-    if (!isObjectAssigned(audio)) {
-        throw new Error("Cannot create Sound without a valid audio source");
+class Sound {
+
+    //#region Constructors
+
+    /**
+     *
+     * @param audio
+     */
+    constructor(audio) {
+        if (!isObjectAssigned(audio)) {
+            throw new Error("Cannot create Sound without a valid audio source");
+        }
+
+        // private properties
+        this._source = audio;
     }
 
-    // private properties
-    this._source = audio;
-}
+    //#endregion
 
-/**
- *
- * @param path
- * @returns {Promise}
- */
-Sound.fromPath = function (path) {
-    return new Promise((function (resolve, reject) {
-        ContentLoader.loadAudio(path).then(function (audio) {
-            resolve(new Sound(audio));
+    //#region Methods
 
-        }, function () {
-            reject();
+    //#region Static Methods
 
-        });
-    }).bind(this));
-};
+    /**
+     *
+     * @param path
+     * @returns {Promise}
+     */
+    static fromPath(path) {
+        return new Promise((function (resolve, reject) {
+            ContentLoader.loadAudio(path).then(function (audio) {
+                resolve(new Sound(audio));
 
-/**
- *
- * @param audio
- */
-Sound.prototype.setAudioSource = function (audio) {
-    this._source = audio;
-};
+            }, function () {
+                reject();
 
-/**
- * plays the current audio source
- */
-Sound.prototype.play = function () {
-    this._source.play();
-};
+            });
+        }).bind(this));
+    }
 
-/**
- * pauses the current audio source
- */
-Sound.prototype.pause = function () {
-    this._source.pause();
-};
+    // TODO: static restore
 
-/**
- * stops the current audio source
- */
-Sound.prototype.stop = function () {
-    this._source.pause();
-    this._source.currentTime = 0;
-};
+    //#endregion
 
-/**
- * sets the current audio source loop behavior
- * @param loop
- */
-Sound.prototype.setLoop = function (loop) {
-    this._source.loop = loop;
-};
+    /**
+     *
+     * @param audio
+     */
+    setAudioSource(audio) {
+        this._source = audio;
+    }
+
+    /**
+     * plays the current audio source
+     */
+    play() {
+        this._source.play();
+    }
+
+    /**
+     * pauses the current audio source
+     */
+    pause() {
+        this._source.pause();
+    }
+
+    /**
+     * stops the current audio source
+     */
+    stop() {
+        this._source.pause();
+        this._source.currentTime = 0;
+    }
+
+    /**
+     * sets the current audio source loop behavior
+     * @param loop
+     */
+    setLoop(loop) {
+        this._source.loop = loop;
+    }
 
 
-/**
- * sets the current audio source output volume (0 to 1)
- * @param volume
- */
-Sound.prototype.setVolume = function (volume) {
-    this._source.volume = volume;
-};;/**
- * Sprite class
- */
-AttributeDictionary.inherit("sprite", "gameobject");
-AttributeDictionary.addRule("sprite", "_source", { displayName: "Source", editor: "filepath" });
-AttributeDictionary.addRule("sprite", "_tint", { displayName: "Tint" });
-AttributeDictionary.addRule("sprite", "_texture", { visible: false });
-AttributeDictionary.addRule("sprite", "_wrapMode", { visible: false }); // temporary while we don't have cb's in editor
+    /**
+     * sets the current audio source output volume (0 to 1)
+     * @param volume
+     */
+    setVolume(volume) {
+        this._source.volume = volume;
+    }
+
+    //#endregion
+
+};AttributeDictionary.inherit("sprite", "gameobject");
+AttributeDictionary.addRule("sprite", "_source", {displayName: "Source", editor: "filepath"});
+AttributeDictionary.addRule("sprite", "_tint", {displayName: "Tint"});
+AttributeDictionary.addRule("sprite", "_texture", {visible: false});
+AttributeDictionary.addRule("sprite", "_wrapMode", {visible: false}); // temporary while we don't have cb's in editor
 AttributeDictionary.addRule("sprite", "_atlasRegion", {
     displayName: "Region", available: function () {
         return isObjectAssigned(this._atlas)
     }
 });
 
+/**
+ * Sprite class
+ */
 class Sprite extends GameObject {
+
+    //#region Constructors
 
     /**
      * Class constructor
@@ -14229,13 +14306,34 @@ class Sprite extends GameObject {
         this.setTexture(params.texture);
     }
 
+    //#endregion
+
+    //#region Public Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        let sprite = new Sprite({
+            name: data.name,
+            transform: Transform.restore(data.transform),
+            children: Objectify.restoreArray(data.children),
+            components: Objectify.restoreArray(data.components)
+        });
+
+        sprite.setSource(data.src);
+
+        return sprite;
+    }
+
+    //#endregion
+
     getBaseWidth() {
         return this._textureWidth;
-    };
+    }
 
     getBaseHeight() {
         return this._textureHeight;
-    };
+    }
 
     getMatrix() {
         let x, y, width, height;
@@ -14259,31 +14357,31 @@ class Sprite extends GameObject {
         this._transformMatrix.scale([width, height, 0]);
 
         return this._transformMatrix.asArray();
-    };
+    }
 
     setWrapMode(wrapMode) {
         this._wrapMode = wrapMode;
-    };
+    }
 
     getWrapMode() {
         return this._wrapMode;
-    };
+    }
 
     setOrigin(origin) {
         this._origin = origin;
-    };
+    }
 
     getOrigin() {
         return this._origin;
-    };
+    }
 
     setTint(color) {
         this._tint = color;
-    };
+    }
 
     getTint() {
         return this._tint;
-    };
+    }
 
     setSource(path) {
         this._source = path;
@@ -14321,39 +14419,27 @@ class Sprite extends GameObject {
         } else {
             this.setTexture(null);
         }
-    };
-
-    _assignTextureFromPath(path) {
-        Texture2D.fromPath(path).then(
-            (function (texture) {
-                this.setTexture(texture);
-
-            }).bind(this), (function (error) {
-                this.setTexture(null);
-            }).bind(this)
-        );
-    };
-
+    }
 
     getAtlasRegion() {
         return this._atlasRegion;
-    };
+    }
 
     setAtlasRegion(value) {
         this._atlasRegion = value;
-    };
+    }
 
     getSource() {
         return this._source;
-    };
+    }
 
     getType() {
         return "Sprite";
-    };
+    }
 
     getTexture() {
         return this._texture;
-    };
+    }
 
     setTexture(texture) {
         // is this a ready texture?
@@ -14369,7 +14455,7 @@ class Sprite extends GameObject {
         // cache the dimensions
         this._textureWidth = this._texture.getWidth();
         this._textureHeight = this._texture.getHeight();
-    };
+    }
 
     render(delta, spriteBatch) {
         if (!this.enabled) {
@@ -14381,7 +14467,7 @@ class Sprite extends GameObject {
 
         // parent render function:
         super.render(delta, spriteBatch);
-    };
+    }
 
     // functions:
     objectify() {
@@ -14390,150 +14476,166 @@ class Sprite extends GameObject {
             src: this._source,
             tint: this._tint.objectify()
         });
-    };
-
-    static restore(data) {
-        let sprite = new Sprite({
-            name: data.name,
-            transform: Transform.restore(data.transform),
-            children: Objectify.restoreArray(data.children),
-            components: Objectify.restoreArray(data.components)
-        });
-
-        sprite.setSource(data.src);
-
-        return sprite;
     }
 
     unload() {
 
-    };
+    }
+
+    //#endregion
+
+    //#region Private Methods
+
+    _assignTextureFromPath(path) {
+        Texture2D.fromPath(path).then(
+            (function (texture) {
+                this.setTexture(texture);
+
+            }).bind(this), (function (error) {
+                this.setTexture(null);
+            }).bind(this)
+        );
+    }
+
+    //#endregion
 
 };/**
  * SpriteBatch class
  */
-function SpriteBatch(game) {
-    if (!isGame(game)) {
-        throw new Error("Cannot create sprite render, the Game object is missing from the parameters");
+class SpriteBatch {
+
+    //#region Constructors
+
+    constructor(game) {
+        if (!isGame(game)) {
+            throw new Error("Cannot create sprite render, the Game object is missing from the parameters");
+        }
+
+        // private properties:
+        this._game = game;
+        this._gl = game.getRenderContext().getContext();
+        this._vertexBuffer = this._gl.createBuffer();
+        this._texBuffer = this._gl.createBuffer();
+        this._textureShader = new TextureShader();
+        this._lastTexUID = -1;
+        this._sprites = [];
+        this._rectangleData = new Float32Array([
+            0.0, 0.0,
+            1.0, 0.0,
+            0.0, 1.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            1.0, 1.0
+        ]);
+        /*
+
+         Texture coordinates in WebGL goes like this:
+
+         0,1----1,1
+         #--------#
+         #--------#
+         #--------#
+         0,0----1,0
+
+         */
+        this._textureData = new Float32Array([
+            0.0, 0.0,
+            1.0, 0.0,
+            0.0, 1.0,
+            0.0, 1.0,
+            1.0, 0.0,
+            1.0, 1.0
+        ]);
     }
 
-    // private properties:
-    this._game = game;
-    this._gl = game.getRenderContext().getContext();
-    this._vertexBuffer = this._gl.createBuffer();
-    this._texBuffer = this._gl.createBuffer();
-    this._textureShader = new TextureShader();
-    this._lastTexUID = -1;
-    this._sprites = [];
-    this._rectangleData = new Float32Array([
-        0.0, 0.0,
-        1.0, 0.0,
-        0.0, 1.0,
-        0.0, 1.0,
-        1.0, 0.0,
-        1.0, 1.0
-    ]);
-     /*
+    //#endregion
 
-        Texture coordinates in WebGL goes like this:
+    //#region Methods
 
-        0,1----1,1
-        #--------#
-        #--------#
-        #--------#
-        0,0----1,0
-
-     */
-    this._textureData = new Float32Array([
-        0.0, 0.0,
-        1.0, 0.0,
-        0.0, 1.0,
-        0.0, 1.0,
-        1.0, 0.0,
-        1.0, 1.0
-    ]);
-}
-
-SpriteBatch.prototype.clear = function () {
-    this._sprites = [];
-};
-
-SpriteBatch.prototype.storeSprite = function (sprite) {
-    this._sprites.push(sprite);
-};
-
-SpriteBatch.prototype.flush = function () {
-    if (this._sprites.length == 0) {
-        return;
+    clear() {
+        this._sprites = [];
     }
 
-    var gl = this._gl;
-    var cameraMatrix = this._game.getActiveCamera().getMatrix();
+    storeSprite(sprite) {
+        this._sprites.push(sprite);
+    }
 
-    this._game.getShaderManager().useShader(this._textureShader);
+    flush() {
+        if (this._sprites.length == 0) {
+            return;
+        }
 
-    // position buffer attribute
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
+        let gl = this._gl;
+        let cameraMatrix = this._game.getActiveCamera().getMatrix();
 
-    gl.enableVertexAttribArray(this._textureShader.attributes.aVertexPosition);
-    gl.vertexAttribPointer(this._textureShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+        this._game.getShaderManager().useShader(this._textureShader);
 
-    // texture attribute
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._texBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this._textureData, gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(this._textureShader.attributes.aTextureCoord);
-    gl.vertexAttribPointer(this._textureShader.attributes.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
+        // position buffer attribute
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this._rectangleData, gl.STATIC_DRAW);
 
-    // set uniforms
-    gl.uniformMatrix4fv(this._textureShader.uniforms.uMatrix._location, false, cameraMatrix);
+        gl.enableVertexAttribArray(this._textureShader.attributes.aVertexPosition);
+        gl.vertexAttribPointer(this._textureShader.attributes.aVertexPosition, 2, gl.FLOAT, false, 0, 0);
 
-    var texture, tint;
-    for (var i = 0; i < this._sprites.length; i++) {
-        texture = this._sprites[i].getTexture();
+        // texture attribute
+        gl.bindBuffer(gl.ARRAY_BUFFER, this._texBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, this._textureData, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(this._textureShader.attributes.aTextureCoord);
+        gl.vertexAttribPointer(this._textureShader.attributes.aTextureCoord, 2, gl.FLOAT, false, 0, 0);
 
-        if (texture && texture.isReady()) {
-            tint = this._sprites[i].getTint();
+        // set uniforms
+        gl.uniformMatrix4fv(this._textureShader.uniforms.uMatrix._location, false, cameraMatrix);
 
-            // for performance sake, consider if the texture is the same so we don't need to bind again
-            // TODO: maybe it's a good idea to group the textures somehow (depth should be considered)
-            // TODO: correct this when using textures outside spritebatch...
-            //if (this._lastTexUID != texture.getUID()) {
+        let texture, tint;
+        for (let i = 0; i < this._sprites.length; i++) {
+            texture = this._sprites[i].getTexture();
+
+            if (texture && texture.isReady()) {
+                tint = this._sprites[i].getTint();
+
+                // for performance sake, consider if the texture is the same so we don't need to bind again
+                // TODO: maybe it's a good idea to group the textures somehow (depth should be considered)
+                // TODO: correct this when using textures outside spritebatch...
+                //if (this._lastTexUID != texture.getUID()) {
                 texture.bind();
                 this._lastTexUID = texture.getUID();
-            //}
+                //}
 
-            switch (this._sprites[i].getWrapMode()) {
-                case WrapMode.REPEAT:
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-                    break;
+                switch (this._sprites[i].getWrapMode()) {
+                    case WrapMode.REPEAT:
+                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+                        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+                        break;
 
-                case WrapMode.CLAMP:
-                default:
-                    break;
+                    case WrapMode.CLAMP:
+                    default:
+                        break;
+                }
+
+                gl.uniformMatrix4fv(this._textureShader.uniforms.uTransform._location, false, this._sprites[i].getMatrix());
+
+                if (tint) {
+                    gl.uniform4f(this._textureShader.uniforms.uColor._location, tint.r, tint.g, tint.b, tint.a);
+                }
+
+                gl.drawArrays(gl.TRIANGLES, 0, 6);
             }
-
-            gl.uniformMatrix4fv(this._textureShader.uniforms.uTransform._location, false, this._sprites[i].getMatrix());
-
-            if (tint) {
-                gl.uniform4f(this._textureShader.uniforms.uColor._location, tint.r, tint.g, tint.b, tint.a);
-            }
-
-            gl.drawArrays(gl.TRIANGLES, 0, 6);
         }
+
+        this.clear();
     }
 
-    this.clear();
-};
+    unload() {
+        this._gl.deleteBuffer(this._vertexBuffer);
+        this._gl.deleteBuffer(this._texBuffer);
 
-SpriteBatch.prototype.unload = function () {
-    gl.deleteBuffer(this._vertexBuffer);
-    gl.deleteBuffer(this._texBuffer);
+        this._textureShader.unload();
+    }
 
-    this._textureShader.unload();
-};;/**
+    //#endregion
+
+};/**
  * Created by Luis on 23/12/2016.
  */
 
@@ -15297,8 +15399,10 @@ class Text extends GameObject {
  * Texture2D class
  */
 class Texture2D {
+
+    //#region Constructors
+
     /**
-     *
      * @param image
      */
     constructor(image) {
@@ -15332,6 +15436,12 @@ class Texture2D {
         this._hasLoaded = true;
     }
 
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
     /**
      *
      * @param path
@@ -15347,7 +15457,9 @@ class Texture2D {
 
             });
         }).bind(this));
-    };
+    }
+
+    //#endregion
 
     /**
      *
@@ -15355,14 +15467,14 @@ class Texture2D {
      */
     getUID() {
         return this._uid;
-    };
+    }
 
     /**
      *
      */
     bind() {
         this._gl.bindTexture(this._gl.TEXTURE_2D, this._texture);
-    };
+    }
 
     /**
      *
@@ -15370,7 +15482,7 @@ class Texture2D {
      */
     setImageData(imageData) {
         this._source = imageData;
-    };
+    }
 
     /**
      *
@@ -15378,7 +15490,7 @@ class Texture2D {
      */
     getImageData() {
         return this._source;
-    };
+    }
 
     /**
      * Gets the texture width
@@ -15386,7 +15498,7 @@ class Texture2D {
      */
     getWidth() {
         return this._source.width;
-    };
+    }
 
     /**
      * Gets the texture height
@@ -15394,7 +15506,7 @@ class Texture2D {
      */
     getHeight() {
         return this._source.height;
-    };
+    }
 
     /**
      * Gets the Texture
@@ -15402,7 +15514,7 @@ class Texture2D {
      */
     getTexture() {
         return this._texture;
-    };
+    }
 
     /**
      *
@@ -15410,7 +15522,7 @@ class Texture2D {
      */
     isReady() {
         return this._hasLoaded;
-    };
+    }
 
     /**
 
@@ -15418,14 +15530,19 @@ class Texture2D {
     unload() {
 
     }
+
+    //#endregion
+
 };AttributeDictionary.addRule("transform", "gameObject", {visible: false});
 
 /**
  * Transform class
  */
 class Transform {
+
+    //#region Constructors
+
     /**
-     *
      * @param params
      */
     constructor(params) {
@@ -15444,172 +15561,11 @@ class Transform {
         this._overrideScaleFunction = null;
     }
 
-    /**
-     *
-     */
-    clearPositionGetter() {
-        this._overridePositionFunction = null;
-    };
+    //#endregion
 
-    /**
-     *
-     */
-    clearRotationGetter() {
-        this._overrideRotationFunction = null;
-    };
+    //#region Methods
 
-    /**
-     *
-     */
-    clearScaleGetter() {
-        this._overrideScaleFunction = null;
-    };
-
-    /**
-     *
-     * @param overrideFunction
-     */
-    overridePositionGetter(overrideFunction) {
-        this._overridePositionFunction = overrideFunction;
-    };
-
-    /**
-     *
-     * @param overrideFunction
-     */
-    overrideScaleGetter(overrideFunction) {
-        this._overrideScaleFunction = overrideFunction;
-    };
-
-    /**
-     *
-     * @param overrideFunction
-     */
-    overrideRotationGetter(overrideFunction) {
-        this._overrideRotationFunction = overrideFunction;
-    };
-
-    /**
-     *
-     * @param position
-     */
-    lookAt(position) {
-        let direction = this.getPosition().subtract(position).normalize();
-        this.setRotation(Math.atan2(direction.y, direction.x));
-    };
-
-    /**
-     *
-     * @param x
-     * @param y
-     */
-    setPosition(x, y) {
-        this._position.set(x, y);
-        this.gameObject.propagatePropertyUpdate("Position", this._position);
-    };
-
-    /**
-     *
-     * @returns {*}
-     */
-    getPosition() {
-        if (isFunction(this._overridePositionFunction)) {
-            return this._overridePositionFunction();
-        }
-
-        return this._position;
-    };
-
-    /**
-     *
-     * @param x
-     * @param y
-     */
-    translate(x, y) {
-        let curPos = this.getPosition();
-        this.setPosition(curPos.x + (x || 0), curPos.y + (y || 0));
-    };
-
-    /**
-     *
-     * @param value
-     */
-    rotate(value) {
-        this.setRotation(this.getRotation() + (value || 0));
-    };
-
-    /**
-     *
-     * @param x
-     * @param y
-     */
-    scale(x, y) {
-        let curScale = this.getScale();
-        this.setPosition(curScale.x + (x || 0), curScale.y + (y || 0));
-    };
-
-    /**
-     *
-     * @param value
-     */
-    setRotation(value) {
-        this._rotation = value;
-        this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
-    };
-
-    /**
-     *
-     * @returns {*}
-     */
-    getRotation() {
-        if (isFunction(this._overrideRotationFunction)) {
-            return this._overrideRotationFunction();
-        }
-
-        return this._rotation;
-    };
-
-    /**
-     *
-     * @param x
-     * @param y
-     */
-    setScale(x, y) {
-        this._scale.set(x, y || x);
-        this.gameObject.propagatePropertyUpdate("Scale", this._scale);
-    };
-
-    /**
-     *
-     * @returns {*}
-     */
-    getScale() {
-        if (isFunction(this._overrideScaleFunction)) {
-            return this._overrideScaleFunction();
-        }
-
-        return this._scale;
-    };
-
-    /**
-     *
-     * @returns {Transform}
-     */
-    clone() {
-        return Transform.restore(this.objectify());
-    };
-
-    /**
-     *
-     * @returns {{position: {x, y}, rotation: (*|number), scale: {x, y}}}
-     */
-    objectify() {
-        return {
-            position: this._position.objectify(),
-            rotation: this._rotation,
-            scale: this._scale.objectify()
-        };
-    };
+    //#region Static Methods
 
     /**
      *
@@ -15622,15 +15578,187 @@ class Transform {
             rotation: data.rotation,
             scale: Vector2.restore(data.scale)
         });
-    };
+    }
+
+    //#endregion
+
+    /**
+     *
+     */
+    clearPositionGetter() {
+        this._overridePositionFunction = null;
+    }
+
+    /**
+     *
+     */
+    clearRotationGetter() {
+        this._overrideRotationFunction = null;
+    }
+
+    /**
+     *
+     */
+    clearScaleGetter() {
+        this._overrideScaleFunction = null;
+    }
+
+    /**
+     *
+     * @param overrideFunction
+     */
+    overridePositionGetter(overrideFunction) {
+        this._overridePositionFunction = overrideFunction;
+    }
+
+    /**
+     *
+     * @param overrideFunction
+     */
+    overrideScaleGetter(overrideFunction) {
+        this._overrideScaleFunction = overrideFunction;
+    }
+
+    /**
+     *
+     * @param overrideFunction
+     */
+    overrideRotationGetter(overrideFunction) {
+        this._overrideRotationFunction = overrideFunction;
+    }
+
+    /**
+     *
+     * @param position
+     */
+    lookAt(position) {
+        let direction = this.getPosition().subtract(position).normalize();
+        this.setRotation(Math.atan2(direction.y, direction.x));
+    }
+
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    setPosition(x, y) {
+        this._position.set(x, y);
+        this.gameObject.propagatePropertyUpdate("Position", this._position);
+    }
+
+    /**
+     *
+     * @returns {*}
+     */
+    getPosition() {
+        if (isFunction(this._overridePositionFunction)) {
+            return this._overridePositionFunction();
+        }
+
+        return this._position;
+    }
+
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    translate(x, y) {
+        let curPos = this.getPosition();
+        this.setPosition(curPos.x + (x || 0), curPos.y + (y || 0));
+    }
+
+    /**
+     *
+     * @param value
+     */
+    rotate(value) {
+        this.setRotation(this.getRotation() + (value || 0));
+    }
+
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    scale(x, y) {
+        let curScale = this.getScale();
+        this.setPosition(curScale.x + (x || 0), curScale.y + (y || 0));
+    }
+
+    /**
+     *
+     * @param value
+     */
+    setRotation(value) {
+        this._rotation = value;
+        this.gameObject.propagatePropertyUpdate("Rotation", this._rotation);
+    }
+
+    /**
+     *
+     * @returns {*}
+     */
+    getRotation() {
+        if (isFunction(this._overrideRotationFunction)) {
+            return this._overrideRotationFunction();
+        }
+
+        return this._rotation;
+    }
+
+    /**
+     *
+     * @param x
+     * @param y
+     */
+    setScale(x, y) {
+        this._scale.set(x, y || x);
+        this.gameObject.propagatePropertyUpdate("Scale", this._scale);
+    }
+
+    /**
+     *
+     * @returns {*}
+     */
+    getScale() {
+        if (isFunction(this._overrideScaleFunction)) {
+            return this._overrideScaleFunction();
+        }
+
+        return this._scale;
+    }
+
+    /**
+     *
+     * @returns {Transform}
+     */
+    clone() {
+        return Transform.restore(this.objectify());
+    }
+
+    /**
+     *
+     * @returns {{position: {x, y}, rotation: (*|number), scale: {x, y}}}
+     */
+    objectify() {
+        return {
+            position: this._position.objectify(),
+            rotation: this._rotation,
+            scale: this._scale.objectify()
+        };
+    }
 
     /**
      *
      */
     unload() {
 
-    };
-};var WrapMode = {
+    }
+
+    //#endregion
+
+};let WrapMode = {
     CLAMP: 0,
     REPEAT: 1
 };;// unique key
