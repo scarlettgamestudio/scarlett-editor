@@ -64,7 +64,7 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         minWidth: 340,
         componentName: 'template',
         componentState: {
-            templateId: constants.WINDOW_TYPES.PROJECT_EXPLORER,
+            templateId: constants.WINDOW_TYPES.SCRIPT_EDITOR,
             url: 'templates/scriptEditor/scriptEditor.html'
         },
         title: $translate.instant("EDITOR_SCRIPT_EDITOR")
@@ -115,6 +115,10 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         }]
     };
 
+    svc.isWindowOpen = function(identification) {
+        return activeWindows.hasOwnProperty(identification);
+    };
+
     svc.addWindow = function(identification) {
         if (!isObjectAssigned(layout)) {
             logSvc.warn("The layout manager is not initialized");
@@ -127,7 +131,7 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         }
 
         // is window already active?
-        if (activeWindows[identification]) {
+        if (svc.isWindowOpen(identification)) {
             logSvc.warn("Unable to add an already active window");
             return;
         }
@@ -149,27 +153,44 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
 
         layout.on('itemDestroyed', function (item) {
             if (item.config && item.config.componentState && item.config.componentState.templateId) {
+                if (activeWindows[item.config.componentState.templateId].scope) {
+                    // call the scope.$destroy() so there are no memory leaks!
+                    activeWindows[item.config.componentState.templateId].scope.$destroy();
+                }
+
                 // delete from the active windows:
                 delete activeWindows[item.config.componentState.templateId];
+
+                // broadcast event
+                EventManager.emit(constants.EVENTS.WINDOW_REMOVED, item.config.componentState.templateId);
             }
         });
 
         layout.registerComponent('template', function (container, state) {
             if (container._config && container._config.componentState && container._config.componentState.templateId) {
                 // add to active windows:
-                activeWindows[container._config.componentState.templateId] = true;
+                activeWindows[container._config.componentState.templateId] = {
+                    scope: null
+                };
             }
 
             if (state.url && state.url.length > 0) {
                 $http.get(state.url, {cache: true}).then(function (response) {
                     // compile the html so we have all angular goodies:
-                    let html = $compile(response.data)($rootScope);
+                    let newScope = $rootScope.$new();
+                    let html = $compile(response.data)(newScope);
                     container.getElement().html(html);
+
+                    // store the window scope:
+                    activeWindows[container._config.componentState.templateId].scope = newScope;
 
                     // assign events here:
                     container.on("resize", function () {
                         $rootScope.$broadcast(constants.EVENTS.CONTAINER_RESIZE, state.templateId);
                     });
+
+                    // broadcast event
+                    EventManager.emit(constants.EVENTS.WINDOW_ADDED, container._config.componentState.templateId);
                 });
             }
         });

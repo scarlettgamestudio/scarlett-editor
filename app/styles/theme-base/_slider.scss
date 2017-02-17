@@ -11,7 +11,7 @@ input[type=range]::-webkit-slider-runnable-track {
   height: 8.4px;
   cursor: pointer;
   //box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
-  background: map-get($default-colors, grey-hound);
+  background: map-get($default-colors, dim-grey);
   border-radius: 4px;
   border: none;
 }

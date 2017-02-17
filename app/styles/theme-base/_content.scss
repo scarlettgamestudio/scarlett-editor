@@ -119,17 +119,17 @@
 .tool-container {
 
   .toolbar {
-    background-color: lighten(map-get($default-colors, grey-hound), 2);
+    //background-color: map-get($default-colors, dim-grey);
     padding: 4px;
+    border-bottom: 2px solid darken(map-get($default-colors, grey-hound), 1);
 
     .sc-input {
       font-size:0.9em;
 
-      &.input-night {
+      /*&.input-night {
         background-color: map-get($default-colors, grey-hound)
-      }
+      }*/
     }
-
 
     input[type="text"] {
       font-size: 0.9em;
@@ -142,6 +142,7 @@
     .btn {
       background-color: lighten(map-get($default-colors, dim-grey), 2);
       border: none;
+      //border-bottom: 1px solid darken(map-get($default-colors, grey-hound), 1);
       padding: 2px 6px;
       font-size: 0.84em;
 
@@ -169,6 +170,8 @@
     display: flex;
     flex-wrap: wrap;
     align-content: flex-start;
+
+    background-color: darken(map-get($default-colors, grey-hound), 1);
 
     &.size_0 .content-item,
     &.size_1 .content-item {
