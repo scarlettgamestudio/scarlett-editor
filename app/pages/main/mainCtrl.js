@@ -74,7 +74,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
                 }
 
                 // update the keyboard data:
-                Keyboard.addKeys(keys);
+                Keyboard.instance.addKeys(keys);
             };
 
             $scope.onKeyUp = function (e) {
@@ -90,7 +90,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
                 }
 
                 // update the keyboard data:
-                Keyboard.removeKeys(keys);
+                Keyboard.instance.removeKeys(keys);
 
                 // controller behaviors:
 
@@ -111,7 +111,7 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
                 logSvc.log("Editor Windows lost focus");
 
                 // clear stuff that might generate issues:
-                Keyboard.clearKeys();
+                Keyboard.instance.clearKeys();
 
                 // we don't want the engine to consume unnecessary resources from the user machine therefore we
                 // pause the game when the editor window is not focused:
