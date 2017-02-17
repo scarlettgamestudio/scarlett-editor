@@ -9,10 +9,8 @@
 More Information @ https://scarlett.anlagehub.com | https://github.com/scarlettgamestudio/
 
 
-
  **/
 ;/**
-
 * matter-js 0.10.0 by @liabru 2016-05-01
 * http://brm.io/matter-js/
 * License MIT
@@ -9419,12 +9417,10 @@ class CallbackResponse {
         return this.success;
     }
 
-
     //#endregion
 
 };// alias for scarlett constants:
 let SC = {
-
 	WEBGL: "webgl",
 	EXECUTION_PHASES: {
 		WAITING: 0,
@@ -10168,7 +10164,6 @@ function isEqual(a, b) {
 ;/**
  * Objectify utility class
  */
-
 class Objectify {
 
     //#region Static Properties
@@ -11060,7 +11055,6 @@ class Boundary {
             min: Math.min(probeA, probeB, probeC, probeD)
         }
     }
-
 
     /**
      * Tests if two boundaries are overlapping each other
@@ -12557,9 +12551,7 @@ class Camera2D {
         this._lastZoom = this.zoom;
 
         return this._matrix.asArray();
-
     }
-}
 
     /**
      *
@@ -13244,9 +13236,7 @@ class Game {
      */
     removeRenderExtension(name) {
         delete this._renderExtensions[name];
-
     }
-};
 
     /**
      *
@@ -15274,12 +15264,6 @@ class Text extends GameObject {
         // revert the value, so 0 represents less stroke
         // add 0.1 because 0.0 is visually bad
         gl.uniform1f(this._textShader.uniforms.uOutlineDistance._location, 0.7 - scaledValue + 0.1);
-
-
-Text.prototype.getType = function () {
-    // TODO: is it even needed? we could replace this method in gameobject by this.name
-    return "Text";
-};
 
 
         let dropShadowColor = this.getDropShadow().getColor();
