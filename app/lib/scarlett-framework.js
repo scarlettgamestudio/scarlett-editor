@@ -9284,96 +9284,143 @@ var Common = require('../core/Common');
 })();
 
 },{"../body/Composite":2,"../core/Common":14}]},{},[28])(28)
-});;/**
- * Attribute dictionary for property definitions
- * @constructor
- */
-var AttributeDictionary = function () {
-};
-AttributeDictionary._rules = {};
-AttributeDictionary._inheritance = {};
+});;// unique key
+let _attributeDictionarySingleton = Symbol('attributeDictionarySingleton');
 
 /**
- *
- * @param context
- * @param propertyName
- * @param rule
- * @returns {boolean}
+ * Attribute Dictionary Singleton Class
+ * Attribute dictionary for property definitions
  */
-AttributeDictionary.addRule = function (context, propertyName, rule) {
-    if (isObjectAssigned(context)) {
+class AttributeDictionarySingleton {
+
+    //#region Constructors
+
+    constructor(attributeDictionarySingletonToken) {
+        if (_attributeDictionarySingleton !== attributeDictionarySingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
+
+        this._rules = {};
+        this._inheritance = {};
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static get instance() {
+        if (!this[_attributeDictionarySingleton]) {
+            this[_attributeDictionarySingleton] = new AttributeDictionarySingleton(_attributeDictionarySingleton);
+        }
+
+        return this[_attributeDictionarySingleton];
+    }
+
+    //#endregion
+
+    /**
+     *
+     * @param context
+     * @param propertyName
+     * @param rule
+     * @returns {boolean}
+     */
+    addRule(context, propertyName, rule) {
+        if (isObjectAssigned(context)) {
+            context = context.toLowerCase();
+
+            if (!isObjectAssigned(this._rules[context])) {
+                this._rules[context] = {}
+            }
+
+            this._rules[context][propertyName] = rule;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * @param context
+     * @param propertyName
+     * @returns {*}
+     */
+    getRule(context, propertyName) {
         context = context.toLowerCase();
 
-        if (!isObjectAssigned(AttributeDictionary._rules[context])) {
-            AttributeDictionary._rules[context] = {}
+        // first check the first order rules:
+        if (this._rules[context] && this._rules[context][propertyName]) {
+            return this._rules[context][propertyName];
         }
 
-        AttributeDictionary._rules[context][propertyName] = rule;
-
-        return true;
-    }
-
-    return false;
-};
-
-/**
- *
- * @param context
- * @param propertyName
- * @returns {*}
- */
-AttributeDictionary.getRule = function (context, propertyName) {
-    context = context.toLowerCase();
-
-    // first check the first order rules:
-    if (AttributeDictionary._rules[context] && AttributeDictionary._rules[context][propertyName]) {
-        return AttributeDictionary._rules[context][propertyName];
-    }
-
-    // maybe the parents have this rule?
-    if (AttributeDictionary._inheritance[context]) {
-        // recursively try to get the rule from the parents:
-        for (var i = 0; i < AttributeDictionary._inheritance[context].length; ++i) {
-            var result = AttributeDictionary.getRule(AttributeDictionary._inheritance[context][i], propertyName);
-            if (result != null) {
-                return result;
+        // maybe the parents have this rule?
+        if (this._inheritance[context]) {
+            // recursively try to get the rule from the parents:
+            for (let i = 0; i < this._inheritance[context].length; ++i) {
+                let result = this.getRule(this._inheritance[context][i], propertyName);
+                if (result != null) {
+                    return result;
+                }
             }
         }
+
+        return null;
     }
 
-    return null;
-};
+    /**
+     *
+     * @param typeName
+     * @param parent
+     */
+    inherit(context, parent) {
+        context = context.toLowerCase();
+        parent = parent.toLowerCase();
 
-/**
- *
- * @param typeName
- * @param parent
- */
-AttributeDictionary.inherit = function (context, parent) {
-    context = context.toLowerCase();
-    parent = parent.toLowerCase();
+        if (!isObjectAssigned(this._inheritance[context])) {
+            this._inheritance[context] = [];
+        }
 
-    if (!isObjectAssigned(AttributeDictionary._inheritance[context])) {
-        AttributeDictionary._inheritance[context] = [];
+        this._inheritance[context].push(parent);
     }
 
-    AttributeDictionary._inheritance[context].push(parent);
-};;/**
- * CallbackResponse class
- */
-function CallbackResponse(params) {
-    params = params || {};
+    //#endregion
 
-    this.success = params.success;
-    this.data = params.data || {};
-
-   
 }
 
-CallbackResponse.prototype.isSuccessful = function() {
-    return this.success;
-};;// alias for scarlett constants:
-var SC = {
+/**
+ * Attribute Dictionary alias to Attribute Dictionary Singleton instance
+ * Attribute dictionary for property definitions
+ */
+let AttributeDictionary = AttributeDictionarySingleton.instance;;/**
+ * CallbackResponse Class
+ */
+class CallbackResponse {
+
+    //#region Constructors
+
+    constructor(params) {
+        params = params || {};
+
+        this.success = params.success;
+        this.data = params.data || {};
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    isSuccessful() {
+        return this.success;
+    }
+
+    //#endregion
+
+};// alias for scarlett constants:
+let SC = {
 	WEBGL: "webgl",
 	EXECUTION_PHASES: {
 		WAITING: 0,
@@ -9393,378 +9440,436 @@ var SC = {
 };
 
 // function "quickies" holder
-var sc = {};
-;/**
- * Content Loader static class
- */
-var ContentLoader = function () {
-};
+let sc = {};
+;// unique key
+let _contentLoaderSingleton = Symbol('contentLoaderSingleton');
 
 /**
- * Cached files
- * @type {{}}
- * @private
+ * Content Loader Singleton Class
  */
-ContentLoader._fileLoaded = {};
-ContentLoader._fileAlias = {};
+class ContentLoaderSingleton {
 
-/**
- * Cached images
- * @type {{}}
- * @private
- */
-ContentLoader._imgLoaded = {};
-ContentLoader._imgAlias = {};
+    //#region Constructors
 
-/**
- * Cached audio
- * @type {{}}
- * @private
- */
-ContentLoader._audioLoaded = {};
-ContentLoader._audioAlias = {};
+    constructor(contentLoaderSingletonToken) {
+        if (_contentLoaderSingleton !== contentLoaderSingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
 
-/**
- *
- * @param path
- * @returns {*}
- * @private
- */
-ContentLoader._enrichRelativePath = function (path) {
-    // is this a relative path?
-    if (GameManager.activeProjectPath && path.indexOf(GameManager.activeProjectPath) < 0) {
-        path = GameManager.activeProjectPath + path;
+        // Cached files
+        this._fileLoaded = {};
+        this._fileAlias = {};
+
+
+        // Cached images
+        this._imgLoaded = {};
+        this._imgAlias = {};
+
+
+        // Cached audio
+        this._audioLoaded = {};
+        this._audioAlias = {};
     }
 
-    return path;
-};
+    //#endregion
 
-/**
- * Clears all loaded assets from the content loader
- */
-ContentLoader.clear = function () {
-    ContentLoader._imgLoaded = {};
-    ContentLoader._imgAlias = {};
-    ContentLoader._audioLoaded = {};
-    ContentLoader._audioAlias = {};
-    ContentLoader._fileLoaded = {};
-    ContentLoader._fileAlias = {};
-};
+    //#region Public Methods
 
-/**
- * Loads several assets per category (audio, images, ..) and resolves after all are loaded
- * @param assets
- */
-ContentLoader.load = function (assets) {
-    return new Promise(function (resolve, reject) {
-        // result holder
-        var result = {
-            success: [],
-            fail: []
-        };
+    //#region Static Methods
 
-        // counters
-        var toLoad = 0; // number of expected loaded assets
-        var loaded = 0; // number of loaded assets
+    static get instance() {
+        if (!this[_contentLoaderSingleton]) {
+            this[_contentLoaderSingleton] = new ContentLoaderSingleton(_contentLoaderSingleton);
+        }
 
-        function assetLoaded(asset, success) {
-            loaded += 1;
+        return this[_contentLoaderSingleton];
+    }
 
-            if (success) {
-                result.success.push(asset);
+    //#endregion
+
+    /**
+     * Clears all loaded assets from the content loader
+     */
+    clear() {
+        this._imgLoaded = {};
+        this._imgAlias = {};
+        this._audioLoaded = {};
+        this._audioAlias = {};
+        this._fileLoaded = {};
+        this._fileAlias = {};
+    }
+
+    /**
+     * Loads several assets per category (audio, images, ..) and resolves after all are loaded
+     * @param assets
+     */
+    load(assets) {
+        return new Promise((function (resolve, reject) {
+            // result holder
+            let result = {
+                success: [],
+                fail: []
+            };
+
+            // counters
+            let toLoad = 0; // number of expected loaded assets
+            let loaded = 0; // number of loaded assets
+
+            function assetLoaded(asset, success) {
+                loaded += 1;
+
+                if (success) {
+                    result.success.push(asset);
+                } else {
+                    result.fail.push(asset);
+                }
+
+                if (loaded >= toLoad) {
+                    resolve(result);
+                }
+            }
+
+            // load all images:
+            assets.images = assets.images || [];
+            assets.images.forEach((function (asset) {
+                if (!asset.path) {
+                    return;
+                }
+
+                toLoad++; // count only supposedly valid assets
+
+                this.loadImage(asset.path, asset.alias).then(
+                    function () {
+                        assetLoaded(asset, true);
+                    }, function () {
+                        assetLoaded(asset, false);
+                    }
+                )
+            }).bind(this));
+
+            // load all images:
+            assets.audio = assets.audio || [];
+            assets.audio.forEach((function (asset) {
+                if (!asset.path) {
+                    return;
+                }
+
+                toLoad++; // count only supposedly valid assets
+
+                this.loadAudio(asset.path, asset.alias).then(
+                    function () {
+                        assetLoaded(asset, true);
+                    }, function () {
+                        assetLoaded(asset, false);
+                    }
+                )
+            }).bind(this));
+
+            // load all images:
+            assets.files = assets.files || [];
+            assets.files.forEach((function (asset) {
+                if (!asset.path) {
+                    return;
+                }
+
+                toLoad++; // count only supposedly valid assets
+
+                this.loadFile(asset.path, asset.alias).then(
+                    function () {
+                        assetLoaded(asset, true);
+                    }, function () {
+                        assetLoaded(asset, false);
+                    }
+                )
+            }).bind(this));
+        }).bind(this));
+    }
+
+    /**
+     * Returns an image loaded by the given alias (if exists)
+     * @param alias
+     */
+    getImage(alias) {
+        if (this._imgAlias.hasOwnProperty(alias)) {
+            return this._imgLoaded[this._imgAlias[alias]]
+        }
+    }
+
+    /**
+     * loads an image file from a specified path into memory
+     * @param path
+     * @param alias
+     * @returns {*}
+     */
+    loadImage(path, alias) {
+        return new Promise((function (resolve, reject) {
+            path = this._enrichRelativePath(path);
+
+            // is the image on cache?
+            if (this._imgLoaded.hasOwnProperty(path)) {
+                // the image is already cached. let's use it!
+                resolve(this._imgLoaded[path]);
+
             } else {
-                result.fail.push(asset);
-            }
-
-            if (loaded >= toLoad) {
-                resolve(result);
-            }
-        }
-
-        // load all images:
-        assets.images = assets.images || [];
-        assets.images.forEach(function (asset) {
-            if (!asset.path) {
-                return;
-            }
-
-            toLoad++; // count only supposedly valid assets
-
-            ContentLoader.loadImage(asset.path, asset.alias).then(
-                function () {
-                    assetLoaded(asset, true);
-                }, function () {
-                    assetLoaded(asset, false);
-                }
-            )
-        });
-
-        // load all images:
-        assets.audio = assets.audio || [];
-        assets.audio.forEach(function (asset) {
-            if (!asset.path) {
-                return;
-            }
-
-            toLoad++; // count only supposedly valid assets
-
-            ContentLoader.loadAudio(asset.path, asset.alias).then(
-                function () {
-                    assetLoaded(asset, true);
-                }, function () {
-                    assetLoaded(asset, false);
-                }
-            )
-        });
-
-        // load all images:
-        assets.files = assets.files || [];
-        assets.files.forEach(function (asset) {
-            if (!asset.path) {
-                return;
-            }
-
-            toLoad++; // count only supposedly valid assets
-
-            ContentLoader.loadFile(asset.path, asset.alias).then(
-                function () {
-                    assetLoaded(asset, true);
-                }, function () {
-                    assetLoaded(asset, false);
-                }
-            )
-        });
-    });
-};
-
-/**
- * Returns an image loaded by the given alias (if exists)
- * @param alias
- */
-ContentLoader.getImage = function (alias) {
-    if (ContentLoader._imgAlias.hasOwnProperty(alias)) {
-        return ContentLoader._imgLoaded[ContentLoader._imgAlias[alias]]
-    }
-};
-
-/**
- * loads an image file from a specified path into memory
- * @param path
- * @param alias
- * @returns {*}
- */
-ContentLoader.loadImage = function (path, alias) {
-    return new Promise((function (resolve, reject) {
-        path = ContentLoader._enrichRelativePath(path);
-
-        // is the image on cache?
-        if (ContentLoader._imgLoaded.hasOwnProperty(path)) {
-            // the image is already cached. let's use it!
-            resolve(ContentLoader._imgLoaded[path]);
-
-        } else {
-            // the image is not in cache, we must load it:
-            var image = new Image();
-            image.src = path;
-            image.onload = function () {
-                // cache the loaded image:
-                ContentLoader._imgLoaded[path] = image;
-
-                if (alias) {
-                    ContentLoader._imgAlias[alias] = path;
-                }
-
-                resolve(image);
-            };
-            image.onerror = function () {
-                // TODO: log this
-                reject();
-            };
-        }
-    }).bind(this));
-};
-
-/**
- * Returns an audio loaded by the given alias (if exists)
- * @param alias
- */
-ContentLoader.getAudio = function (alias) {
-    if (ContentLoader._audioAlias.hasOwnProperty(alias)) {
-        return ContentLoader._audioLoaded[ContentLoader._audioAlias[alias]]
-    }
-};
-
-/**
- * loads an audio file from a specified path into memory
- * @param path
- * @param alias
- * @returns {*}
- */
-ContentLoader.loadAudio = function (path, alias) {
-    return new Promise((function (resolve, reject) {
-        path = ContentLoader._enrichRelativePath(path);
-
-        // is the audio on cache?
-        if (ContentLoader._audioLoaded.hasOwnProperty(path)) {
-            // the audio is already cached. let's use it!
-            resolve(ContentLoader._audioLoaded[path]);
-
-        } else {
-            var audio = new Audio();
-            audio.src = path;
-            audio.oncanplaythrough = function () {
-                // cache the loaded image:
-                ContentLoader._audioLoaded[path] = audio;
-
-                if (alias) {
-                    ContentLoader._audioAlias[alias] = path;
-                }
-
-                resolve(audio);
-            };
-            audio.onerror = function () {
-                // TODO: log this
-                reject();
-            };
-        }
-
-    }).bind(this));
-};
-
-/**
- * Returns a file loaded by the given alias (if exists)
- * @param alias
- */
-ContentLoader.getFile = function (alias) {
-    if (ContentLoader._fileAlias.hasOwnProperty(alias)) {
-        return ContentLoader._fileLoaded[ContentLoader._fileAlias[alias]]
-    }
-};
-
-/**
- * loads a file from a specified path into memory
- * @param path
- * @param alias
- * @returns {*}
- */
-ContentLoader.loadFile = function (path, alias) {
-    return new Promise((function (resolve, reject) {
-        path = ContentLoader._enrichRelativePath(path);
-
-        // is the image on cache?
-        if (ContentLoader._fileLoaded.hasOwnProperty(path)) {
-            // the image is already cached. let's use it!
-            resolve(ContentLoader._fileLoaded[path]);
-
-        } else {
-            var rawFile = new XMLHttpRequest();
-            //rawFile.overrideMimeType("application/json");
-            rawFile.open("GET", path, true);
-            rawFile.onreadystatechange = function() {
-                if (rawFile.readyState === 4 && rawFile.status == "200") {
+                // the image is not in cache, we must load it:
+                let image = new Image();
+                image.src = path;
+                image.onload = (function () {
                     // cache the loaded image:
-                    ContentLoader._fileLoaded[path] = rawFile.responseText;
+                    this._imgLoaded[path] = image;
 
                     if (alias) {
-                        ContentLoader._fileAlias[alias] = path;
+                        this._imgAlias[alias] = path;
                     }
 
-                    resolve(rawFile.responseText);
-
-                } else if (rawFile.readyState === 4 && rawFile.status != "200") {
+                    resolve(image);
+                }.bind(this));
+                image.onerror = function () {
+                    // TODO: log this
                     reject();
-                }
-            };
-            rawFile.send(null);
-        }
-    }).bind(this));
-};;/**
- * Event Manager
- * @constructor
- */
-var EventManager = function () {
-};
-
-/**
- *
- * @type {{}}
- * @private
- */
-EventManager._handlers = {};
-
-/**
- *
- * @param topic
- * @param callback
- * @param context (optional)
- */
-EventManager.subscribe = function (topic, callback, context) {
-    if (!EventManager._handlers.hasOwnProperty(topic)) {
-        EventManager._handlers[topic] = [];
+                };
+            }
+        }).bind(this));
     }
 
-    EventManager._handlers[topic].push({
-        callback: callback,
-        context: context
-    });
-};
-
-/**
- * Removes the subscription of a topic
- * @param topic
- * @param callback (for reference)
- */
-EventManager.removeSubscription = function (topic, callback) {
-    if (!EventManager._handlers[topic]) {
-        return;
-    }
-
-    for (var i = EventManager._handlers[topic].length - 1; i >= 0; i--) {
-        if (EventManager._handlers[topic][i].callback == callback) {
-            EventManager._handlers[topic].splice(i, 1);
+    /**
+     * Returns an audio loaded by the given alias (if exists)
+     * @param alias
+     */
+    getAudio(alias) {
+        if (this._audioAlias.hasOwnProperty(alias)) {
+            return this._audioLoaded[this._audioAlias[alias]]
         }
     }
 
-    // no more subscriptions for this topic?
-    if (EventManager._handlers[topic].length == 0) {
-        // nope... let's remove the topic then:
-        delete EventManager._handlers[topic];
-    }
-};
+    /**
+     * loads an audio file from a specified path into memory
+     * @param path
+     * @param alias
+     * @returns {*}
+     */
+    loadAudio(path, alias) {
+        return new Promise((function (resolve, reject) {
+            path = this._enrichRelativePath(path);
 
-/**
- *
- * @param topic
- */
-EventManager.emit = function (topic) {
-    // get the remaining arguments (if exist)
-    var args = [], i;
-    if (arguments.length > 1) {
-        for (i = 1; i < arguments.length; i++) {
-            args.push(arguments[i]);
+            // is the audio on cache?
+            if (this._audioLoaded.hasOwnProperty(path)) {
+                // the audio is already cached. let's use it!
+                resolve(this._audioLoaded[path]);
+
+            } else {
+                let audio = new Audio();
+                audio.src = path;
+                audio.oncanplaythrough = (function () {
+                    // cache the loaded image:
+                    this._audioLoaded[path] = audio;
+
+                    if (alias) {
+                        this._audioAlias[alias] = path;
+                    }
+
+                    resolve(audio);
+                }.bind(this));
+                audio.onerror = function () {
+                    // TODO: log this
+                    reject();
+                };
+            }
+
+        }).bind(this));
+    }
+
+    /**
+     * Returns a file loaded by the given alias (if exists)
+     * @param alias
+     */
+    getFile(alias) {
+        if (this._fileAlias.hasOwnProperty(alias)) {
+            return this._fileLoaded[this._fileAlias[alias]]
         }
     }
 
-    if (EventManager._handlers.hasOwnProperty(topic)) {
-        for (i = EventManager._handlers[topic].length - 1; i >= 0; i--) {
-            if (EventManager._handlers[topic][i].callback) {
-                EventManager._handlers[topic][i].callback.apply(EventManager._handlers[topic][i].context, args);
+    /**
+     * loads a file from a specified path into memory
+     * @param path
+     * @param alias
+     * @returns {*}
+     */
+    loadFile(path, alias) {
+        return new Promise((function (resolve, reject) {
+            path = this._enrichRelativePath(path);
+
+            // is the image on cache?
+            if (this._fileLoaded.hasOwnProperty(path)) {
+                // the image is already cached. let's use it!
+                resolve(this._fileLoaded[path]);
+
+            } else {
+                let rawFile = new XMLHttpRequest();
+                //rawFile.overrideMimeType("application/json");
+                rawFile.open("GET", path, true);
+                rawFile.onreadystatechange = (function () {
+                    if (rawFile.readyState === 4 && rawFile.status == "200") {
+                        // cache the loaded image:
+                        this._fileLoaded[path] = rawFile.responseText;
+
+                        if (alias) {
+                            this._fileAlias[alias] = path;
+                        }
+
+                        resolve(rawFile.responseText);
+
+                    } else if (rawFile.readyState === 4 && rawFile.status != "200") {
+                        reject();
+                    }
+                }.bind(this));
+                rawFile.send(null);
+            }
+        }).bind(this));
+    }
+
+    //#endregion
+
+    //#region Private Methods
+
+    /**
+     *
+     * @param path
+     * @returns {*}
+     * @private
+     */
+    _enrichRelativePath(path) {
+        // is this a relative path?
+        if (GameManager.activeProjectPath && path.indexOf(GameManager.activeProjectPath) < 0) {
+            path = GameManager.activeProjectPath + path;
+        }
+
+        return path;
+    }
+
+    //#endregion
+}
+
+/**
+ * Content Loader alias to Content Loader Singleton instance
+ */
+let ContentLoader = ContentLoaderSingleton.instance;;// unique key
+let _eventManagerSingleton = Symbol('eventManagerSingleton');
+
+/**
+ * Event Manager Singleton Class
+ */
+class EventManagerSingleton {
+
+    //#region Constructors
+
+    constructor(eventManagerSingletonToken) {
+        if (_eventManagerSingleton !== eventManagerSingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
+        this._handlers = {};
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static get instance() {
+        if (!this[_eventManagerSingleton]) {
+            this[_eventManagerSingleton] = new EventManagerSingleton(_eventManagerSingleton);
+        }
+
+        return this[_eventManagerSingleton];
+    }
+
+    //#endregion
+
+    /**
+     *
+     * @param topic
+     * @param callback
+     * @param context (optional)
+     */
+    subscribe(topic, callback, context) {
+        if (!this._handlers.hasOwnProperty(topic)) {
+            this._handlers[topic] = [];
+        }
+
+        this._handlers[topic].push({
+            callback: callback,
+            context: context
+        });
+    }
+
+    /**
+     * Removes the subscription of a topic
+     * @param topic
+     * @param callback (for reference)
+     */
+    removeSubscription(topic, callback) {
+        if (!this._handlers[topic]) {
+            return;
+        }
+
+        for (let i = this._handlers[topic].length - 1; i >= 0; i--) {
+            if (this._handlers[topic][i].callback == callback) {
+                this._handlers[topic].splice(i, 1);
+            }
+        }
+
+        // no more subscriptions for this topic?
+        if (this._handlers[topic].length == 0) {
+            // nope... let's remove the topic then:
+            delete this._handlers[topic];
+        }
+    }
+
+    /**
+     *
+     * @param topic
+     */
+    emit(topic) {
+        // get the remaining arguments (if exist)
+        let args = [], i;
+        if (arguments.length > 1) {
+            for (i = 1; i < arguments.length; i++) {
+                args.push(arguments[i]);
+            }
+        }
+
+        if (!this._handlers.hasOwnProperty(topic)) {
+            return;
+        }
+
+        for (i = this._handlers[topic].length - 1; i >= 0; i--) {
+            if (this._handlers[topic][i].callback) {
+                this._handlers[topic][i].callback.apply(this._handlers[topic][i].context, args);
 
             } else {
                 // this doesn't seem to exist anymore, let's remove it from the subscribers:
-                EventManager._handlers[topic].splice(i, 1);
+                this._handlers[topic].splice(i, 1);
 
             }
         }
     }
-};
+
+    /**
+     * Clears all subscriptions
+     */
+    clear() {
+        this._handlers = {};
+    }
+
+    //#endregion
+
+}
 
 /**
- * Clears all subscriptions
+ * Event Manager alias to Event Manager Singleton instance
  */
-EventManager.clear = function () {
-    EventManager._handlers = {};
-};;/**
+let EventManager = EventManagerSingleton.instance;;/**
  * Inserts an element at a desirable position
  * @param index
  * @param item
@@ -9810,61 +9915,111 @@ Array.prototype.indexOfObject = function arrayObjectIndexOf(search) {
 		if (isEqual(this[i], search)) return i;
 	}
 	return -1;
-};;function Logger(params) {
-    params = params || {};
+};;/**
+ *  Logger Class
+ */
+class Logger {
 
-    // private properties:
-    this._context = params.context || "Default";
+    //#region Constructors
+
+    constructor(params) {
+        params = params || {};
+
+        // private properties:
+        this._context = params.context || "Default";
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    log(message) {
+        console.log(this._context + " | " + message);
+    }
+
+    warn(message) {
+        console.warn(this._context + " | " + message);
+    }
+
+    error(message) {
+        console.error(this._context + " | " + message);
+    }
+
+    //#endregion
+
 }
 
-// functions
-Logger.prototype.log = function(message) {
-    console.log(this._context + " | " + message);
-};
-
-Logger.prototype.warn = function(message) {
-    console.warn(this._context + " | " + message);
-};
-
-Logger.prototype.error = function(message) {
-    console.error(this._context + " | " + message);
-};
-
 // General Debug Logger
-var debug = new Logger("Debug");;/**
+let debug = new Logger("Debug");;// unique key
+let _setterDictionarySingleton = Symbol('setterDictionarySingleton');
+
+/**
+ * SetterDictionary Singleton Class
  * Attribute dictionary for property definitions
- * @constructor
  */
-var SetterDictionary  = function () {};
-SetterDictionary._rules = {};
+class SetterDictionarySingleton {
+
+    //#region Constructors
+
+    constructor(setterDictionarySingletonToken) {
+        if (_setterDictionarySingleton !== setterDictionarySingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
+        this._rules = {};
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static get instance() {
+        if (!this[_setterDictionarySingleton]) {
+            this[_setterDictionarySingleton] = new SetterDictionarySingleton(_setterDictionarySingleton);
+        }
+
+        return this[_setterDictionarySingleton];
+    }
+
+    //#endregion
+
+    /**
+     *
+     * @param context
+     * @param rule
+     * @returns {boolean}
+     */
+    addRule(context, rule) {
+        if (isObjectAssigned(context)) {
+            context = context.toLowerCase();
+            this._rules[context] = rule;
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * @param typeName
+     * @returns {*}
+     */
+    getRule(typeName) {
+        typeName = typeName.toLowerCase();
+        if (this._rules[typeName]) {
+            return this._rules[typeName];
+        }
+    };
+
+    //#endregion
+}
 
 /**
- *
- * @param context
- * @param rule
- * @returns {boolean}
+ * Setter Dictionary alias to Setter Dictionary Singleton instance
+ * Attribute dictionary for property definitions
  */
-SetterDictionary.addRule = function (context, rule) {
-	if(isObjectAssigned(context)) {
-		context = context.toLowerCase();
-		SetterDictionary._rules[context] = rule;
-		return true;
-	}
-
-	return false;
-};
-
-/**
- *
- * @param typeName
- * @returns {*}
- */
-SetterDictionary.getRule = function (typeName) {
-	typeName = typeName.toLowerCase();
-	if (SetterDictionary._rules[typeName]) {
-		return SetterDictionary._rules[typeName];
-	}
-};;/**
+let SetterDictionary = SetterDictionarySingleton.instance;;/**
  * Scarlett @ DevTeam
  * This javascript file will include global utility functions that can be called from any context
  */
@@ -12092,122 +12247,167 @@ class Vector4 {
     //#endregion
 
 }
-;function RigidBody (params) {
-	params = params || {};
-
-	// public properties
-	this.gameObject = null;
-
-	// private properties
-	this._isStatic = params.static || false;
-	this._mass = params.mass || null;
-	this._friction = params.friction || null;
-	this._body = null;
-
-}
-
-RigidBody.prototype._sync = function() {
-	var self = this;
-
-	if(!isObjectAssigned(this.gameObject)) {
-		return;
-	}
-
-	if(!isObjectAssigned(this._body)) {
-		var pos = this.gameObject.transform.getPosition();
-
-		// TODO assign the body based on the object
-		var width = 1,
-			height = 1;
-		
-		if(isSprite(this.gameObject)) {
-			width = this.gameObject.getTexture().getWidth();
-			height = this.gameObject.getTexture().getHeight();
-		}
-
-		this._body = Matter.Bodies.rectangle(pos.x, pos.y, width, height,
-			{
-				isStatic: this._isStatic
-			});
-
-		Matter.World.add(GameManager.activeScene.getPhysicsWorld(), [this._body]);
-
-		var objScale = this.gameObject.transform.getScale();
-		Matter.Body.scale(this._body, objScale.x, objScale.y);
-
-		this.gameObject.transform.overridePositionGetter(function() {
-			return {
-				x: self._body.position.x,
-				y: self._body.position.y
-			}
-		});
-
-		this.gameObject.transform.overrideRotationGetter(function() {
-			return self._body.angle;
-		});
-	}
-
-	if(isObjectAssigned(this._mass)) {
-		Matter.Body.setMass(this._body, this._mass);
-	}
-
-	if(isObjectAssigned(this._friction)) {
-		this._body.friction = this._friction;
-	}
-};
-
-RigidBody.prototype.setMass = function(mass) {
-	this._mass = mass;
-	Matter.Body.setMass(this._body, this._mass);
-};
-
-RigidBody.prototype.getMass = function() {
-	return this.mass;
-};
-
-RigidBody.prototype.setGameObject = function(gameObject) {
-	this._sync();
-};
-
-RigidBody.prototype.onGameObjectDetach = function() {
-	this.gameObject.transform.clearPositionGetter();
-	this.gameObject.transform.clearScaleGetter();
-	this.gameObject.transform.clearRotationGetter();
-};
-
-RigidBody.prototype.onGameObjectPositionUpdated = function(value) {
-	if(isObjectAssigned(this._body)) {
-		Matter.Body.setPosition(this._body, value);
-	}
-};
-
-RigidBody.prototype.onGameObjectRotationUpdated = function(value) {
-	if(isObjectAssigned(this._body)) {
-		Matter.Body.setAngle(this._body, value);
-	}
-};
-
-RigidBody.prototype.onGameObjectScaleUpdated = function(value) {
-	if(isObjectAssigned(this._body)) {
-		Matter.Body.scale(this._body, value.x, value.y);
-	}
-};
-
-RigidBody.prototype.unload = function() {
-	// TODO: do this
-};;/**
- * Content Object
- * @param params
- * @constructor
+;/**
+ *    RigidBody Class
  */
-function ContentObject(params) {
+class RigidBody {
+
+    //#region Constructors
+
+    /**
+     *
+     * @param params
+     */
+    constructor(params) {
+        params = params || {};
+
+        // public properties
+        this.gameObject = null;
+
+        // private properties
+        this._isStatic = params.static || false;
+        this._mass = params.mass || null;
+        this._friction = params.friction || null;
+        this._body = null;
+    }
+
+    //#endregion
+
+    //#region Public Methods
+
+    //#region Static Methods
+
+    //#endregion
+
+    setMass(mass) {
+        this._mass = mass;
+        Matter.Body.setMass(this._body, this._mass);
+    }
+
+    getMass() {
+        return this.mass;
+    }
+
+    setGameObject(gameObject) {
+        this._sync();
+    }
+
+    onGameObjectDetach() {
+        this.gameObject.transform.clearPositionGetter();
+        this.gameObject.transform.clearScaleGetter();
+        this.gameObject.transform.clearRotationGetter();
+    }
+
+    onGameObjectPositionUpdated(value) {
+        if (isObjectAssigned(this._body)) {
+            Matter.Body.setPosition(this._body, value);
+        }
+    }
+
+    onGameObjectRotationUpdated(value) {
+        if (isObjectAssigned(this._body)) {
+            Matter.Body.setAngle(this._body, value);
+        }
+    }
+
+    onGameObjectScaleUpdated(value) {
+        if (isObjectAssigned(this._body)) {
+            Matter.Body.scale(this._body, value.x, value.y);
+        }
+    }
+
+    unload() {
+        // TODO: do this
+    }
+
+    //#endregion
+
+    //#region Private Methods
+
+    _sync() {
+        let self = this;
+
+        if (!isObjectAssigned(this.gameObject)) {
+            return;
+        }
+
+        if (!isObjectAssigned(this._body)) {
+            let pos = this.gameObject.transform.getPosition();
+
+            // TODO assign the body based on the object
+            let width = 1;
+            let height = 1;
+
+            if (isSprite(this.gameObject)) {
+                width = this.gameObject.getTexture().getWidth();
+                height = this.gameObject.getTexture().getHeight();
+            }
+
+            this._body = Matter.Bodies.rectangle(pos.x, pos.y, width, height,
+                {
+                    isStatic: this._isStatic
+                });
+
+            Matter.World.add(GameManager.activeScene.getPhysicsWorld(), [this._body]);
+
+            let objScale = this.gameObject.transform.getScale();
+            Matter.Body.scale(this._body, objScale.x, objScale.y);
+
+            this.gameObject.transform.overridePositionGetter(function () {
+                return {
+                    x: self._body.position.x,
+                    y: self._body.position.y
+                }
+            });
+
+            this.gameObject.transform.overrideRotationGetter(function () {
+                return self._body.angle;
+            });
+        }
+
+        if (isObjectAssigned(this._mass)) {
+            Matter.Body.setMass(this._body, this._mass);
+        }
+
+        if (isObjectAssigned(this._friction)) {
+            this._body.friction = this._friction;
+        }
+    }
+
+    //#endregion
+
+};/**
+ * Content Object Class
+ */
+class ContentObject {
+
+    //#region Constructors
+
+    /**
+     * @param params
+     * @constructor
+     */
+    constructor(params) {
+
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#endregion
+
 };/**
  * Project File class
  */
 class ProjectFile {
+
+    //#region Constructors
+
     /**
      *
      * @param params
+     * @constructor
      */
     constructor(params) {
         params = params || {};
@@ -12221,6 +12421,12 @@ class ProjectFile {
         this.content = params.content || {};
     }
 
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
     /**
      *
      * @param data
@@ -12229,37 +12435,63 @@ class ProjectFile {
     static restore(data) {
         return new ProjectFile(data);
     }
+
+    //#endregion
+
+    //#endregion
+
 };/**
- * Content Texture Atlas
- * @param params
- * @constructor
+ * Content Texture Atlas Class
  */
-function TextureAtlas(params) {
-    params = params || {};
+class TextureAtlas {
 
-    // public properties:
-    this.sourcePath = params.sourcePath || ""; // should be a relative path
-    this.mapping = [];
-}
+    //#region Constructors
 
-TextureAtlas.prototype.objectify = function () {
-    return {
-        sourcePath: this.sourcePath
-    };
-};
+    /**
+     * @param params
+     * @constructor
+     */
+    constructor(params) {
+        params = params || {};
 
-TextureAtlas.restore = function (data) {
-    return new TextureAtlas({
-        sourcePath: data.sourcePath
-    });
-};
+        // public properties:
+        this.sourcePath = params.sourcePath || ""; // should be a relative path
+        this.mapping = [];
+    }
 
-TextureAtlas.prototype.getType = function () {
-    return "TextureAtlas";
-};;/**
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return new TextureAtlas({
+            sourcePath: data.sourcePath
+        });
+    }
+
+    //#endregion
+
+    objectify() {
+        return {
+            sourcePath: this.sourcePath
+        };
+    }
+
+    getType() {
+        return "TextureAtlas";
+    }
+
+    //#endregion
+
+};/**
  * Camera2D class
  */
 class Camera2D {
+
+    //#region Constructors
+
     /**
      *
      * @param x
@@ -12282,6 +12514,23 @@ class Camera2D {
         this._lastZoom = null;
         this._matrix = new Matrix4();
     }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    /**
+     *
+     * @param data
+     * @returns {Camera2D}
+     */
+    static restore(data) {
+        return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
+    }
+
+    //#endregion
 
     /**
      *
@@ -12315,7 +12564,7 @@ class Camera2D {
 
         // force the camera calculations
         this.calculateMatrix();
-    };
+    }
 
     /**
      *
@@ -12323,7 +12572,7 @@ class Camera2D {
      */
     getViewWidth() {
         return this.viewWidth;
-    };
+    }
 
     /**
      *
@@ -12331,7 +12580,7 @@ class Camera2D {
      */
     getViewHeight() {
         return this.viewHeight;
-    };
+    }
 
     /**
      *
@@ -12344,7 +12593,7 @@ class Camera2D {
         }
 
         return this._matrix.asArray();
-    };
+    }
 
     /**
      *
@@ -12358,7 +12607,7 @@ class Camera2D {
 
         // then we calculate and return the world coordinates:
         return Vector2.transformMat4(new Vector2(x, y), new Matrix4(this.getMatrix()).invert());
-    };
+    }
 
     /**
      *
@@ -12377,16 +12626,10 @@ class Camera2D {
             y: this.y,
             zoom: this.zoom
         }
-    };
+    }
 
-    /**
-     *
-     * @param data
-     * @returns {Camera2D}
-     */
-    static restore(data) {
-        return new Camera2D(data.x, data.y, data.viewWidth, data.viewHeight, data.zoom);
-    };
+    //#endregion
+
 };SetterDictionary.addRule("color", ["r", "g", "b", "a"]);
 
 /**
@@ -12765,6 +13008,7 @@ class Color {
  * FontStyle Class
  */
 class FontStyle {
+
     //#region Constructors
 
     /**
@@ -12930,371 +13174,460 @@ class FontStyle {
 
 
 ;/**
- * GameScene class
+ * GameScene Class
  */
-function Game(params) {
-    params = params || {};
+class Game {
 
-    var DEFAULT_VIRTUAL_WIDTH = 800,
-        DEFAULT_VIRTUAL_HEIGHT = 640;
+    //#region Constructors
 
-    // public properties:
+    constructor(params) {
+        params = params || {};
+
+        let DEFAULT_VIRTUAL_WIDTH = 800;
+        let DEFAULT_VIRTUAL_HEIGHT = 640;
+
+        // public properties:
 
 
-    // private properties:
-    this._renderContext = null;
-    this._logger = new Logger("Game");
-    this._initialized = false;
-    this._gameScene = params.scene;
-    this._totalElapsedTime = null;
-    this._virtualResolution = null;
-    this._shaderManager = null;
-    this._executionPhase = SC.EXECUTION_PHASES.WAITING;
-    this._physicsEngine = Matter.Engine.create();
-    this._physicsEngine.enableSleeping = true;
-    this._renderExtensions = {};
-    this._paused = false;
-    this._swapScene = null; // used to contain a temporary scene before swapping
-    this._swappingScenes = false;
-    this._inputHandlersBinded = false;
-
-    Matter.Engine.run(this._physicsEngine);
-
-    // set the default virtual resolution
-    this.setVirtualResolution(DEFAULT_VIRTUAL_WIDTH, DEFAULT_VIRTUAL_HEIGHT);
-
-    // the target container is defined?
-    if (isString(params.target)) {
-        this.setTarget(params.target);
-    }
-}
-
-/**
- *
- * @param name
- * @param extension
- */
-Game.prototype.addRenderExtension = function (name, extension) {
-    this._renderExtensions[name] = extension;
-};
-
-/**
- *
- * @param name
- */
-Game.prototype.removeRenderExtension = function (name) {
-    delete this._renderExtensions[name];
-};
-
-/**
- *
- */
-Game.prototype.clearRenderExtensions = function () {
-    this._renderExtensions = [];
-};
-
-/**
- *
- * @returns {engine|*}
- */
-Game.prototype.getPhysicsEngine = function () {
-    return this._physicsEngine;
-};
-
-Game.prototype._bindInputHandlers = function () {
-    window.addEventListener('keyup', (this._keyUpListener).bind(this), false);
-    window.addEventListener('keydown', (this._keyDownListener).bind(this), false);
-    this._inputHandlersBinded = true;
-};
-
-Game.prototype._unbindInputHandlers = function () {
-    window.removeEventListener('keyup', (this._keyUpListener).bind(this), false);
-    window.removeEventListener('keydown', (this._keyDownListener).bind(this), false);
-    this._inputHandlersBinded = false;
-};
-
-Game.prototype._keyUpListener = function (e) {
-    var keys = [e.keyCode];
-
-    if (e.ctrlKey) {
-        keys.push(Keys.Ctrl);
-    }
-
-    if (e.shiftKey) {
-        keys.push(Keys.Shift);
-    }
-
-    // update the keyboard data:
-    Keyboard.instance.removeKeys(keys);
-};
-
-Game.prototype._keyDownListener = function (e) {
-    var keys = [e.keyCode];
-
-    if (e.ctrlKey) {
-        keys.push(Keys.Ctrl);
-    }
-
-    if (e.shiftKey) {
-        keys.push(Keys.Shift);
-    }
-
-    // update the keyboard data:
-    Keyboard.instance.addKeys(keys);
-};
-
-/**
- *
- * @param timestamp
- */
-Game.prototype._onAnimationFrame = function (timestamp) {
-    // is this the first run?
-    if (this._totalElapsedTime === null) {
-        this._totalElapsedTime = timestamp;
-    }
-
-    // any scene waiting to be swapped?
-    if (this._swapScene && !this._swappingScenes) {
-        this.changeScene(this._swapScene);
-        this._swapScene = null;
-    }
-
-    // calculate the current delta time value:
-    var delta = (timestamp - this._totalElapsedTime) / 1000;
-    var self = this;
-    this._totalElapsedTime = timestamp;
-
-    if (!this._paused && isGameScene(this._gameScene) && !this._swappingScenes) {
-        // handle the active game scene interactions here:
-
-        // TODO: before release, add the try here..
-        //try {
-        // the user defined the game scene update function?
-        if (isFunction(this._gameScene.update)) {
-            // call user defined update function:
-            this._executionPhase = SC.EXECUTION_PHASES.UPDATE;
-            this._gameScene.update(delta);
-        }
-
-        this._gameScene.sceneUpdate(delta);
-
-        if (isFunction(this._gameScene.lateUpdate)) {
-            // call user defined update function:
-            this._executionPhase = SC.EXECUTION_PHASES.LATE_UPDATE;
-            this._gameScene.lateUpdate(delta);
-        }
-
-        this._gameScene.sceneLateUpdate(delta);
-
-        // prepare the webgl context for rendering:
-        this._gameScene.prepareRender();
-
-        // render extensions?
-        var renderExtensions = Object.keys(this._renderExtensions);
-        renderExtensions.forEach(function (name) {
-            self._renderExtensions[name].render(delta);
-        });
-
-        // the user defined the game scene early-render function?
-        if (isFunction(this._gameScene.render)) {
-            this._executionPhase = SC.EXECUTION_PHASES.RENDER;
-            this._gameScene.render(delta);
-        }
-
-        // call internal scene render function:
-        this._executionPhase = SC.EXECUTION_PHASES.SCENE_RENDER;
-        this._gameScene.sceneRender(delta);
-
-        this._gameScene.flushRender();
-
-        // the user defined the game scene pre-render function?
-        if (isFunction(this._gameScene.lateRender)) {
-            this._executionPhase = SC.EXECUTION_PHASES.LATE_RENDER;
-            this._gameScene.lateRender(delta);
-            this._gameScene.flushRender();
-        }
-
-        //} catch (ex) {
-        //    this._logger.error(ex);
-        //}
-
+        // private properties:
+        this._renderContext = null;
+        this._logger = new Logger("Game");
+        this._initialized = false;
+        this._gameScene = params.scene;
+        this._totalElapsedTime = null;
+        this._virtualResolution = null;
+        this._shaderManager = null;
         this._executionPhase = SC.EXECUTION_PHASES.WAITING;
-    }
-
-    // request a new animation frame:
-    if (!this._paused) {
-        requestAnimationFrame(this._onAnimationFrame.bind(this));
-
-    } else {
-        // when the game is paused it's a good idea to wait a few ms before requesting a new animation frame to
-        // save some machine resources...
-        setTimeout(function() {
-            requestAnimationFrame(self._onAnimationFrame.bind(self));
-        }, 100);
-    }
-};
-
-Game.prototype.pauseGame = function () {
-    this._paused = true;
-};
-
-Game.prototype.resumeGame = function () {
-    this._paused = false;
-};
-
-Game.prototype.getShaderManager = function () {
-    return this._shaderManager;
-};
-
-Game.prototype.getActiveCamera = function () {
-    return this._gameScene ? this._gameScene.getCamera() : null;
-};
-
-Game.prototype.getExecutionPhase = function () {
-    return this._executionPhase;
-};
-
-Game.prototype.init = function (params) {
-    params = params || {};
-
-    // context initialization
-    if (!isObjectAssigned(this._canvas)) {
-        this._logger.warn("Cannot initialize game, the render display target was not provided or is invalid.");
-        return;
-    }
-
-    // request to begin the animation frame handling
-    this._onAnimationFrame(0);
-
-    // set this as the active game:
-    GameManager.activeGame = this;
-
-    if (!params.ignoreInputHandler) {
-        this._bindInputHandlers();
-    }
-
-    this._initalized = true;
-};
-
-/**
- * Set this as the active game
- */
-Game.prototype.setActive = function () {
-    GameManager.activeGame = this;
-};
-
-Game.prototype.setVirtualResolution = function (width, height) {
-    this._virtualResolution = {
-        width: width,
-        height: height
-    };
-
-    if (isObjectAssigned(this._renderContext)) {
-        this._renderContext.setVirtualResolution(width, height);
-
-        // update camera view size:
-        this.getActiveCamera().setViewSize(width, height);
-    }
-};
-
-Game.prototype.refreshVirtualResolution = function () {
-    this._renderContext.setVirtualResolution(this._virtualResolution.width, this._virtualResolution.height);
-
-    var camera = this.getActiveCamera();
-    if (camera) {
-        camera.setViewSize(this._virtualResolution.width, this._virtualResolution.height);
-    }
-};
-
-Game.prototype.getVirtualResolution = function () {
-    return this._virtualResolution;
-};
-
-Game.prototype.getRenderContext = function () {
-    return this._renderContext;
-};
-
-Game.prototype.setTarget = function (target) {
-    this._canvas = isString(target) ? document.getElementById(target) : null;
-
-    if (isObjectAssigned(this._canvas)) {
-        // OPTIONAL: for now there is only WebGL Context, add more if needed:
-        // assign the render context..
-        this._renderContext = new WebGLContext({
-            renderContainer: this._canvas
-        });
-
-        // setting the global active render as the one selected for this game:
-        GameManager.renderContext = this._renderContext;
-        this._shaderManager = new ShaderManager(this);
-
-        this.refreshVirtualResolution();
-    }
-};
-
-Game.prototype.changeScene = function (scene) {
-    if (!isGameScene(scene)) {
-        return;
-    }
-
-    // is it safe to swap scenes now?
-    if (this._executionPhase == SC.EXECUTION_PHASES.WAITING) {
-        // flag the swapping state
-        this._swappingScenes = true;
-
-        if (this._gameScene) {
-            // unload the active scene:
-            this._gameScene.unload();
-        }
-
-        this._gameScene = scene;
-        this._gameScene.setGame(this);
-
-        GameManager.activeScene = scene;
-        this.refreshVirtualResolution();
-
-        // the user defined the game scene initialize function?
-        if (isFunction(this._gameScene.initialize)) {
-            // call user defined update function:
-            this._gameScene.initialize();
-        }
-
+        this._physicsEngine = Matter.Engine.create();
+        this._physicsEngine.enableSleeping = true;
+        this._renderExtensions = {};
+        this._paused = false;
+        this._swapScene = null; // used to contain a temporary scene before swapping
         this._swappingScenes = false;
+        this._inputHandlersBinded = false;
 
-    } else {
-        // nope, store this scene to change in the next animation frame start
-        this._swapScene = scene;
+        Matter.Engine.run(this._physicsEngine);
+
+        // set the default virtual resolution
+        this.setVirtualResolution(DEFAULT_VIRTUAL_WIDTH, DEFAULT_VIRTUAL_HEIGHT);
+
+        // the target container is defined?
+        if (isString(params.target)) {
+            this.setTarget(params.target);
+        }
     }
-};
 
-Game.prototype.getTotalElapsedTime = function () {
-    return this._totalElapsedTime;
-};
+    //#endregion
 
-Game.prototype.unload = function () {
-    if (this._inputHandlersBinded) {
-        this._unbindInputHandlers();
+    //#region Public Methods
+
+    /**
+     *
+     * @param name
+     * @param extension
+     */
+    addRenderExtension(name, extension) {
+        this._renderExtensions[name] = extension;
     }
-};;/**
+
+    /**
+     *
+     * @param name
+     */
+    removeRenderExtension(name) {
+        delete this._renderExtensions[name];
+    }
+
+    /**
+     *
+     */
+    clearRenderExtensions() {
+        this._renderExtensions = [];
+    }
+
+    /**
+     *
+     * @returns {engine|*}
+     */
+    getPhysicsEngine() {
+        return this._physicsEngine;
+    }
+
+    pauseGame() {
+        this._paused = true;
+    }
+
+    resumeGame() {
+        this._paused = false;
+    }
+
+    getShaderManager() {
+        return this._shaderManager;
+    }
+
+    getActiveCamera() {
+        return this._gameScene ? this._gameScene.getCamera() : null;
+    }
+
+    getExecutionPhase() {
+        return this._executionPhase;
+    }
+
+    init(params) {
+        params = params || {};
+
+        // context initialization
+        if (!isObjectAssigned(this._canvas)) {
+            this._logger.warn("Cannot initialize game, the render display target was not provided or is invalid.");
+            return;
+        }
+
+        // request to begin the animation frame handling
+        this._onAnimationFrame(0);
+
+        // set this as the active game:
+        GameManager.activeGame = this;
+
+        if (!params.ignoreInputHandler) {
+            this._bindInputHandlers();
+        }
+
+        this._initalized = true;
+    }
+
+    /**
+     * Set this as the active game
+     */
+    setActive() {
+        GameManager.activeGame = this;
+    }
+
+    setVirtualResolution(width, height) {
+        this._virtualResolution = {
+            width: width,
+            height: height
+        };
+
+        if (isObjectAssigned(this._renderContext)) {
+            this._renderContext.setVirtualResolution(width, height);
+
+            // update camera view size:
+            this.getActiveCamera().setViewSize(width, height);
+        }
+    }
+
+    refreshVirtualResolution() {
+        this._renderContext.setVirtualResolution(this._virtualResolution.width, this._virtualResolution.height);
+
+        let camera = this.getActiveCamera();
+        if (camera) {
+            camera.setViewSize(this._virtualResolution.width, this._virtualResolution.height);
+        }
+    }
+
+    getVirtualResolution() {
+        return this._virtualResolution;
+    }
+
+    getRenderContext() {
+        return this._renderContext;
+    }
+
+    setTarget(target) {
+        this._canvas = isString(target) ? document.getElementById(target) : null;
+
+        if (isObjectAssigned(this._canvas)) {
+            // OPTIONAL: for now there is only WebGL Context, add more if needed:
+            // assign the render context..
+            this._renderContext = new WebGLContext({
+                renderContainer: this._canvas
+            });
+
+            // setting the global active render as the one selected for this game:
+            GameManager.renderContext = this._renderContext;
+            this._shaderManager = new ShaderManager(this);
+
+            this.refreshVirtualResolution();
+        }
+    }
+
+    changeScene(scene) {
+        if (!isGameScene(scene)) {
+            return;
+        }
+
+        // is it safe to swap scenes now?
+        if (this._executionPhase == SC.EXECUTION_PHASES.WAITING) {
+            // flag the swapping state
+            this._swappingScenes = true;
+
+            if (this._gameScene) {
+                // unload the active scene:
+                this._gameScene.unload();
+            }
+
+            this._gameScene = scene;
+            this._gameScene.setGame(this);
+
+            GameManager.activeScene = scene;
+            this.refreshVirtualResolution();
+
+            // the user defined the game scene initialize function?
+            if (isFunction(this._gameScene.initialize)) {
+                // call user defined update function:
+                this._gameScene.initialize();
+            }
+
+            this._swappingScenes = false;
+
+        } else {
+            // nope, store this scene to change in the next animation frame start
+            this._swapScene = scene;
+        }
+    }
+
+    getTotalElapsedTime() {
+        return this._totalElapsedTime;
+    }
+
+    unload() {
+        if (this._inputHandlersBinded) {
+            this._unbindInputHandlers();
+        }
+    }
+
+    //#endregion
+
+    //#region Private Methods
+
+    /**
+     *
+     * @private
+     */
+    _bindInputHandlers() {
+        window.addEventListener('keyup', (this._keyUpListener).bind(this), false);
+        window.addEventListener('keydown', (this._keyDownListener).bind(this), false);
+        this._inputHandlersBinded = true;
+    }
+
+    /**
+     *
+     * @private
+     */
+    _unbindInputHandlers() {
+        window.removeEventListener('keyup', (this._keyUpListener).bind(this), false);
+        window.removeEventListener('keydown', (this._keyDownListener).bind(this), false);
+        this._inputHandlersBinded = false;
+    }
+
+    /**
+     *
+     * @param e
+     * @private
+     */
+    _keyUpListener(e) {
+        let keys = [e.keyCode];
+
+        if (e.ctrlKey) {
+            keys.push(Keys.Ctrl);
+        }
+
+        if (e.shiftKey) {
+            keys.push(Keys.Shift);
+        }
+
+        // update the keyboard data:
+        Keyboard.instance.removeKeys(keys);
+    }
+
+    /**
+     *
+     * @param e
+     * @private
+     */
+    _keyDownListener(e) {
+        let keys = [e.keyCode];
+
+        if (e.ctrlKey) {
+            keys.push(Keys.Ctrl);
+        }
+
+        if (e.shiftKey) {
+            keys.push(Keys.Shift);
+        }
+
+        // update the keyboard data:
+        Keyboard.instance.addKeys(keys);
+    }
+
+    /**
+     *
+     * @param timestamp
+     * @private
+     */
+    _onAnimationFrame(timestamp) {
+        // is this the first run?
+        if (this._totalElapsedTime === null) {
+            this._totalElapsedTime = timestamp;
+        }
+
+        // any scene waiting to be swapped?
+        if (this._swapScene && !this._swappingScenes) {
+            this.changeScene(this._swapScene);
+            this._swapScene = null;
+        }
+
+        // calculate the current delta time value:
+        let delta = (timestamp - this._totalElapsedTime) / 1000;
+        let self = this;
+        this._totalElapsedTime = timestamp;
+
+        if (!this._paused && isGameScene(this._gameScene) && !this._swappingScenes) {
+            // handle the active game scene interactions here:
+
+            // TODO: before release, add the try here..
+            //try {
+            // the user defined the game scene update function?
+            if (isFunction(this._gameScene.update)) {
+                // call user defined update function:
+                this._executionPhase = SC.EXECUTION_PHASES.UPDATE;
+                this._gameScene.update(delta);
+            }
+
+            this._gameScene.sceneUpdate(delta);
+
+            if (isFunction(this._gameScene.lateUpdate)) {
+                // call user defined update function:
+                this._executionPhase = SC.EXECUTION_PHASES.LATE_UPDATE;
+                this._gameScene.lateUpdate(delta);
+            }
+
+            this._gameScene.sceneLateUpdate(delta);
+
+            // prepare the webgl context for rendering:
+            this._gameScene.prepareRender();
+
+            // render extensions?
+            let renderExtensions = Object.keys(this._renderExtensions);
+            renderExtensions.forEach(function (name) {
+                self._renderExtensions[name].render(delta);
+            });
+
+            // the user defined the game scene early-render function?
+            if (isFunction(this._gameScene.render)) {
+                this._executionPhase = SC.EXECUTION_PHASES.RENDER;
+                this._gameScene.render(delta);
+            }
+
+            // call internal scene render function:
+            this._executionPhase = SC.EXECUTION_PHASES.SCENE_RENDER;
+            this._gameScene.sceneRender(delta);
+
+            this._gameScene.flushRender();
+
+            // the user defined the game scene pre-render function?
+            if (isFunction(this._gameScene.lateRender)) {
+                this._executionPhase = SC.EXECUTION_PHASES.LATE_RENDER;
+                this._gameScene.lateRender(delta);
+                this._gameScene.flushRender();
+            }
+
+            //} catch (ex) {
+            //    this._logger.error(ex);
+            //}
+
+            this._executionPhase = SC.EXECUTION_PHASES.WAITING;
+        }
+
+        // request a new animation frame:
+        if (!this._paused) {
+            requestAnimationFrame(this._onAnimationFrame.bind(this));
+
+        } else {
+            // when the game is paused it's a good idea to wait a few ms before requesting a new animation frame to
+            // save some machine resources...
+            setTimeout(function () {
+                requestAnimationFrame(self._onAnimationFrame.bind(self));
+            }, 100);
+        }
+    }
+
+    //#endregion
+
+};/**
  * Game Manager static class
  */
-var GameManager = function() {};
+class GameManager {
 
-/**
- * The active render context
- * @type {renderContext}
- */
-GameManager.renderContext = null;
-GameManager.activeScene = null;
-GameManager.activeProject = null;
-GameManager.activeGame = null;
-GameManager.activeProjectPath = null;;AttributeDictionary.addRule("gameobject", "transform", { ownContainer: true });
-AttributeDictionary.addRule("gameobject", "_parent", { visible: false });
+    //#region Static Properties
+
+    /**
+     * The active render context
+     * @type {renderContext}
+     */
+    static get renderContext() {
+        return this._renderContext;
+    }
+
+    /**
+     * The active render context
+     * @type {renderContext}
+     */
+    static set renderContext(value) {
+        this._renderContext = value;
+    }
+
+    static get activeScene() {
+        return this._activeScene;
+    }
+
+    static set activeScene(value) {
+        this._activeScene = value;
+    }
+
+    static get activeProject() {
+        return this._activeProject;
+    }
+
+    static set activeProject(value) {
+        this._activeProject = value;
+    }
+
+    static get activeGame() {
+        return this._activeGame;
+    }
+
+    static set activeGame(value) {
+        this._activeGame = value;
+    }
+
+    static get activeProjectPath() {
+        return this._activeProjectPath;
+    }
+
+    static set activeProjectPath(value) {
+        this._activeProjectPath = value;
+    }
+
+    //#endregion
+
+    //#region Constructors
+
+    constructor() {
+
+    }
+
+    //#endregion
+
+};AttributeDictionary.addRule("gameobject", "transform", {ownContainer: true});
+AttributeDictionary.addRule("gameobject", "_parent", {visible: false});
 
 /**
  * GameObject class
  */
 class GameObject {
+
+    //#region Constructors
 
     /**
      * @param {Object} params
@@ -13310,7 +13643,7 @@ class GameObject {
             params.transform.gameObject = this;
         }
 
-        this.transform = params.transform || new Transform({ gameObject: this });
+        this.transform = params.transform || new Transform({gameObject: this});
 
         // private properties:
         this._uid = generateUID();
@@ -13320,52 +13653,69 @@ class GameObject {
         this._transformMatrix = new Matrix4();
     }
 
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    static restore(data) {
+        return new GameObject({
+            name: data.name,
+            transform: Transform.restore(data.transform),
+            children: Objectify.restoreArray(data.children),
+            components: Objectify.restoreArray(data.components)
+        });
+    }
+
+    //#endregion
+
     equals(other) {
         if (other.getUID) {
             return this._uid === other.getUID();
         }
 
         return this === other;
-    };
+    }
 
     getBaseWidth() {
         return 1;
-    };
+    }
 
     getBaseHeight() {
         return 1;
-    };
+    }
 
     getType() {
         return "GameObject";
-    };
+    }
 
     getUID() {
         return this._uid;
-    };
+    }
 
     propagatePropertyUpdate(property, value) {
-        for (var i = 0; i < this._components.length; ++i) {
+        for (let i = 0; i < this._components.length; ++i) {
             if (this._components[i]["onGameObject" + property + "Updated"]) {
                 this._components[i]["onGameObject" + property + "Updated"](value);
             }
         }
-    };
+    }
 
     /**
      * Resolves the GameObject transformation Matrix4
-     * @returns {Float32Array} 
+     * @returns {Float32Array}
      */
     getMatrix() {
         this._transformMatrix.identity();
         this._transformMatrix.translate([this.transform.getPosition().x, this.transform.getPosition().y, 0]);
 
         return this._transformMatrix.asArray();
-    };
+    }
 
     getParent() {
         return this._parent;
-    };
+    }
 
     removeParent() {
         if (this._parent) {
@@ -13375,7 +13725,7 @@ class GameObject {
         }
 
         this._parent = null;
-    };
+    }
 
     setParent(gameObject) {
         if (!gameObject) {
@@ -13399,7 +13749,7 @@ class GameObject {
 
             gameObject.addChild(this);
         }
-    };
+    }
 
     removeChild(gameObject) {
         for (let i = this._children.length - 1; i >= 0; i--) {
@@ -13407,11 +13757,11 @@ class GameObject {
                 return this._children.splice(i, 1);
             }
         }
-    };
+    }
 
     getChildren() {
         return this._children;
-    };
+    }
 
     addChild(gameObject, index) {
         // let's be safe, make sure to remove parent if any
@@ -13426,14 +13776,14 @@ class GameObject {
         } else {
             this._children.push(gameObject);
         }
-    };
+    }
 
     getHierarchyHash() {
         if (this._parent) {
             return this._parent.getHierarchyHash() + "." + this._uid;
         }
         return this._uid + "";
-    };
+    }
 
     isChild(gameObject) {
         // check if is a child simply by getting the hierarchy hash:
@@ -13443,16 +13793,16 @@ class GameObject {
 
         // this way takes away more resources:
         /*for (var i = 0; i < this._children.length; ++i) {
-            if (this._children[i].equals(gameObject)) {
-                return true;
-            } else {
-                if (this._children[i].isChild(gameObject)) {
-                    return true;
-                }
-            }
-        }
-        return false;*/
-    };
+         if (this._children[i].equals(gameObject)) {
+         return true;
+         } else {
+         if (this._children[i].isChild(gameObject)) {
+         return true;
+         }
+         }
+         }
+         return false;*/
+    }
 
     addComponent(component) {
         if (isFunction(component.setGameObject)) {
@@ -13463,7 +13813,7 @@ class GameObject {
         component.gameObject = this;
 
         this._components.push(component);
-    };
+    }
 
     update(delta) {
         if (!this.enabled) {
@@ -13482,7 +13832,7 @@ class GameObject {
                 component.update(delta);
             }
         });
-    };
+    }
 
     render(delta, spriteBatch) {
         if (!this.enabled) {
@@ -13501,11 +13851,11 @@ class GameObject {
                 component.render(delta, spriteBatch);
             }
         });
-    };
+    }
 
     getComponents() {
         return this._components;
-    };
+    }
 
     getBoundary(bulk) {
         let mat = this.getMatrix();
@@ -13528,7 +13878,7 @@ class GameObject {
         }
 
         return boundary;
-    };
+    }
 
     getRectangleBoundary(bulk) {
         let vertices = this.getBoundary(bulk);
@@ -13541,11 +13891,11 @@ class GameObject {
 
         // return the generated rectangle:
         return new Rectangle(minX, minY, maxX - minX, maxY - minY);
-    };
+    }
 
     collidesWith(gameObject, bulk, bulkOther) {
         return this.getBoundary(bulk).overlapsWith(gameObject.getBoundary(bulkOther));
-    };
+    }
 
     collidesWithPoint(point, bulk) {
         let boundaryA = this.getBoundary(bulk);
@@ -13556,7 +13906,7 @@ class GameObject {
             new Vector2(point.x, point.y + 1));
 
         return Boundary.overlap(boundaryA, boundaryB);
-    };
+    }
 
     objectify() {
         return {
@@ -13565,17 +13915,7 @@ class GameObject {
             children: Objectify.array(this._children),
             components: Objectify.array(this._components)
         };
-    };
-
-    static restore(data) {
-        return new GameObject({
-            name: data.name,
-            transform: Transform.restore(data.transform),
-            children: Objectify.restoreArray(data.children),
-            components: Objectify.restoreArray(data.components)
-        });
-    };
-
+    }
 
     unload() {
         for (let i = 0; i < this._components.length; ++i) {
@@ -13583,7 +13923,9 @@ class GameObject {
                 this._components[i].unload();
             }
         }
-    };
+    }
+
+    //#endregion
 };AttributeDictionary.addRule("gameScene", "_game", {visible: false});
 AttributeDictionary.addRule("gameScene", "_gameObjects", {visible: false});
 AttributeDictionary.addRule("gameScene", "_camera", {visible: false});
@@ -14081,95 +14423,134 @@ class PrimitiveRender {
     }
 
     //#endregion
-};/**
- * Scripts singleton
- * @constructor
+};// unique key
+let _scriptsSingleton = Symbol('scriptsSingleton');
+
+/**
+ * Scripts Singleton Class
  */
-function Scripts() {
+class ScriptsSingleton {
+
+    //#region Constructors
+
+    constructor(scriptsSingletonToken) {
+        if (_scriptsSingleton !== scriptsSingletonToken) {
+            throw new Error('Cannot instantiate directly.');
+        }
+
+        this._store = {};
+    }
+
+    //#endregion
+
+    //#region Public Methods
+
+    //#region Static Methods
+
+    static get instance() {
+        if (!this[_scriptsSingleton]) {
+            this[_scriptsSingleton] = new ScriptsSingleton(_scriptsSingleton);
+        }
+
+        return this[_scriptsSingleton];
+    }
+
+    //#endregion
+
+    /**
+     * Clear all the stored scripts
+     */
+    clear() {
+        this._store = {};
+    }
+
+    /**
+     * Creates and stores a script code
+     * @returns {ObjectComponent}
+     */
+    addScript(name) {
+        let script = function instance() {
+        };
+        this._store[name] = script;
+        this._setupScript(script);
+        return script;
+    }
+
+    /**
+     * Generates and assigns a component to the given game object. The component is returned in the function call
+     * @param scriptName
+     * @param gameObject
+     */
+    assign(scriptName, gameObject) {
+        let component = this.generateComponent(scriptName);
+        gameObject.addComponent(component);
+        return component;
+    }
+
+    /**
+     * Generates a component from one stored script
+     * @param scriptName
+     */
+    generateComponent(scriptName) {
+        if (!this._store[scriptName]) {
+            return null;
+        }
+
+        let component = Object.create(this._store[scriptName].prototype);
+        component._name = scriptName;
+
+        // now we need to assign all the instance properties defined:
+        let properties = this._store[scriptName].properties.getAll();
+        let propertyNames = Object.keys(properties);
+
+        if (propertyNames && propertyNames.length > 0) {
+            propertyNames.forEach(function (propName) {
+                // assign the default value if exists:
+                component[propName] = properties[propName].default;
+            });
+        }
+
+        return component;
+    }
+
+    //#endregion
+
+    //#region Private Methods
+
+    /**
+     * Setup a script adding event handlers and such
+     * @private
+     */
+    _setupScript(script) {
+        script.properties = {
+            _store: {},
+            _target: script,
+            add: function (name, attr) {
+                // save on the target's properties store the attributes:
+                this._store[name] = attr;
+            },
+            get: function (name) {
+                return this._store[name];
+            },
+            getAll: function () {
+                return this._store;
+            }
+        };
+    }
+
+    //#endregion
+
 }
 
-Scripts._store = {};
-
 /**
- * Setup a script adding event handlers and such
- * @private
+ *  Scripts alias to Scripts Singleton instance
  */
-Scripts._setupScript = function (script) {
-    script.properties = {
-        _store: {},
-        _target: script,
-        add: function (name, attr) {
-            // save on the target's properties store the attributes:
-            this._store[name] = attr;
-        },
-        get: function (name) {
-            return this._store[name];
-        },
-        getAll: function () {
-            return this._store;
-        }
-    };
-};
+let Scripts = ScriptsSingleton.instance;
 
-/**
- * Clear all the stored scripts
- */
-Scripts.clear = function () {
-    Scripts._store = {};
-};
-
-/**
- * Creates and stores a script code
- * @returns {ObjectComponent}
- */
-Scripts.addScript = function (name) {
-    var script = function instance() {
-    };
-    Scripts._store[name] = script;
-    Scripts._setupScript(script);
-    return script;
-};
-// alias:
-sc.addScript = Scripts.addScript;
-
-/**
- * Generates and assigns a component to the given game object. The component is returned in the function call
- * @param scriptName
- * @param gameObject
- */
-Scripts.assign = function (scriptName, gameObject) {
-    var component = Scripts.generateComponent(scriptName);
-    gameObject.addComponent(component);
-    return component;
-};
-// alias:
-sc.assignScript = Scripts.assign;
-
-/**
- * Generates a component from one stored script
- * @param scriptName
- */
-Scripts.generateComponent = function (scriptName) {
-    if (!Scripts._store[scriptName]) {
-        return null;
-    }
-
-    var component = Object.create(Scripts._store[scriptName].prototype);
-    component._name = scriptName;
-
-    // now we need to assign all the instance properties defined:
-    var properties = Scripts._store[scriptName].properties.getAll();
-    var propertyNames = Object.keys(properties);
-
-    if (propertyNames && propertyNames.length > 0) {
-        propertyNames.forEach(function (propName) {
-            // assign the default value if exists:
-            component[propName] = properties[propName].default;
-        });
-    }
-
-    return component;
-};;/**
+// aliases
+// there is the need to do a binding because otherwise the reference to the original object would be lost
+sc.addScript = Scripts.addScript.bind(Scripts);
+sc.assignScript = Scripts.assign.bind(Scripts);;/**
  * Sound class
  */
 class Sound {
