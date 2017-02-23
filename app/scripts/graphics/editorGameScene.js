@@ -151,11 +151,12 @@ class EditorGameScene extends SC.GameScene {
 
     unload() {
         // remove subscriptions:
-        EventManager.removeSubscription(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED,
-            this._gameObjectsSelectionChanged);
+        EventManager.removeSubscription(
+            AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED,
+            this._gameObjectsSelectionChanged
+        );
 
-        // call parent unload
-        GameScene.prototype.unload.call(this);
+        super.unload();
     }
 
     /**
