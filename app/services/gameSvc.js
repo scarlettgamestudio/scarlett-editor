@@ -58,6 +58,12 @@ app.factory("gameSvc", function ($rootScope, constants, logSvc, $compile) {
         return new Sprite({name: name});
     };
 
+    svc.createTextObject = function(name){
+        name = name || "Text";
+
+        return new Text({name: name, text: "Lorem ipsum\ndolore"});
+    };
+
     /**
      *
      */

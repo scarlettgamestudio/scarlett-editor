@@ -16,6 +16,10 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
                     let gameObject = gameSvc.createSpriteObject(null);
                     sceneSvc.addGameObjectToScene(gameObject);
                 }],
+                [$translate.instant("CTX_TEXT"), function ($itemScope) {
+                    var gameObject = gameSvc.createTextObject(null);
+                    sceneSvc.addGameObjectToScene(gameObject);
+                }],
             ]];
 
         $scope.itemContextMenuOptions = [

@@ -73,6 +73,7 @@ app.config(function ($translateProvider) {
 		TOOLBAR_TOOLTIP_PROJECTS: 'Projects',
 
 		CTX_ADD_GAME_OBJECT: "Add Game Object",
+		CTX_TEXT: "Text",
 		CTX_SPRITE: "Sprite",
 		CTX_EMPTY: "Basic",
 		CTX_COPY: "Copy",
