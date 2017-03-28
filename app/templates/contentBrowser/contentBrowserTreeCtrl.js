@@ -1,8 +1,6 @@
 app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', '$translate', 'constants', 'refactorSvc', 'assetSvc',
     function ($scope, logSvc, config, scarlettSvc, sceneSvc, $translate, constants, refactorSvc, assetSvc) {
 
-
-
         $scope.createItemsContextMenuOptions =
             ['<i class="fa fa-plus-square"></i>' + $translate.instant("CTX_CREATE"), [
                 ['<i class="fa fa-folder-o"></i>' + $translate.instant("CTX_FOLDER"), function ($itemScope) {

@@ -4,7 +4,7 @@
 
 app.factory("assetSvc", function (config, logSvc, scarlettSvc, gameSvc, $q) {
 
-    var svc = {};
+    let svc = {};
 
     svc._assetExtensions = [".atl"];
     svc._assetCache = {};
@@ -22,6 +22,10 @@ app.factory("assetSvc", function (config, logSvc, scarlettSvc, gameSvc, $q) {
         let extension = Path.getFileExtension(path).toLowerCase();
 
         switch (extension) {
+            // atlas files
+            case ".atl":
+                return new AtlasAssetContainer({path: path});
+
             // text related files
             case ".json":
             case ".txt":
@@ -77,7 +81,15 @@ app.factory("assetSvc", function (config, logSvc, scarlettSvc, gameSvc, $q) {
 
     svc.saveAsset = function (path, asset) {
         let defer = $q.defer();
-        let dataString = Objectify.createDataString(asset);
+        let dataString = "";
+
+        if (isString(asset)) {
+            // for strings we simply create the asset with the given content
+            dataString = asset;
+
+        } else {
+            dataString = Objectify.createDataString(asset);
+        }
 
         NativeInterface.writeFile(path, dataString, function (success) {
             return success ? defer.resolve() : defer.reject();
@@ -97,7 +109,8 @@ app.factory("assetSvc", function (config, logSvc, scarlettSvc, gameSvc, $q) {
 
     // creates a new JS script
     svc.createJSScript = function () {
-        //TODO: create js file
+        //TODO: create js file with content?
+        return "";
     };
 
     return svc;
