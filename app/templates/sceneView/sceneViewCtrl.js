@@ -111,16 +111,15 @@ app.controller('SceneViewCtrl', ['$scope', '$timeout', 'logSvc', 'config', 'scar
 
         function initialize() {
             EventManager.subscribe(AngularHelper.constants.EVENTS.VIEW_CHANGED, $scope.onViewChanged, this);
-            EventManager.subscribe(AngularHelper.constants.EVENTS.LAYOUT_DESTROYED, $scope.onLayoutDestroyed, this);
         }
+
+        $scope.$on("$destroy", (function () {
+            EventManager.removeSubscription(AngularHelper.constants.EVENTS.VIEW_CHANGED, $scope.onViewChanged);
+
+        }).bind(this));
 
         $scope.onViewChanged = function () {
             $scope.updateVisualZoom();
-        };
-
-        $scope.onLayoutDestroyed = function () {
-            EventManager.removeSubscription(AngularHelper.constants.EVENTS.VIEW_CHANGED, $scope.onViewChanged);
-            EventManager.removeSubscription(AngularHelper.constants.EVENTS.LAYOUT_DESTROYED, $scope.onViewChanged);
         };
 
         // set this on timeout without a time value so it's executed when the content is loaded:

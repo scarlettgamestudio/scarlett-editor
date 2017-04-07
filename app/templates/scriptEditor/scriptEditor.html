@@ -1,22 +1,13 @@
-<uib-tabset class="scriptEditorContainer" active="activeJustified" justified="true">
+<div ng-controller="scriptEditorCtrl" class="fill-parent">
+    <uib-tabset class="scriptEditorContainer" active="activeJustified" justified="true">
 
-    <uib-tab index="0">
-        <uib-tab-heading>
-            <i class="fa fa-file-code-o"></i> Player Behavior
-        </uib-tab-heading>
-        <div class="fill-parent" ng-include="'templates/scriptEditor/scriptEditorTab.html'"></div>
-    </uib-tab>
+        <uib-tab ng-repeat="tab in model.tabs">
+            <uib-tab-heading>
+                <i class="fa fa-file-code-o"></i> {{tab.title}} <span ng-show="!tab.saved">*</span>
+                <i ng-click="closeTab(tab)" class="fa fa-close align-right clickable" style="margin-right: 5px; margin-top: 2px;"></i>
+            </uib-tab-heading>
+            <div class="fill-parent" ng-include="'templates/scriptEditor/scriptEditorTab.html'"></div>
+        </uib-tab>
 
-    <uib-tab index="1">
-        <uib-tab-heading>
-            <i class="fa fa-file-code-o"></i> Background Handler
-        </uib-tab-heading>
-        <div class="fill-parent" ng-include="'templates/scriptEditor/scriptEditorTab.html'"></div>
-    </uib-tab>
-    <uib-tab index="2" heading="Item">
-        <uib-tab-heading>
-            <i class="fa fa-file-code-o"></i> Game Manager
-        </uib-tab-heading>
-        <div class="fill-parent" ng-include="'templates/scriptEditor/scriptEditorTab.html'"></div>
-    </uib-tab>
-</uib-tabset>
+    </uib-tabset>
+</div>

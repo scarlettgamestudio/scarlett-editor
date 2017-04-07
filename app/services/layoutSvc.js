@@ -64,7 +64,7 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         minWidth: 340,
         componentName: 'template',
         componentState: {
-            templateId: constants.WINDOW_TYPES.PROJECT_EXPLORER,
+            templateId: constants.WINDOW_TYPES.SCRIPT_EDITOR,
             url: 'templates/scriptEditor/scriptEditor.html'
         },
         title: $translate.instant("EDITOR_SCRIPT_EDITOR")
@@ -115,7 +115,11 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         }]
     };
 
-    svc.addWindow = function(identification) {
+    svc.isWindowOpen = function (identification) {
+        return activeWindows.hasOwnProperty(identification) && activeWindows[identification].ready;
+    };
+
+    svc.addWindow = function (identification) {
         if (!isObjectAssigned(layout)) {
             logSvc.warn("The layout manager is not initialized");
             return;
@@ -127,7 +131,9 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         }
 
         // is window already active?
-        if (activeWindows[identification]) {
+        // ATTENTION: for now we are not allowing duplicated windows to be opened, heavy testing is required if this
+        // verification is disabled!
+        if (svc.isWindowOpen(identification)) {
             logSvc.warn("Unable to add an already active window");
             return;
         }
@@ -135,6 +141,13 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         //myLayout.createDragSource("#editor-container", windowMapping[identification]);
         //myLayout.selectedItem.addChild( windowMapping[identification] );
         layout.root.contentItems[0].addChild(windowMapping[identification]);
+    };
+
+    svc.selectWindow = function (identification) {
+        if (svc.isWindowOpen(identification)) {
+            // TODO: validate if there isn't a better way to do this in goldenlayout
+            activeWindows[identification].item.tab.header.parent.setActiveContentItem(activeWindows[identification].item);
+        }
     };
 
     svc.createLayout = function (target) {
@@ -147,29 +160,59 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
 
         layout = new GoldenLayout(scarlettSvc.getLayoutConfiguration() || defaultLayoutConfiguration, target);
 
+        layout.on('itemCreated', function (item) {
+            // there are different types of items that can be created, for this instance we only need to update
+            // some fields of the component typed ones :)
+            if (item.type === "component" && activeWindows[item.config.componentState.templateId]) {
+                // store the window item and confirm ready:
+                activeWindows[item.config.componentState.templateId].item = item;
+                activeWindows[item.config.componentState.templateId].ready = true;
+            }
+        });
+
         layout.on('itemDestroyed', function (item) {
             if (item.config && item.config.componentState && item.config.componentState.templateId) {
+                let activeWindow = activeWindows[item.config.componentState.templateId];
+                if (activeWindow && activeWindow.scope) {
+                    // call the scope.$destroy() so there are no memory leaks!
+                    activeWindow.scope.$destroy();
+                }
+
                 // delete from the active windows:
                 delete activeWindows[item.config.componentState.templateId];
+
+                // broadcast event
+                EventManager.emit(constants.EVENTS.WINDOW_REMOVED, item.config.componentState.templateId);
             }
         });
 
         layout.registerComponent('template', function (container, state) {
             if (container._config && container._config.componentState && container._config.componentState.templateId) {
                 // add to active windows:
-                activeWindows[container._config.componentState.templateId] = true;
+                activeWindows[container._config.componentState.templateId] = {
+                    scope: null,
+                    item: null,
+                    ready: false
+                };
             }
 
             if (state.url && state.url.length > 0) {
                 $http.get(state.url, {cache: true}).then(function (response) {
                     // compile the html so we have all angular goodies:
-                    let html = $compile(response.data)($rootScope);
+                    let newScope = $rootScope.$new();
+                    let html = $compile(response.data)(newScope);
                     container.getElement().html(html);
+
+                    // store the window scope:
+                    activeWindows[container._config.componentState.templateId].scope = newScope;
 
                     // assign events here:
                     container.on("resize", function () {
                         $rootScope.$broadcast(constants.EVENTS.CONTAINER_RESIZE, state.templateId);
                     });
+
+                    // broadcast event
+                    EventManager.emit(constants.EVENTS.WINDOW_ADDED, container._config.componentState.templateId);
                 });
             }
         });
@@ -182,13 +225,13 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
             // ..
         });
 
-        layout.on('tabChanged', function(args) {
+        layout.on('tabChanged', function (args) {
             try {
                 let windowId = args._activeContentItem.config.componentState.templateId;
                 if (isObjectAssigned(windowId)) {
                     $rootScope.$broadcast(constants.EVENTS.CONTAINER_RESIZE, windowId);
                 }
-            } catch(e) {
+            } catch (e) {
                 logSvc.error("Failure while processing tab changed event: " + e);
             }
         });
@@ -207,7 +250,7 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         EventManager.emit(AngularHelper.constants.EVENTS.LAYOUT_DESTROYED);
     };
 
-    svc.restoreToDefault = function() {
+    svc.restoreToDefault = function () {
         scarlettSvc.storeLayoutConfiguration(defaultLayoutConfiguration);
         svc.destroyLayout();
         svc.createLayout(elemTarget);

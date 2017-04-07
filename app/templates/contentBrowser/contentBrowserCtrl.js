@@ -1,5 +1,5 @@
-app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', 'constants', '$translate', '$timeout', '$http', '$compile', 'assetSvc', 'refactorSvc',
-    function ($scope, logSvc, config, scarlettSvc, sceneSvc, constants, $translate, $timeout, $http, $compile, assetSvc, refactorSvc) {
+app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'sceneSvc', 'constants', '$translate', '$timeout', '$http', '$compile', 'assetSvc', 'refactorSvc', 'scriptsSvc',
+    function ($scope, logSvc, config, scarlettSvc, sceneSvc, constants, $translate, $timeout, $http, $compile, assetSvc, refactorSvc, scriptsSvc) {
 
         let _createItems = [
             {
@@ -361,7 +361,7 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
         }
 
         function handleOpenFile(file) {
-            let ext = Path.getFileExtension(file.attributes.path);
+            let ext = Path.getFileExtension(file.attributes.path).toLowerCase();
 
             switch (ext) {
                 case ".ss":
@@ -371,6 +371,11 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
                 // asset files:
                 case ".atl":
                     $scope.loadAsset(file.attributes.path);
+                    break;
+
+                // Javascript File
+                case ".js":
+                    scriptsSvc.openScript(file.attributes.path);
                     break;
 
                 default:
