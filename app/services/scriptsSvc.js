@@ -43,6 +43,7 @@ app.factory("scriptsSvc", function ($rootScope, $q, constants, gameSvc, scarlett
         // is the scripting editor window opened?
         if (!layoutSvc.isWindowOpen(constants.WINDOW_TYPES.SCRIPT_EDITOR)) {
             layoutSvc.addWindow(constants.WINDOW_TYPES.SCRIPT_EDITOR);
+
         } else {
             layoutSvc.selectWindow(constants.WINDOW_TYPES.SCRIPT_EDITOR);
         }

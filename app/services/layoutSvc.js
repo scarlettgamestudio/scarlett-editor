@@ -131,6 +131,8 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         }
 
         // is window already active?
+        // ATTENTION: for now we are not allowing duplicated windows to be opened, heavy testing is required if this
+        // verification is disabled!
         if (svc.isWindowOpen(identification)) {
             logSvc.warn("Unable to add an already active window");
             return;
@@ -143,6 +145,7 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
 
     svc.selectWindow = function (identification) {
         if (svc.isWindowOpen(identification)) {
+            // TODO: validate if there isn't a better way to do this in goldenlayout
             activeWindows[identification].item.tab.header.parent.setActiveContentItem(activeWindows[identification].item);
         }
     };
