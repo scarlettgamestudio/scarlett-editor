@@ -156,6 +156,40 @@ NativeInterface.writeFile = function (path, content, callback) {
     });
 };
 
+/**
+ *
+ * @param fileMap [{path: "file_path", content: "..."}, ...]
+ * @param callback
+ */
+NativeInterface.writeFiles = function(fileMap, callback) {
+	let writeCount = 0;
+	let writeLength = fileMap.length;
+	let writeHealthy = true;
+	let writeCompleted = (status) => {
+	    if (!status) {
+	        // just one failure is enough to make the operation "unhealthy"
+		    writeHealthy = false;
+        }
+
+        writeCount++;
+	    if (writeCount >= writeLength) {
+	        callback(writeHealthy);
+        }
+	};
+
+    fileMap.forEach(function (item) {
+	    // this seems to be "valid"?
+	    if (item.hasOwnProperty("path") && item.hasOwnProperty("content")) {
+	        NativeInterface.writeFile(item.path, item.content, (status) => {
+	            writeCompleted(status);
+            });
+
+	    } else {
+	        writeCompleted(false);
+        }
+    });
+};
+
 NativeInterface.readFile = function (path, callback) {
     fs.readFile(path, 'utf8', function (err, data) {
         if (err) {
@@ -173,7 +207,7 @@ NativeInterface.readFile = function (path, callback) {
  */
 NativeInterface.readFiles = function(fileMap, callback) {
     let readCount = 0;
-    let readLength = Object.keys(fileMap).length;
+    let readLength = fileMap.length;
     let readMap = {};
     let readCompleted = () => {
         readCount++;
@@ -187,7 +221,7 @@ NativeInterface.readFiles = function(fileMap, callback) {
         if (item.hasOwnProperty("path") && item.hasOwnProperty("id")) {
             NativeInterface.readFile(item.path, (data) => {
                 // either it was read or invalid, data = null when fails to read..
-                readMap[item.id] = data;
+                readMap[item.id] = data === false ? null : data;
                 readCompleted();
             });
 

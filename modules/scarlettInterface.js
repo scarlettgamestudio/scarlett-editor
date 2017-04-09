@@ -16,7 +16,7 @@ function getSystemDirectorySlash() {
 }
 
 ScarlettInterface.setupApplicationFolder = function () {
-    var path = ScarlettInterface.getApplicationFolderPath();
+	let path = ScarlettInterface.getApplicationFolderPath();
     fs.exists(path, function (result) {
         if (!result) {
             // doesn't exist, create!
@@ -26,7 +26,7 @@ ScarlettInterface.setupApplicationFolder = function () {
 };
 
 ScarlettInterface.createProject = function (path, data, callback) {
-    var pathExists = fs.existsSync(path);
+    let pathExists = fs.existsSync(path);
 
     if (!pathExists) {
         // doesn't exist, create!

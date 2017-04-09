@@ -2,282 +2,270 @@
  * Created by John
  */
 
-app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, constants) {
-    let SCARLETT_FOLDER_NAME = ".scarlett";
+app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, constants, dialogSvc) {
+	let SCARLETT_FOLDER_NAME = ".scarlett";
 
-    let svc = {};
+	let svc = {};
 
-    svc.activeProject = null;
-    svc.activeProjectPath = null;
-    svc.activeProjectFileMap = null;
+	svc.activeProject = null;
+	svc.activeProjectWorkspace = null;
+	svc.activeProjectPath = null;
+	svc.activeProjectFileMap = null;
 
-    function getAllFilesInDirectory(directory, deep) {
-        let files = [];
+	function getAllFilesInDirectory(directory, deep) {
+		let files = [];
 
-        directory.files.forEach(function (fileInfo) {
-            let filename = Path.getFilename(fileInfo.relativePath);
-            let extension = Path.getFileExtension(filename);
+		directory.files.forEach(function (fileInfo) {
+			let filename = Path.getFilename(fileInfo.relativePath);
+			let extension = Path.getFileExtension(filename);
 
-            // don't include private/hidden files
-            if (filename[0] !== "." && config.IGNORED_FILE_EXTENSIONS.indexOf(extension) < 0) {
-                files.push(fileInfo.relativePath);
-            }
-        });
+			// don't include private/hidden files
+			if (filename[0] !== "." && config.IGNORED_FILE_EXTENSIONS.indexOf(extension) < 0) {
+				files.push(fileInfo.relativePath);
+			}
+		});
 
-        if (deep) {
-            directory.subdirectories.forEach(function (subdirectory) {
-                files = files.concat(getAllFilesInDirectory(subdirectory, deep));
-            });
-        }
+		// perform sub-folder search?
+		if (deep) {
+			directory.subdirectories.forEach(function (subdirectory) {
+				files = files.concat(getAllFilesInDirectory(subdirectory, deep));
+			});
+		}
 
-        return files;
-    }
+		return files;
+	}
 
-    svc.promptLoadProject = function () {
-        let params = {
-            filters: [{name: 'Scarlett Project', extensions: ['sc']}]
-        };
+	svc.promptLoadProject = function () {
+		let params = {
+			filters: [{name: 'Scarlett Project', extensions: ['sc']}]
+		};
 
-        NativeInterface.openFileBrowser(ScarlettInterface.getApplicationFolderPath(), params, function (result) {
-            if (result !== false && result.endsWith(".sc")) {
-                svc.openProject(result);
-            } else {
-                // TODO: show dialog:
-                //dialogSvc.showDialog("","","");
-            }
-        });
-    };
+		NativeInterface.openFileBrowser(ScarlettInterface.getApplicationFolderPath(), params, function (result) {
+			if (result !== false && result.endsWith(".sc")) {
+				svc.openProject(result);
+			} else {
+				// TODO: show dialog:
+				//dialogSvc.showDialog("","","");
+			}
+		});
+	};
 
-    svc.updateActiveProjectFileMap = function () {
-        return svc.activeProjectFileMap = NativeInterface.mapDirectory(svc.activeProjectPath);
-    };
+	svc.updateActiveProjectFileMap = function () {
+		return svc.activeProjectFileMap = NativeInterface.mapDirectory(svc.activeProjectPath);
+	};
 
-    svc.getAllActiveProjectFilePaths = function () {
-        return getAllFilesInDirectory(svc.activeProjectFileMap, true);
-    };
+	svc.getAllActiveProjectFilePaths = function () {
+		return getAllFilesInDirectory(svc.activeProjectFileMap, true);
+	};
 
-    /**
-     * Initializes and performs validation procedures on a Scarlett Project
-     * @param project
-     * @param path
-     */
-    svc.setupProject = function (project, path) {
-        // base procedures:
-        svc.activeProjectPath = path;
+	/**
+	 * Returns the previously stored layout configuration (if any)
+	 */
+	svc.getLayoutConfiguration = function () {
+		if (!isObjectAssigned(svc.activeProjectWorkspace)) {
+			return null;
+		}
 
+		return svc.activeProjectWorkspace.activeLayout;
+	};
 
-        // integrity validations
-        if (!project.hasOwnProperty("settings")) {
-            project["settings"] = {};
-        }
+	/**
+	 * Stores the active layout configuration into the active project editor layout state. This operation doesn't
+	 * automatically update the project file on system, project save() is required to store changes into disk.
+	 * @param configuration
+	 */
+	svc.storeLayoutConfiguration = function (configuration) {
+		if (!isObjectAssigned(svc.activeProjectWorkspace)) {
+			return;
+		}
 
-        if (!project.hasOwnProperty("editor")) {
-            project["editor"] = {};
-        }
+		svc.activeProjectWorkspace.activeLayout = configuration;
+	};
 
-        if (!project["editor"].hasOwnProperty("layout")) {
-            project["editor"]["layout"] = null;
-        }
+	/**
+	 * Saves the active project
+	 * @returns {boolean}
+	 */
+	svc.saveProject = function () {
+		if (!isObjectAssigned(svc.activeProject)) {
+			logSvc.warn("Project not saved due to not having any active project");
+			return false;
+		}
 
-        if (!project.hasOwnProperty("content")) {
-            project["content"] = {};
-        }
+		// TODO: check if all project objects being saved are indeed assigned
 
-        // the project already has files assigned?
-        if (!project.editor.hasOwnProperty("files")) {
-            // it doesn't, we need to map all existing files on the directory then.
-            project.editor.files = svc.getAllActiveProjectFilePaths();
-        }
+		let destinationPath = Path.wrapDirectoryPath(svc.activeProjectPath) + SCARLETT_FOLDER_NAME + Path.TRAILING_SLASH;
+		let fileMap = [
+			{
+				"content": Objectify.createDataString(svc.activeProject, true),
+				"path": destinationPath + "project.json"
+			},
+			{
+				"content": Objectify.createDataString(svc.activeProjectWorkspace, true),
+				"path": destinationPath + "workspace.json"
+			}
+		];
 
-        svc.saveProject(project);
-    };
+		NativeInterface.writeFiles(fileMap, (status) => {
+			if (status) {
+				logSvc.log("Project saved with success");
 
-    /**
-     * Returns the previously stored layout configuration (if any)
-     */
-    svc.getLayoutConfiguration = function () {
-        if (!isObjectAssigned(svc.activeProject)) {
-            return null;
-        }
+			} else {
+				logSvc.warn("Project file could not be saved, check native error logs for more information");
+			}
+		});
+	};
 
-        return svc.activeProject.editor.layout;
-    };
+	/**
+	 * Load a project folder from a specific path
+	 * @param path
+	 * @returns {Promise}
+	 */
+	svc.loadProjectFolder = function (path) {
+		let defer = $q.defer();
+		let fileMap = [
+			{
+				"id": "project",
+				"path": Path.wrapDirectoryPath(path) + SCARLETT_FOLDER_NAME + Path.TRAILING_SLASH + "project.json"
+			},
+			{
+				"id": "workspace",
+				"path": Path.wrapDirectoryPath(path) + SCARLETT_FOLDER_NAME + Path.TRAILING_SLASH + "workspace.json"
+			}
+		];
 
-    /**
-     * Stores the active layout configuration into the active project editor layout state. This operation doesn't
-     * automatically update the project file on system, project save() is required to store changes into disk.
-     * @param configuration
-     */
-    svc.storeLayoutConfiguration = function (configuration) {
-        if (!isObjectAssigned(svc.activeProject)) {
-            return;
-        }
+		NativeInterface.readFiles(fileMap, (result) => {
+			let projectDataString = result["project"];
+			let workspaceDataString = result["workspace"];
+			let projectData, workspaceData;
 
-        svc.activeProject.editor.layout = configuration;
-    };
+			if (!isObjectAssigned(projectDataString)) {
+				// the project file failed to load, loading cannot continue..
+				logSvc.warn("Project data could not be found, project cannot be loaded");
+				defer.reject();
+				return;
 
-    /**
-     * Saves a given project. If no project is provided, the active project is selected for saving
-     * @param project
-     */
-    svc.saveProject = function (project) {
-        project = project || svc.activeProject;
+			} else {
+				// try to parse project data string..
+				try {
+					projectData = Objectify.restoreFromString(projectDataString);
 
-        if (project) {
-            NativeInterface.writeFile(
-                Path.wrapDirectoryPath(svc.activeProjectPath) + "project.sc",
-                Objectify.createDataString(project, true)
-            );
-        }
-    };
+					if (!isObjectAssigned(projectData)) {
+						logSvc.warn("Project data could not be parsed, invalidating project load..");
+						defer.reject();
+						return;
+					}
 
-    /**
-     * Load a project folder from a specific path
-     * @param path
-     * @returns {Promise}
-     */
-    svc.loadProjectFolder = function (path) {
-        let defer = $q.defer();
-        let fileMap = [
-            {
-                "id": "project",
-                "path": Path.wrapDirectoryPath(path) + SCARLETT_FOLDER_NAME + Path.TRAILING_SLASH + "project.json"
-            },
-            {
-                "id": "workspace",
-                "path": Path.wrapDirectoryPath(path) + SCARLETT_FOLDER_NAME + Path.TRAILING_SLASH + "workspace.json"
-            }
-        ];
+				} catch (error) {
+					// the project data failed while parsing..
+					defer.reject(error);
+					return;
+				}
+			}
 
-        NativeInterface.readFiles(fileMap, (result) => {
-            let projectDataString = result["project"];
-            let workspaceDataString = result["workspace"];
-            let projectData, workspaceData;
+			if (isObjectAssigned(workspaceDataString)) {
+				try {
+					workspaceData = Objectify.restoreFromString(workspaceDataString);
 
-            if (!isObjectAssigned(projectDataString)) {
-                // the project file failed to load, loading cannot continue..
-                defer.reject();
-                return;
+				} catch (error) {
+					// the project data failed while parsing..
+					logSvc.warn("Could not reload workspace data, a new instance will be created..");
+				}
+			}
 
-            } else {
-                // try to parse project data string..
-                try {
-                    projectData = Objectify.restoreFromString(projectDataString);
+			if (!isObjectAssigned(workspaceData)) {
+				// currently there is no major issue if the workspace could not be loaded, so we can create a new
+				// instance in order to proceed..
+				workspaceData = new WorkspaceFile();
+			}
 
-                } catch (error) {
-                    // the project data failed while parsing..
-                    defer.reject(error);
-                }
-            }
+			// update active project path:
+			svc.setActiveProjectPath(path);
+			GameManager.activeProjectPath = Path.wrapDirectoryPath(path);
 
-            if (isObjectAssigned(workspaceDataString)) {
-                try {
-                    workspaceData = Objectify.restoreFromString(projectData);
+			// update the svc active project
+			svc.setActiveProject(projectData);
 
-                } catch (error) {
-                    // the project data failed while parsing..
-                    workspaceData = new WorkspaceFile();
-                }
-            }
+			// update the svc active project workspace
+			svc.setActiveProjectWorkspace(workspaceData);
 
-            if (!isObjectAssigned(workspaceData)) {
-                logSvc.warn("Could not reload workspace data, creating new instance..");
+			// update the active project file map:
+			svc.updateActiveProjectFileMap();
 
-                // currently there is no major issue if the workspace could not be loaded, so we can create a new
-                // instance in order to proceed..
-                workspaceData = Objectify.restoreFromString(projectData);
-            }
+			// the project already has files assigned?
+			//if (!project.editor.hasOwnProperty("files")) {
+			// it doesn't, we need to map all existing files on the directory then.
+			//    project.editor.files = svc.getAllActiveProjectFilePaths();
+			//}
 
-            // update the active project file map:
-            svc.updateActiveProjectFileMap();
+			// update the lastUpdated property
+			let savedData = dataSvc.findByProperty("projects", "path", path);
+			if (savedData) {
+				savedData.lastUpdate = new Date().getTime();
 
-            // update active project:
-            GameManager.activeProject = projectData;
-            //GameManager.
-            GameManager.activeProjectPath = Path.wrapDirectoryPath(path);
+			} else {
+				dataSvc.push("projects", {
+					name: projectData.name,
+					path: path,
+					lastUpdate: new Date().getTime()
+				});
+			}
 
-            /*if (result === false) {
-                // the file failed to load..
-                defer.reject(error);
+			dataSvc.save();
 
-            } else {
-                try {
-                    let gameProject = Objectify.restoreFromString(result);
+			// all operations completed, resolve load function..
+			defer.resolve(true);
+		});
 
-                    if (!isObjectAssigned(gameProject)) {
-                        logSvc.warn("Unable to load game project, invalid project file source");
-                        defer.reject();
-                    }
+		return defer.promise;
+	};
 
-                    svc.setupProject(gameProject, Path.getDirectory(path));
+	svc.setActiveProjectWorkspace = function (workspace) {
+		svc.activeProjectWorkspace = workspace;
+	};
 
-                    GameManager.activeProject = gameProject;
-                    GameManager.activeProjectPath = Path.wrapDirectoryPath(Path.getDirectory(gamefilePath));
+	svc.getActiveProjectWorkspace = function () {
+		return svc.activeProjectWorkspace;
+	};
 
-                    defer.resolve(gameProject);
+	svc.getActiveProject = function () {
+		return svc.activeProject;
+	};
 
-                } catch (error) {
-                    // the project failed while parsing..
-                    defer.reject(error);
-                }
-            }*/
-        });
+	svc.getActiveProjectPath = function () {
+		return Path.wrapDirectoryPath(svc.activeProjectPath);
+	};
 
-        return defer.promise;
-    };
+	svc.setActiveProjectPath = function (path) {
+		svc.activeProjectPath = path;
+		GameManager.activeProjectPath = Path.wrapDirectoryPath(Path.getDirectory(path));
+	};
 
-    svc.getActiveProject = function () {
-        return svc.activeProject;
-    };
+	svc.setActiveProject = function (project) {
+		svc.activeProject = project;
+		GameManager.activeProject = project;
 
-    svc.getActiveProjectPath = function () {
-        return Path.wrapDirectoryPath(svc.activeProjectPath);
-    };
+		// broadcast the event so other components know
+		$rootScope.$broadcast(constants.EVENTS.PROJECT_LOADED, project);
+	};
 
-    svc.setActiveProjectPath = function (path) {
-        svc.activeProjectPath = path;
-        GameManager.activeProjectPath = Path.wrapDirectoryPath(Path.getDirectory(path));
-    };
+	svc.createFullPath = function (relativePath) {
+		return svc.getActiveProjectPath() + relativePath;
+	};
 
-    svc.setActiveProject = function (project) {
-        svc.activeProject = project;
-        GameManager.activeProject = project;
+	svc.openProject = function (path) {
+		svc.loadProjectFolder(path).then(
+			function (success) {
+				if (success) {
+					// show the main view
+					$rootScope.changeView('main');
+				}
 
-        // broadcast the event so other components know
-        $rootScope.$broadcast(constants.EVENTS.PROJECT_LOADED, project);
-    };
+			}, function (error) {
+				dialogSvc.showDialog("Ups", "The selected folder doesn't appear to contain a valid Scarlett Project.", "alert");
 
-    svc.createFullPath = function (relativePath) {
-        return svc.getActiveProjectPath() + relativePath;
-    };
+			})
+	};
 
-    svc.openProject = function (path) {
-        svc.loadProjectFolder(path).then(
-            function (gameProject) {
-                svc.setActiveProject(gameProject);
-
-                // update the lastUpdated property
-                let savedData = dataSvc.findByProperty("projects", "path", path);
-                if (savedData) {
-                    savedData.lastUpdate = new Date().getTime();
-
-                } else {
-                    dataSvc.push("projects", {
-                        name: gameProject.name,
-                        path: path,
-                        lastUpdate: new Date().getTime()
-                    });
-                }
-
-                dataSvc.save();
-
-                // show the main view
-                $rootScope.changeView('main');
-
-            }, function (error) {
-                // TODO: warn the user and remove the project from the datasvc
-            })
-    };
-
-    return svc;
+	return svc;
 });

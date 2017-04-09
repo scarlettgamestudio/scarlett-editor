@@ -10184,7 +10184,7 @@ class Objectify {
      * Objectify an array:
      * @param array
      */
-    array(array) {
+    static array(array) {
         let result = [];
         array.forEach(function (elem) {
             // this element has objectify implemented?

@@ -150,6 +150,15 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         }
     };
 
+    svc.isLayoutConfigurationValid = function(configuration) {
+    	// TODO: check if more validations are needed
+        if (!isObjectAssigned(configuration)) {
+            return false;
+        }
+
+        return !(!configuration.hasOwnProperty("content") || configuration.content.length === 0);
+    };
+
     svc.createLayout = function (target) {
         elemTarget = target;
 
@@ -158,7 +167,12 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
             return;
         }
 
-        layout = new GoldenLayout(scarlettSvc.getLayoutConfiguration() || defaultLayoutConfiguration, target);
+	    let layoutConfig = scarlettSvc.getLayoutConfiguration();
+        if (!svc.isLayoutConfigurationValid(layoutConfig)) {
+            layoutConfig = defaultLayoutConfiguration;
+        }
+
+        layout = new GoldenLayout(layoutConfig, target);
 
         layout.on('itemCreated', function (item) {
             // there are different types of items that can be created, for this instance we only need to update
@@ -276,6 +290,7 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
     };
 
     (function init() {
+        // map all the available windows:
         windowMapping[constants.WINDOW_TYPES.SCENE_HIERARCHY] = sceneHierarchyLayoutConfiguration;
         windowMapping[constants.WINDOW_TYPES.ATLAS_EDITOR] = atlasEditorLayoutConfiguration;
         windowMapping[constants.WINDOW_TYPES.CONSOLE] = consoleLayoutConfiguration;
