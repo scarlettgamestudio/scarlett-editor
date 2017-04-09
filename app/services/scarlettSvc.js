@@ -3,7 +3,9 @@
  */
 
 app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, constants) {
-    var svc = {};
+    let SCARLETT_FOLDER_NAME = ".scarlett";
+
+    let svc = {};
 
     svc.activeProject = null;
     svc.activeProjectPath = null;
@@ -30,10 +32,6 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
 
         return files;
     }
-
-    svc.generateProject = function (name) {
-        return new ProjectFile({name: name});
-    };
 
     svc.promptLoadProject = function () {
         let params = {
@@ -66,7 +64,7 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
     svc.setupProject = function (project, path) {
         // base procedures:
         svc.activeProjectPath = path;
-        svc.updateActiveProjectFileMap();
+
 
         // integrity validations
         if (!project.hasOwnProperty("settings")) {
@@ -97,7 +95,7 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
     /**
      * Returns the previously stored layout configuration (if any)
      */
-    svc.getLayoutConfiguration = function() {
+    svc.getLayoutConfiguration = function () {
         if (!isObjectAssigned(svc.activeProject)) {
             return null;
         }
@@ -110,7 +108,7 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
      * automatically update the project file on system, project save() is required to store changes into disk.
      * @param configuration
      */
-    svc.storeLayoutConfiguration = function(configuration) {
+    svc.storeLayoutConfiguration = function (configuration) {
         if (!isObjectAssigned(svc.activeProject)) {
             return;
         }
@@ -134,16 +132,71 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
     };
 
     /**
-     * Load a project file from a specific path
+     * Load a project folder from a specific path
      * @param path
      * @returns {Promise}
      */
-    svc.loadProjectFile = function (path) {
+    svc.loadProjectFolder = function (path) {
         let defer = $q.defer();
-        let gamefilePath = path.endsWith(".sc") ? path : Path.wrapDirectoryPath(path) + "project.sc";
+        let fileMap = [
+            {
+                "id": "project",
+                "path": Path.wrapDirectoryPath(path) + SCARLETT_FOLDER_NAME + Path.TRAILING_SLASH + "project.json"
+            },
+            {
+                "id": "workspace",
+                "path": Path.wrapDirectoryPath(path) + SCARLETT_FOLDER_NAME + Path.TRAILING_SLASH + "workspace.json"
+            }
+        ];
 
-        NativeInterface.readFile(gamefilePath, function (result) {
-            if (result === false) {
+        NativeInterface.readFiles(fileMap, (result) => {
+            let projectDataString = result["project"];
+            let workspaceDataString = result["workspace"];
+            let projectData, workspaceData;
+
+            if (!isObjectAssigned(projectDataString)) {
+                // the project file failed to load, loading cannot continue..
+                defer.reject();
+                return;
+
+            } else {
+                // try to parse project data string..
+                try {
+                    projectData = Objectify.restoreFromString(projectDataString);
+
+                } catch (error) {
+                    // the project data failed while parsing..
+                    defer.reject(error);
+                }
+            }
+
+            if (isObjectAssigned(workspaceDataString)) {
+                try {
+                    workspaceData = Objectify.restoreFromString(projectData);
+
+                } catch (error) {
+                    // the project data failed while parsing..
+                    workspaceData = new WorkspaceFile();
+                }
+            }
+
+            if (!isObjectAssigned(workspaceData)) {
+                logSvc.warn("Could not reload workspace data, creating new instance..");
+
+                // currently there is no major issue if the workspace could not be loaded, so we can create a new
+                // instance in order to proceed..
+                workspaceData = Objectify.restoreFromString(projectData);
+            }
+
+            // update the active project file map:
+            svc.updateActiveProjectFileMap();
+
+            // update active project:
+            GameManager.activeProject = projectData;
+            //GameManager.
+            GameManager.activeProjectPath = Path.wrapDirectoryPath(path);
+
+            /*if (result === false) {
                 // the file failed to load..
                 defer.reject(error);
 
@@ -167,7 +220,7 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
                     // the project failed while parsing..
                     defer.reject(error);
                 }
-            }
+            }*/
         });
 
         return defer.promise;
@@ -194,12 +247,12 @@ app.factory("scarlettSvc", function ($rootScope, config, logSvc, dataSvc, $q, co
         $rootScope.$broadcast(constants.EVENTS.PROJECT_LOADED, project);
     };
 
-    svc.createFullPath = function(relativePath) {
+    svc.createFullPath = function (relativePath) {
         return svc.getActiveProjectPath() + relativePath;
     };
 
     svc.openProject = function (path) {
-        svc.loadProjectFile(path).then(
+        svc.loadProjectFolder(path).then(
             function (gameProject) {
                 svc.setActiveProject(gameProject);
 

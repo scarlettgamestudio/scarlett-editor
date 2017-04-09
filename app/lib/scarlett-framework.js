@@ -9814,13 +9814,13 @@ class EventManagerSingleton {
         }
 
         for (let i = this._handlers[topic].length - 1; i >= 0; i--) {
-            if (this._handlers[topic][i].callback === callback) {
+            if (this._handlers[topic][i].callback == callback) {
                 this._handlers[topic].splice(i, 1);
             }
         }
 
         // no more subscriptions for this topic?
-        if (this._handlers[topic].length === 0) {
+        if (this._handlers[topic].length == 0) {
             // nope... let's remove the topic then:
             delete this._handlers[topic];
         }
@@ -12414,11 +12414,9 @@ class ProjectFile {
 
         this.name = params.name || "New Project";
         this.settings = params.settings || {};
-        this.editor = params.editor || {
-                lastScene: null,
-                layout: null
+        this.content = params.content || {
+                scripts: []
             };
-        this.content = params.content || {};
     }
 
     //#endregion
@@ -12482,6 +12480,43 @@ class TextureAtlas {
     getType() {
         return "TextureAtlas";
     }
+
+    //#endregion
+
+};/**
+ * Workspace File class
+ */
+class WorkspaceFile {
+
+    //#region Constructors
+
+    /**
+     *
+     * @param params
+     * @constructor
+     */
+    constructor(params) {
+        params = params || {};
+
+        this.activeLayout = params.activeLayout || {};
+    }
+
+    //#endregion
+
+    //#region Methods
+
+    //#region Static Methods
+
+    /**
+     *
+     * @param data
+     * @returns {WorkspaceFile}
+     */
+    static restore(data) {
+        return new WorkspaceFile(data);
+    }
+
+    //#endregion
 
     //#endregion
 
@@ -13553,6 +13588,7 @@ class Game {
     }
 
     //#endregion
+
 };/**
  * Game Manager static class
  */
@@ -14422,27 +14458,6 @@ class PrimitiveRender {
     }
 
     //#endregion
-};/**
- * Base class for scripts
- */
-class Script {
-
-    /**
-     * Anchor method for updating
-     * @param delta
-     */
-    update(delta) {
-
-    }
-
-    /**
-     * Anchor method for rendering
-     * @param delta
-     * @param spriteBatch
-     */
-    render(delta, spriteBatch) {
-
-    }
 };// unique key
 let _scriptsSingleton = Symbol('scriptsSingleton');
 

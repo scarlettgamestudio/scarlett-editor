@@ -97,8 +97,8 @@ NativeInterface.openDirectoryBrowser = function (defaultPath, resultCallback) {
 };
 
 NativeInterface.openFile = function (path) {
-    var cmd = getOpenCommandLine();
-    var exec = require('child_process').exec;
+    let cmd = getOpenCommandLine();
+    let exec = require('child_process').exec;
     exec(cmd + " \"" + path + "\"");
 };
 
@@ -107,7 +107,7 @@ NativeInterface.mapDirectory = function (path, originalPath) {
         path = path.substring(0, path.length - 1);
     }
 
-    var directoryModel = {
+    let directoryModel = {
         path: path,
         subdirectories: [],
         files: []
@@ -120,7 +120,7 @@ NativeInterface.mapDirectory = function (path, originalPath) {
     fs.readdir(path, function (err, list) {
         if (err) return directoryModel;
         list.forEach(function (_path) {
-            var fullpath = pathUtils.resolve(path, _path);
+            let fullpath = pathUtils.resolve(path, _path);
             fs.stat(fullpath, function (err, stat) {
                 if (stat && stat.isDirectory()) {
                     directoryModel.subdirectories.push(NativeInterface.mapDirectory(fullpath, originalPath));
@@ -163,6 +163,37 @@ NativeInterface.readFile = function (path, callback) {
             return;
         }
         callback(data);
+    });
+};
+
+/**
+ *
+ * @param fileMap [{id: "load_id", path: "file_path"}, ...]
+ * @param callback
+ */
+NativeInterface.readFiles = function(fileMap, callback) {
+    let readCount = 0;
+    let readLength = Object.keys(fileMap).length;
+    let readMap = {};
+    let readCompleted = () => {
+        readCount++;
+        if (readCount >= readLength) {
+            callback(readMap);
+        }
+    };
+
+    fileMap.forEach(function(item) {
+        // is this "valid" to try being loaded?
+        if (item.hasOwnProperty("path") && item.hasOwnProperty("id")) {
+            NativeInterface.readFile(item.path, (data) => {
+                // either it was read or invalid, data = null when fails to read..
+                readMap[item.id] = data;
+                readCompleted();
+            });
+
+        } else {
+            readCompleted();
+        }
     });
 };
 

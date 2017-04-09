@@ -31,12 +31,19 @@ app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 
             }
 
             // create the game project object
-            let gameProject = scarlettSvc.generateProject($scope.model.projectName);
+            let projectFile = new ProjectFile({name: $scope.model.projectName});
+            let workspaceFile = new WorkspaceFile();
 
-            let projectData = [{
-                filename: "project.sc",
-                content: Objectify.createDataString(gameProject, true)
-            }];
+            let projectData = [
+                {
+                    filename: ".scarlett/project.json",
+                    content: Objectify.createDataString(projectFile, true)
+                },
+                {
+                    filename: ".scarlett/workspace.json",
+                    content: Objectify.createDataString(workspaceFile, true)
+                }
+            ];
 
             let path = $scope.model.projectPath;
             path = Path.wrapDirectoryPath(path) + $scope.model.projectName + Path.TRAILING_SLASH;
@@ -53,7 +60,7 @@ app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 
                     dataSvc.save();
 
                     // set the active project
-                    scarlettSvc.setActiveProject(gameProject);
+                    scarlettSvc.setActiveProject(projectFile);
                     scarlettSvc.setActiveProjectPath(path);
                     scarlettSvc.updateActiveProjectFileMap();
 
@@ -65,6 +72,7 @@ app.controller('NewProjectModalCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 
 
                 } else if (result === 1) {
                     dialogSvc.showDialog("Ups", "The file path '" + path + "' already exists", "alert");
+
                 }
             });
         };
