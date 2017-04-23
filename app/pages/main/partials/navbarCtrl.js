@@ -1,6 +1,6 @@
 app.controller('NavbarCtrl',
-    ['$scope', 'logSvc', 'soapSvc', 'config', 'layoutSvc', 'sceneSvc', 'constants',
-        function ($scope, logSvc, soapSvc, config, layoutSvc, sceneSvc, constants) {
+    ['$scope', 'logSvc', 'soapSvc', 'config', 'layoutSvc', 'sceneSvc', 'constants', 'scriptsSvc',
+        function ($scope, logSvc, soapSvc, config, layoutSvc, sceneSvc, constants, scriptsSvc) {
 
             $scope.$on(AngularHelper.constants.EVENTS.COMMAND_HISTORY_CHANGED, function() {
                 $scope.safeDigest();
@@ -8,6 +8,10 @@ app.controller('NavbarCtrl',
 
             $scope.editGameScene = function() {
                 EventManager.emit(AngularHelper.constants.EVENTS.OBJECTS_SELECTION, [sceneSvc.getActiveGameScene()]);
+            };
+
+            $scope.compileScripts = function() {
+	            scriptsSvc.compileScripts();
             };
 
             $scope.showConsole = function () {

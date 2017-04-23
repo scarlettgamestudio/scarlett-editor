@@ -52,6 +52,7 @@ app.config(function ($translateProvider) {
 		LABEL_PROJECT_NAME: "Project Name",
 		LABEL_PROJECT_PATH: "Project Path",
 		LABEL_HUB: "Hub",
+		LABEL_ADD_COMPONENT: "Add Component",
 
 		BUTTON_CREATE: "Create",
 		BUTTON_IMPORT: "Import",
@@ -116,7 +117,9 @@ app.config(function ($translateProvider) {
 		NAVBAR_COPY: "Copy",
 		NAVBAR_PASTE: "Paste",
 		NAVBAR_HELP: "Help",
+		NAVBAR_DEV_MODE: "Development",
 		NAVBAR_TUTORIALS: "Tutorials",
+		NAVBAR_COMPILE_SCRIPTS: "Compile Scripts",
 		NAVBAR_CONTENT_BROWSER: "Content Browser",
 		NAVBAR_RESET_LAYOUT: "Default Layout",
 		NAVBAR_ABOUT: "About",

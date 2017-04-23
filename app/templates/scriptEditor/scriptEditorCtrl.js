@@ -17,7 +17,7 @@ app.controller('scriptEditorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc',
             EventManager.removeSubscription(AngularHelper.constants.EVENTS.SCRIPT_OPEN, $scope.openScript);
 
             // clear the active scripts:
-            scriptsSvc.clearActiveScripts();
+            scriptsSvc.clearOpenScripts();
 
         }).bind(this));
 

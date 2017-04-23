@@ -1,5 +1,6 @@
 .peContainer {
   cursor: default;
+  font-size: 0.96em;
 
   .btn-property {
     height: auto !important;
@@ -79,7 +80,6 @@
     }
 
     .peHeader {
-      font-size: 0.96em;
       padding: 6px 10px;
       margin-bottom: 2px;
       cursor: pointer;
@@ -100,7 +100,7 @@
       padding-bottom: 8px;
 
       .peEditor {
-        font-size: 0.86em;
+        font-size: 0.94em;
         padding: 1px 10px;
         -webkit-box-sizing: border-box;
         -moz-box-sizing: border-box;

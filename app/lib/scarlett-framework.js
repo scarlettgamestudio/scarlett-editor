@@ -9814,13 +9814,13 @@ class EventManagerSingleton {
         }
 
         for (let i = this._handlers[topic].length - 1; i >= 0; i--) {
-            if (this._handlers[topic][i].callback == callback) {
+            if (this._handlers[topic][i].callback === callback) {
                 this._handlers[topic].splice(i, 1);
             }
         }
 
         // no more subscriptions for this topic?
-        if (this._handlers[topic].length == 0) {
+        if (this._handlers[topic].length === 0) {
             // nope... let's remove the topic then:
             delete this._handlers[topic];
         }
@@ -12417,11 +12417,25 @@ class ProjectFile {
         this.content = params.content || {
                 scripts: []
             };
+
+        this.ensureContentStructure();
     }
 
     //#endregion
 
     //#region Methods
+
+	//#region Methods
+
+    ensureContentStructure () {
+	    this.content = this.content || {};
+
+	    if (!this.content.hasOwnProperty("scripts")) {
+		    this.content.scripts = [];
+	    }
+    }
+
+    //#endregion
 
     //#region Static Methods
 
@@ -13588,7 +13602,6 @@ class Game {
     }
 
     //#endregion
-
 };/**
  * Game Manager static class
  */
@@ -14458,6 +14471,27 @@ class PrimitiveRender {
     }
 
     //#endregion
+};/**
+ * Base class for scripts
+ */
+class Script {
+
+    /**
+     * Anchor method for updating
+     * @param delta
+     */
+    update(delta) {
+
+    }
+
+    /**
+     * Anchor method for rendering
+     * @param delta
+     * @param spriteBatch
+     */
+    render(delta, spriteBatch) {
+
+    }
 };// unique key
 let _scriptsSingleton = Symbol('scriptsSingleton');
 

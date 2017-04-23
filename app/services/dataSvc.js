@@ -27,7 +27,7 @@ app.factory("dataSvc", function (config, logSvc, localStorageService) {
 
     svc.findByProperty = function (key, property, value) {
         if (appData.hasOwnProperty(key)) {
-            for(var i = 0; i < appData[key].length; i++) {
+            for(let i = 0; i < appData[key].length; i++) {
                 if(appData[key][i][property] === value) {
                     return appData[key][i];
                 }
@@ -62,7 +62,7 @@ app.factory("dataSvc", function (config, logSvc, localStorageService) {
     };
 
     (function init() {
-        var _appData = localStorageService.get(config.LOCAL_STORAGE.KEYS.APP_DATA);
+        let _appData = localStorageService.get(config.LOCAL_STORAGE.KEYS.APP_DATA);
         if (isObjectAssigned(_appData)) {
             appData = _appData;
         } else {

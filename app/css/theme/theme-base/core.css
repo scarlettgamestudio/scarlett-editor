@@ -549,6 +549,12 @@ button.btn {
   padding: 6px 18px;
   color: #ccc;
   border-bottom: none; }
+  button.btn.btn-ghost {
+    border: none;
+    background: transparent;
+    color: #666; }
+    button.btn.btn-ghost:hover {
+      color: #595959; }
   button.btn.btn-scarlet {
     border-color: #e42c1c;
     background-color: #e84e40; }
@@ -625,7 +631,8 @@ button.btn {
   border-color: #313334; }
 
 .peContainer {
-  cursor: default; }
+  cursor: default;
+  font-size: 0.96em; }
   .peContainer .btn-property {
     height: auto !important;
     padding: 0 4px; }
@@ -675,7 +682,6 @@ button.btn {
       border: 1px solid #252627;
       background: repeating-linear-gradient(45deg, #313334, #313334 4px, #2c2e2f 4px, #2c2e2f 8px); }
   .peContainer .pePanel .peHeader {
-    font-size: 0.96em;
     padding: 6px 10px;
     margin-bottom: 2px;
     cursor: pointer; }
@@ -688,7 +694,7 @@ button.btn {
   .peContainer .pePanel .peEditorContainer {
     padding-bottom: 8px; }
     .peContainer .pePanel .peEditorContainer .peEditor {
-      font-size: 0.86em;
+      font-size: 0.94em;
       padding: 1px 10px;
       -webkit-box-sizing: border-box;
       -moz-box-sizing: border-box;

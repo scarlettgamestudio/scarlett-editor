@@ -1,28 +1,37 @@
 <perfect-scrollbar class="scroll-wrapper">
     <div id="scenePropertyEditor" class="peContainer noselect fill-parent" ng-controller="PropertyEditorCtrl">
-        <div ng-show="model.propertyContainers.length > 0" class="pePanel" ng-repeat="container in model.propertyContainers">
 
-            <!-- header, first element of each target, contains the type of the target -->
-            <div class="peHeader" ng-click="toggleVisibility(container)">
-                <i class="fa fa-sliders" aria-hidden="true" ng-if="$index === 0"></i>
-                <i class="fa" ng-class="{'fa-caret-down' : container.open, 'fa-caret-right' : !container.open}"
-                   aria-hidden="true" ng-if="$index > 0"></i>
-                <span class="peHeaderText">
-                    {{container.displayName}}
-                    <span ng-if="model.multipleTargets && $index === 0">- ({{model.targets.length}}) {{'COMMON_SELECTED' | translate}}</span>
-                </span>
-            </div>
+        <div ng-show="model.propertyContainers.length > 0">
+            <div class="pePanel" ng-repeat="container in model.propertyContainers">
 
-            <!-- properties of the target -->
-            <div class="peEditorContainer" ng-show="container.open">
-                <div class="peEditor" ng-repeat="property in container.properties"
-                     ng-controller="PropertyEditorHandlerCtrl">
-                    <div ng-show="property.available == null || property.available.apply(container.target)" ng-include="getEditorUrl(property.editor || property.type)"></div>
+                <!-- header, first element of each target, contains the type of the target -->
+                <div class="peHeader" ng-click="toggleVisibility(container)">
+                    <i class="fa fa-sliders" aria-hidden="true" ng-if="$index === 0"></i>
+                    <i class="fa" ng-class="{'fa-caret-down' : container.open, 'fa-caret-right' : !container.open}"
+                       aria-hidden="true" ng-if="$index > 0"></i>
+                    <span class="peHeaderText">
+                        {{container.displayName}}
+                        <span ng-if="model.multipleTargets && $index === 0">- ({{model.targets.length}}) {{'COMMON_SELECTED' | translate}}</span>
+                    </span>
                 </div>
+
+                <!-- properties of the target -->
+                <div class="peEditorContainer" ng-show="container.open">
+                    <div class="peEditor" ng-repeat="property in container.properties"
+                         ng-controller="PropertyEditorHandlerCtrl">
+                        <div ng-show="property.available == null || property.available.apply(container.target)" ng-include="getEditorUrl(property.editor || property.type)"></div>
+                    </div>
+                </div>
+
+                <!-- separator -->
+                <hr>
+
             </div>
 
-            <!-- separator -->
-            <hr>
+            <!-- add component button -->
+            <button type="submit" class="btn btn-ghost btn-block">
+                <i class="fa fa-plus-circle"></i> &nbsp;{{ 'LABEL_ADD_COMPONENT' | translate }}
+            </button>
 
         </div>
 

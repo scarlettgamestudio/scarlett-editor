@@ -61,6 +61,16 @@
                 </ul>
             </div>
 
+            <!-- DEV MODE MENU -->
+            <div ng-if="devMode" uib-dropdown class="navbar-dropdown" uib-dropdown-toggle>
+                <a>
+                    <span class="hidden-xs" translate-once="NAVBAR_DEV_MODE"></span>
+                </a>
+                <ul uib-dropdown-menu aria-labelledby="simple-dropdown">
+                    <li ng-click="compileScripts()"><a><i class="fa fa-building" aria-hidden="true"></i><span translate-once="NAVBAR_COMPILE_SCRIPTS"></span></a></li>
+                </ul>
+            </div>
+
             <!-- HELP MENU -->
             <div uib-dropdown class="navbar-dropdown" uib-dropdown-toggle>
                 <a>

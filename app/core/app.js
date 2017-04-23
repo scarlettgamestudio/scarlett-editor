@@ -16,16 +16,18 @@ var dependencies = [
 
 var app = angular.module('scarlett', dependencies)
 
-.run(function ($rootScope, $location, constants, $route) {
+.run(function ($rootScope, $location, constants, config, $route) {
 	// validate if the scarlett folder exists:
 	ScarlettInterface.setupApplicationFolder();
+
+	$rootScope.devMode = config.DEV_MODE;
 
 	$rootScope.safeApply = function () {
 		!$rootScope.$$phase && $rootScope.$apply();
 	};
 
 	$rootScope.changeView = function (viewName) {
-		var reload = false;
+		let reload = false;
 		// same path? if so tag for reload..
 		if ("/" + viewName == $location.path()) {
 			reload = true;
@@ -111,6 +113,7 @@ var app = angular.module('scarlett', dependencies)
 })
 
 .constant("config", {
+	DEV_MODE: true,
 	API: {
 		ADDRESS: "https://anlagehub.com/scarlett_ws/service.php",
 		ACTIONS: {

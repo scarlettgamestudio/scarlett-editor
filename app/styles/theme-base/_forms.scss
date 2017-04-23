@@ -35,6 +35,16 @@ button {
     color: map-get($default-colors, fade-grey);
     border-bottom: none;
 
+    &.btn-ghost {
+      border: none;
+      background: transparent;
+      color: map-get($default-colors, medium-grey);
+
+      &:hover {
+        color: darken(map-get($default-colors, medium-grey), 5%);
+      }
+    }
+
     &.btn-scarlet {
       border-color: darken(map-get($default-colors, scarlet), 8);
       background-color: map-get($default-colors, scarlet);
