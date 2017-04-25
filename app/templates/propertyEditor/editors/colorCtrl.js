@@ -12,7 +12,7 @@ app.controller('ColorCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc', 'const
         };
 
         let updateColor = function (property, colorValue) {
-            if ($scope.color[property] == undefined || colorValue == undefined) {
+            if ($scope.color[property] === undefined || colorValue === undefined) {
                 return;
             }
 

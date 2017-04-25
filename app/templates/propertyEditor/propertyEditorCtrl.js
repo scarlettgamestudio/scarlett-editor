@@ -285,6 +285,10 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             return unifiedContainers
         }
 
+        $scope.getTargets = function() {
+            return $scope.model.targets;
+        };
+
         $scope.onGameObjectSelectionChanged = function(selected) {
             $scope.setTargets(selected, true);
         };

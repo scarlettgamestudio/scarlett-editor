@@ -118,7 +118,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
      * @param path
      */
     svc.loadSceneFromFile = function (path) {
-        var defer = $q.defer();
+        let defer = $q.defer();
 
         NativeInterface.readFile(path, function (result) {
             if (result === false) {
@@ -163,7 +163,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
             return;
         }
 
-        var parent = null;
+        let parent = null;
 
         // is there any object selected? if so, we will add it as a child (if it's only one)
         if (svc._selectedObjects.length === 1) {
@@ -184,8 +184,8 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
      */
     svc.removeGameObjectsFromScene = function (gameObjects) {
         function recursive(array, toDelete) {
-            for (var i = array.length - 1; i >= 0; i--) {
-                var idx = toDelete.indexOfObject(array[i]);
+            for (let i = array.length - 1; i >= 0; i--) {
+                let idx = toDelete.indexOfObject(array[i]);
 
                 if (idx >= 0) {
                     // announce the removal:
@@ -230,7 +230,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
             return [];
         }
 
-        var arr = [];
+        let arr = [];
         svc._selectedObjects.forEach(function (obj) {
             arr.push(obj.getUID());
         });

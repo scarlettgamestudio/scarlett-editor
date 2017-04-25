@@ -1,0 +1,25 @@
+<div class="componentList" ng-controller="ComponentListCtrl">
+    <!-- add component button -->
+    <button ng-click="toggleCollapsed()" ng-class="{'active': !model.isCollapsed}" type="submit" class="btn btn-ghost btn-block">
+        <i class="fa fa-plus-circle"></i> {{ 'LABEL_ADD_COMPONENT' | translate }}
+    </button>
+
+    <div class="sourceContainer" ng-show="!model.isCollapsed">
+
+        <!-- search input -->
+        <input ng-model="model.searchValue" placeholder="{{'COMMON_SEARCH' | translate}}.." type="text">
+
+        <div class="items">
+            <!-- when no components are available -->
+            <div ng-show="model.source.length === 0" class="item" style="text-align: center;">No Components Available</div>
+
+            <!-- when components are available -->
+            <div ng-show="model.source.length > 0" class="item active" ng-click="onItemClicked(componentName)"
+                 ng-repeat="componentName in model.source | filter: model.searchValue | orderBy: 'toString()'">
+                <i class="fa fa-cube" aria-hidden="true"></i> {{componentName}}
+            </div>
+        </div>
+
+    </div>
+
+</div>

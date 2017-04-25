@@ -81,11 +81,17 @@ app.factory("scriptsSvc", function ($rootScope, $q, constants, gameSvc, scarlett
 				}
 			});
 
+			EventManager.emit(constants.EVENTS.SCRIPTS_COMPILED);
+
 			defer.resolve(true);
 		});
 
 		return defer.promise;
     };
+
+	svc.getUserScripts = function() {
+		return svc._userScripts;
+	};
 
 	/*
 	 *
@@ -137,6 +143,13 @@ app.factory("scriptsSvc", function ($rootScope, $q, constants, gameSvc, scarlett
         // broadcast script open event:
         EventManager.emit(constants.EVENTS.SCRIPT_OPEN, path);
     };
+
+	(() => {
+		$rootScope.$on(constants.EVENTS.PROJECT_LOADED, () => {
+			// every time a new project is loaded flush and compile project scripts:
+			svc.compileScripts();
+		});
+	})();
 
     return svc;
 });

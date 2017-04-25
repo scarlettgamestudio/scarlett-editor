@@ -92,7 +92,8 @@ var app = angular.module('scarlett', dependencies)
 		TAB_CHANGED: "onTabChanged",
 		WINDOW_ADDED: "onWindowAdded",
 		WINDOW_REMOVED: "onWindowRemoved",
-		SCRIPT_OPEN: "onScriptOpen"
+		SCRIPT_OPEN: "onScriptOpen",
+		SCRIPTS_COMPILED: "onScriptsCompiled"
 	},
 	RENDER_EXTENSIONS: {
 		GRID: "gridExt"
