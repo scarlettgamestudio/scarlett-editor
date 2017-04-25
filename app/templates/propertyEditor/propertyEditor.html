@@ -28,10 +28,13 @@
 
             </div>
 
-            <!-- add component button -->
-            <button type="submit" class="btn btn-ghost btn-block">
-                <i class="fa fa-plus-circle"></i> &nbsp;{{ 'LABEL_ADD_COMPONENT' | translate }}
-            </button>
+            <!-- game object selection specific actions -->
+            <div ng-if="isGameObjectSelection()">
+                <!-- add component button -->
+                <button type="submit" class="btn btn-ghost btn-block">
+                    <i class="fa fa-plus-circle"></i> &nbsp;{{ 'LABEL_ADD_COMPONENT' | translate }}
+                </button>
+            </div>
 
         </div>
 

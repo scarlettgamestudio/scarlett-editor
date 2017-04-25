@@ -427,10 +427,20 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             $scope.setTargets([target], forceRefresh);
         };
 
+        $scope.isGameObjectSelection = function() {
+            for (let i = 0; i < $scope.model.targets.length; i++) {
+                if (!($scope.model.targets[i].object instanceof GameObject)) {
+                    return false;
+                }
+            }
+
+            return true;
+        };
+
         $scope.setTargets = function (targets, forceRefresh) {
             // set everything fresh
             resetModel();
-
+            
             targets.forEach(function (target) {
                 addTarget(target);
             });
@@ -441,7 +451,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 $scope.model.multipleTargets = true;
                 $scope.model.propertyContainers = getUnifiedPropertyContainers($scope.model.targets);
 
-            } else if ($scope.model.targets.length == 1) {
+            } else if ($scope.model.targets.length === 1) {
                 $scope.model.propertyContainers = $scope.model.targets[0].propertyContainers;
             }
 
