@@ -61,7 +61,13 @@ app.factory("gameSvc", function ($rootScope, constants, logSvc, $compile) {
     svc.createTextObject = function(name){
         name = name || "Text";
 
-        return new Text({name: name, text: "Lorem ipsum\ndolore"});
+        let text = new Text({name: name, text: "Lorem ipsum\ndolore"});
+
+        text.transform.setPosition(0, 0);
+        text.setColor(Color.fromRGBA(232,78,64, 1.0));
+
+        return text;
+
     };
 
     /**
