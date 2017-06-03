@@ -12,7 +12,7 @@ const pjson = require('./package.json');
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow, web;
 
-// ignore gpu blacklist, we really want WebGL enabled and general hardware accelaration :)
+// ignore gpu blacklist, we really want WebGL enabled and general hardware acceleration :)
 app.commandLine.appendSwitch('ignore-gpu-blacklist');
 
 // Quit when all windows are closed.
