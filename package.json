@@ -1,7 +1,6 @@
 {
   "name": "scarlett-editor",
   "title": "Scarlett Game Studio",
-  "author": "anlagehub",
   "version": "0.0.8",
   "settings": {
     "applicationFolderName": "Scarlett"
@@ -30,5 +29,15 @@
     "grunt-contrib-sass": "^0.9.2",
     "grunt-contrib-watch": "^0.6.1",
     "http-server": "^0.8.5"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scarlettgamestudio/scarlett-editor.git"
+  },
+  "author": "João Alves <joao.cpp.sca@gmail.com> and Luís Fernandes aka Apidcloud <luisapidcloud@hotmail.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/scarlettgamestudio/scarlett-editor/issues"
+  },
+  "homepage": "https://github.com/scarlettgamestudio/scarlett-editor#readme"
 }
