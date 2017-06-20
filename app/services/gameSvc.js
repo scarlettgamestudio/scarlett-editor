@@ -102,7 +102,7 @@ app.factory("gameSvc", function ($rootScope, constants, logSvc, $compile) {
         svc._activeGame = new Game({target: svc._activeCanvasID});
         svc._activeGame.init({ignoreInputHandler: true});
 
-        let gridExtension = new GridExt({game:  svc._activeGame});
+        let gridExtension = new GridExtension({game:  svc._activeGame});
         gridExtension.setGridColor(Color.fromRGB(49, 51, 52));
 
         svc.addRenderExtension(constants.RENDER_EXTENSIONS.GRID, gridExtension);

@@ -93,7 +93,7 @@ var app = angular.module('scarlett', dependencies)
 		SCRIPT_OPEN: "onScriptOpen"
 	},
 	RENDER_EXTENSIONS: {
-		GRID: "gridExt"
+		GRID: "gridExtension"
 	},
 	CONTAINERS: {
 		SCENE_VIEW: "sceneView"

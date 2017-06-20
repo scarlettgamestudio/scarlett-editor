@@ -1,3 +1,4 @@
+
 AttributeDictionary.inherit("editorGameScene", "gameScene");
 AttributeDictionary.addRule("editorGameScene", "snapToGrid", {visible: false});
 AttributeDictionary.addRule("editorGameScene", "snapGridSize", {visible: false});
@@ -5,7 +6,7 @@ AttributeDictionary.addRule("editorGameScene", "snapGridSize", {visible: false})
 /**
  * EditorGameScene
  */
-class EditorGameScene extends GameScene {
+class EditorGameScene extends SC.GameScene {
 
     //#region Static Enums
 
@@ -105,7 +106,7 @@ class EditorGameScene extends GameScene {
         this._startCameraPosition = null;
         this._selectedObjects = [];
         this._subjectsMethod = null;
-        this._lastKeyboardState = Keyboard.instance.getState();
+        this._lastKeyboardState = Keyboard.getState();
         this._mouseState = {
             startPosition: null,
             lastPosition: null,
@@ -320,7 +321,7 @@ class EditorGameScene extends GameScene {
         });
 
         // add to current selection (ctrl key is being pressed) ?
-        if (Keyboard.instance.isKeyDown(Keys.Ctrl)) {
+        if (Keyboard.isKeyDown(Keys.Ctrl)) {
             selected.forEach((function (node) {
                 // now we need to verify if the node is already selected, if so, we must toggle it (remove it)
                 let idx = this._selectedObjects.indexOfObject(node);
@@ -354,7 +355,7 @@ class EditorGameScene extends GameScene {
     //#region Private Methods
 
     _handleKeyboardInput(delta) {
-        let keyboardState = Keyboard.instance.getState();
+        let keyboardState = Keyboard.getState();
         let sceneOperations = 0;
 
         // is the canvas focused?
@@ -385,7 +386,7 @@ class EditorGameScene extends GameScene {
             EventManager.emit(AngularHelper.constants.EVENTS.VIEW_CHANGED);
         }
 
-        this._lastKeyboardState = Keyboard.instance.getState();
+        this._lastKeyboardState = Keyboard.getState();
     }
 
     _gameObjectsSelectionChanged(selected, origin) {
