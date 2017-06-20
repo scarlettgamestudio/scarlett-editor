@@ -78,4 +78,3 @@ app.on('ready', () => {
 		// page was closed, do the required clean-up here
 	})
 });
-
