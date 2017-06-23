@@ -776,7 +776,7 @@ class EditorGameScene extends SC.GameScene {
 
             //this._primitiveRender.drawLine(position, selected.originalTransform.getPosition(), 1, Color.Orange);
 
-            if (isSprite(elem) && elem.getTexture() && elem.getTexture().isReady()) {
+            if (Utils.isSprite(elem) && elem.getTexture() && elem.getTexture().isReady()) {
                 // draw main lines:
                 this._primitiveRender.drawLine(vertices.topLeft, vertices.topRight, 1, boundaryColor);
                 this._primitiveRender.drawLine(vertices.topRight, vertices.bottomRight, 1, boundaryColor);
