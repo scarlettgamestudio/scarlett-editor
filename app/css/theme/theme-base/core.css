@@ -191,6 +191,8 @@ hr {
     text-align: center;
     font-weight: bold;
     font-size: 24px; }
+    .navbar .navbar-logo img {
+      width: 38px; }
   .navbar .navbar-title {
     float: left; }
   .navbar .navbar-center {
