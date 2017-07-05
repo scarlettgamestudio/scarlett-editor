@@ -14,6 +14,7 @@ let mainWindow, web;
 
 // ignore gpu blacklist, we really want WebGL enabled and general hardware acceleration :)
 app.commandLine.appendSwitch('ignore-gpu-blacklist');
+app.commandLine.appendSwitch('--enable-viewport-meta', 'true');
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
