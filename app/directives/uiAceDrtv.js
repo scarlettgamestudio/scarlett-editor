@@ -151,14 +151,14 @@ angular.module('ui.ace', [])
 
             worker.on("terminate", function() {
                 session.clearAnnotations();
-            });
+            });*/
 
             // onLoad callbacks
             angular.forEach(opts.callbacks, function (cb) {
                 if (angular.isFunction(cb)) {
                     cb(acee);
                 }
-            });*/
+            });
         };
 
         return {

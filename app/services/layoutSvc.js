@@ -115,11 +115,11 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         }]
     };
 
-    svc.isWindowOpen = function(identification) {
-        return activeWindows.hasOwnProperty(identification);
+    svc.isWindowOpen = function (identification) {
+        return activeWindows.hasOwnProperty(identification) && activeWindows[identification].ready;
     };
 
-    svc.addWindow = function(identification) {
+    svc.addWindow = function (identification) {
         if (!isObjectAssigned(layout)) {
             logSvc.warn("The layout manager is not initialized");
             return;
@@ -131,6 +131,8 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         }
 
         // is window already active?
+        // ATTENTION: for now we are not allowing duplicated windows to be opened, heavy testing is required if this
+        // verification is disabled!
         if (svc.isWindowOpen(identification)) {
             logSvc.warn("Unable to add an already active window");
             return;
@@ -141,6 +143,22 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         layout.root.contentItems[0].addChild(windowMapping[identification]);
     };
 
+    svc.selectWindow = function (identification) {
+        if (svc.isWindowOpen(identification)) {
+            // TODO: validate if there isn't a better way to do this in goldenlayout
+            activeWindows[identification].item.tab.header.parent.setActiveContentItem(activeWindows[identification].item);
+        }
+    };
+
+    svc.isLayoutConfigurationValid = function(configuration) {
+    	// TODO: check if more validations are needed
+        if (!isObjectAssigned(configuration)) {
+            return false;
+        }
+
+        return !(!configuration.hasOwnProperty("content") || configuration.content.length === 0);
+    };
+
     svc.createLayout = function (target) {
         elemTarget = target;
 
@@ -149,13 +167,29 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
             return;
         }
 
-        layout = new GoldenLayout(scarlettSvc.getLayoutConfiguration() || defaultLayoutConfiguration, target);
+	    let layoutConfig = scarlettSvc.getLayoutConfiguration();
+        if (!svc.isLayoutConfigurationValid(layoutConfig)) {
+            layoutConfig = defaultLayoutConfiguration;
+        }
+
+        layout = new GoldenLayout(layoutConfig, target);
+
+        layout.on('itemCreated', function (item) {
+            // there are different types of items that can be created, for this instance we only need to update
+            // some fields of the component typed ones :)
+            if (item.type === "component" && activeWindows[item.config.componentState.templateId]) {
+                // store the window item and confirm ready:
+                activeWindows[item.config.componentState.templateId].item = item;
+                activeWindows[item.config.componentState.templateId].ready = true;
+            }
+        });
 
         layout.on('itemDestroyed', function (item) {
             if (item.config && item.config.componentState && item.config.componentState.templateId) {
-                if (activeWindows[item.config.componentState.templateId].scope) {
+                let activeWindow = activeWindows[item.config.componentState.templateId];
+                if (activeWindow && activeWindow.scope) {
                     // call the scope.$destroy() so there are no memory leaks!
-                    activeWindows[item.config.componentState.templateId].scope.$destroy();
+                    activeWindow.scope.$destroy();
                 }
 
                 // delete from the active windows:
@@ -170,7 +204,9 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
             if (container._config && container._config.componentState && container._config.componentState.templateId) {
                 // add to active windows:
                 activeWindows[container._config.componentState.templateId] = {
-                    scope: null
+                    scope: null,
+                    item: null,
+                    ready: false
                 };
             }
 
@@ -203,13 +239,13 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
             // ..
         });
 
-        layout.on('tabChanged', function(args) {
+        layout.on('tabChanged', function (args) {
             try {
                 let windowId = args._activeContentItem.config.componentState.templateId;
                 if (isObjectAssigned(windowId)) {
                     $rootScope.$broadcast(constants.EVENTS.CONTAINER_RESIZE, windowId);
                 }
-            } catch(e) {
+            } catch (e) {
                 logSvc.error("Failure while processing tab changed event: " + e);
             }
         });
@@ -228,7 +264,7 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
         EventManager.emit(AngularHelper.constants.EVENTS.LAYOUT_DESTROYED);
     };
 
-    svc.restoreToDefault = function() {
+    svc.restoreToDefault = function () {
         scarlettSvc.storeLayoutConfiguration(defaultLayoutConfiguration);
         svc.destroyLayout();
         svc.createLayout(elemTarget);
@@ -254,6 +290,7 @@ app.factory("layoutSvc", function ($rootScope, $translate, $http, $compile, cons
     };
 
     (function init() {
+        // map all the available windows:
         windowMapping[constants.WINDOW_TYPES.SCENE_HIERARCHY] = sceneHierarchyLayoutConfiguration;
         windowMapping[constants.WINDOW_TYPES.ATLAS_EDITOR] = atlasEditorLayoutConfiguration;
         windowMapping[constants.WINDOW_TYPES.CONSOLE] = consoleLayoutConfiguration;

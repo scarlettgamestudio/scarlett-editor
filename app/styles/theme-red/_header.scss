@@ -1,15 +1,15 @@
 .navbar {
   color: map-get($default-colors, snow-white);
-  background: $primaryColor;
+  background: darken(map-get($default-colors, grey-hound), 1);
   border: none;
   border-radius: 0;
 
   .sc-action-btn {
-    background: lighten($primaryColor, 12%);
+    background: lighten(map-get($default-colors, grey-hound), 12%);
 
     &.selected,
     &:hover {
-      background: lighten($primaryColor, 22%);
+      background: lighten(map-get($default-colors, grey-hound), 22%);
     }
 
     &.disabled {
@@ -18,7 +18,7 @@
 
       &.selected,
       &:hover {
-        background: lighten($primaryColor, 12%);
+        background: lighten(map-get($default-colors, grey-hound), 12%);
       }
     }
   }
@@ -33,14 +33,14 @@
 
   .nav {
     .open {
-      background: darken($primaryColor, 5%);
+      background: darken(map-get($default-colors, grey-hound), 5%);
     }
   }
 
   .navbar-dropdown,
   .profile-dropdown {
     &:hover {
-      background: darken($primaryColor, 5%);
+      background: darken(map-get($default-colors, grey-hound), 5%);
     }
   }
 

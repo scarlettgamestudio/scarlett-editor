@@ -97,8 +97,8 @@ NativeInterface.openDirectoryBrowser = function (defaultPath, resultCallback) {
 };
 
 NativeInterface.openFile = function (path) {
-    var cmd = getOpenCommandLine();
-    var exec = require('child_process').exec;
+    let cmd = getOpenCommandLine();
+    let exec = require('child_process').exec;
     exec(cmd + " \"" + path + "\"");
 };
 
@@ -107,7 +107,7 @@ NativeInterface.mapDirectory = function (path, originalPath) {
         path = path.substring(0, path.length - 1);
     }
 
-    var directoryModel = {
+    let directoryModel = {
         path: path,
         subdirectories: [],
         files: []
@@ -120,7 +120,7 @@ NativeInterface.mapDirectory = function (path, originalPath) {
     fs.readdir(path, function (err, list) {
         if (err) return directoryModel;
         list.forEach(function (_path) {
-            var fullpath = pathUtils.resolve(path, _path);
+            let fullpath = pathUtils.resolve(path, _path);
             fs.stat(fullpath, function (err, stat) {
                 if (stat && stat.isDirectory()) {
                     directoryModel.subdirectories.push(NativeInterface.mapDirectory(fullpath, originalPath));
@@ -156,6 +156,40 @@ NativeInterface.writeFile = function (path, content, callback) {
     });
 };
 
+/**
+ *
+ * @param fileMap [{path: "file_path", content: "..."}, ...]
+ * @param callback
+ */
+NativeInterface.writeFiles = function(fileMap, callback) {
+	let writeCount = 0;
+	let writeLength = fileMap.length;
+	let writeHealthy = true;
+	let writeCompleted = (status) => {
+	    if (!status) {
+	        // just one failure is enough to make the operation "unhealthy"
+		    writeHealthy = false;
+        }
+
+        writeCount++;
+	    if (writeCount >= writeLength) {
+	        callback(writeHealthy);
+        }
+	};
+
+    fileMap.forEach(function (item) {
+	    // this seems to be "valid"?
+	    if (item.hasOwnProperty("path") && item.hasOwnProperty("content")) {
+	        NativeInterface.writeFile(item.path, item.content, (status) => {
+	            writeCompleted(status);
+            });
+
+	    } else {
+	        writeCompleted(false);
+        }
+    });
+};
+
 NativeInterface.readFile = function (path, callback) {
     fs.readFile(path, 'utf8', function (err, data) {
         if (err) {
@@ -163,6 +197,37 @@ NativeInterface.readFile = function (path, callback) {
             return;
         }
         callback(data);
+    });
+};
+
+/**
+ *
+ * @param fileMap [{id: "load_id", path: "file_path"}, ...]
+ * @param callback
+ */
+NativeInterface.readFiles = function(fileMap, callback) {
+    let readCount = 0;
+    let readLength = fileMap.length;
+    let readMap = {};
+    let readCompleted = () => {
+        readCount++;
+        if (readCount >= readLength) {
+            callback(readMap);
+        }
+    };
+
+    fileMap.forEach(function(item) {
+        // is this "valid" to try being loaded?
+        if (item.hasOwnProperty("path") && item.hasOwnProperty("id")) {
+            NativeInterface.readFile(item.path, (data) => {
+                // either it was read or invalid, data = null when fails to read..
+                readMap[item.id] = data === false ? null : data;
+                readCompleted();
+            });
+
+        } else {
+            readCompleted();
+        }
     });
 };
 

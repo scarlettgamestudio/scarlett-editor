@@ -4,10 +4,10 @@
 
 app.factory("dataSvc", function (config, logSvc, localStorageService) {
 
-    var MAX_ARRAY_LENGTH = 10;
+    let MAX_ARRAY_LENGTH = 10;
 
-    var svc = {};
-    var appData = {};
+    let svc = {};
+    let appData = {};
 
     svc.push = function (key, data) {
         if (!appData.hasOwnProperty(key)) {

@@ -1,3 +1,4 @@
+
 AttributeDictionary.inherit("editorGameScene", "gameScene");
 AttributeDictionary.addRule("editorGameScene", "snapToGrid", {visible: false});
 AttributeDictionary.addRule("editorGameScene", "snapGridSize", {visible: false});
@@ -5,7 +6,7 @@ AttributeDictionary.addRule("editorGameScene", "snapGridSize", {visible: false})
 /**
  * EditorGameScene
  */
-class EditorGameScene extends GameScene {
+class EditorGameScene extends SC.GameScene {
 
     //#region Static Enums
 
@@ -97,7 +98,7 @@ class EditorGameScene extends GameScene {
         this.snapGridSize = 24;
 
         // private properties:
-        this._primitiveRender = new PrimitiveRender(this._game);
+        this._primitiveBatch = new PrimitiveBatch(this._game);
         this._colors = {
             selection: Color.fromRGBA(100.0, 149.0, 237.0, 0.275)
         };
@@ -105,7 +106,7 @@ class EditorGameScene extends GameScene {
         this._startCameraPosition = null;
         this._selectedObjects = [];
         this._subjectsMethod = null;
-        this._lastKeyboardState = Keyboard.instance.getState();
+        this._lastKeyboardState = Keyboard.getState();
         this._mouseState = {
             startPosition: null,
             lastPosition: null,
@@ -303,8 +304,12 @@ class EditorGameScene extends GameScene {
      * @param delta
      */
     lateRender(delta) {
+        this._primitiveBatch.begin();
+
         this._renderMouse(delta);
         this._renderSelectedObjectsArtifacts(delta);
+
+        this._primitiveBatch.flush();
     }
 
     setSelectedObjects(gameObjects, broadcast, disableSelectionHistory) {
@@ -320,7 +325,7 @@ class EditorGameScene extends GameScene {
         });
 
         // add to current selection (ctrl key is being pressed) ?
-        if (Keyboard.instance.isKeyDown(Keys.Ctrl)) {
+        if (Keyboard.isKeyDown(Keys.Ctrl)) {
             selected.forEach((function (node) {
                 // now we need to verify if the node is already selected, if so, we must toggle it (remove it)
                 let idx = this._selectedObjects.indexOfObject(node);
@@ -354,7 +359,7 @@ class EditorGameScene extends GameScene {
     //#region Private Methods
 
     _handleKeyboardInput(delta) {
-        let keyboardState = Keyboard.instance.getState();
+        let keyboardState = Keyboard.getState();
         let sceneOperations = 0;
 
         // is the canvas focused?
@@ -385,7 +390,7 @@ class EditorGameScene extends GameScene {
             EventManager.emit(AngularHelper.constants.EVENTS.VIEW_CHANGED);
         }
 
-        this._lastKeyboardState = Keyboard.instance.getState();
+        this._lastKeyboardState = Keyboard.getState();
     }
 
     _gameObjectsSelectionChanged(selected, origin) {
@@ -773,25 +778,23 @@ class EditorGameScene extends GameScene {
             let position = elem.transform.getPosition();
             let rotation = elem.transform.getRotation();
 
-            //this._primitiveRender.drawLine(position, selected.originalTransform.getPosition(), 1, Color.Orange);
-
-            if (isSprite(elem) && elem.getTexture() && elem.getTexture().isReady()) {
+            if (Utils.isSprite(elem) && elem.getTexture() && elem.getTexture().isReady()) {
                 // draw main lines:
-                this._primitiveRender.drawLine(vertices.topLeft, vertices.topRight, 1, boundaryColor);
-                this._primitiveRender.drawLine(vertices.topRight, vertices.bottomRight, 1, boundaryColor);
-                this._primitiveRender.drawLine(vertices.bottomRight, vertices.bottomLeft, 1, boundaryColor);
-                this._primitiveRender.drawLine(vertices.bottomLeft, vertices.topLeft, 1, boundaryColor);
+                this._primitiveBatch.storeLine(vertices.topLeft, vertices.topRight, boundaryColor, boundaryColor);
+                this._primitiveBatch.storeLine(vertices.topRight, vertices.bottomRight, boundaryColor, boundaryColor);
+                this._primitiveBatch.storeLine(vertices.bottomRight, vertices.bottomLeft, boundaryColor, boundaryColor);
+                this._primitiveBatch.storeLine(vertices.bottomLeft, vertices.topLeft, boundaryColor, boundaryColor);
 
                 // draw vertex rectangles (scale)
                 if (this._isScaleEnabled()) {
                     // corners
-                    this._primitiveRender.drawRectangle(new Rectangle(vertices.topLeft.x - rectangleHalfBulk,
+                    this._primitiveBatch.storeRectangle(new Rectangle(vertices.topLeft.x - rectangleHalfBulk,
                         vertices.topLeft.y - rectangleHalfBulk, rectangleBulk, rectangleBulk), scaleColor, rotation);
-                    this._primitiveRender.drawRectangle(new Rectangle(vertices.topRight.x - rectangleHalfBulk,
+                    this._primitiveBatch.storeRectangle(new Rectangle(vertices.topRight.x - rectangleHalfBulk,
                         vertices.topRight.y - rectangleHalfBulk, rectangleBulk, rectangleBulk), scaleColor, rotation);
-                    this._primitiveRender.drawRectangle(new Rectangle(vertices.bottomRight.x - rectangleHalfBulk,
+                    this._primitiveBatch.storeRectangle(new Rectangle(vertices.bottomRight.x - rectangleHalfBulk,
                         vertices.bottomRight.y - rectangleHalfBulk, rectangleBulk, rectangleBulk), scaleColor, rotation);
-                    this._primitiveRender.drawRectangle(new Rectangle(vertices.bottomLeft.x - rectangleHalfBulk,
+                    this._primitiveBatch.storeRectangle(new Rectangle(vertices.bottomLeft.x - rectangleHalfBulk,
                         vertices.bottomLeft.y - rectangleHalfBulk, rectangleBulk, rectangleBulk), scaleColor, rotation);
 
                     // sides
@@ -806,16 +809,16 @@ class EditorGameScene extends GameScene {
                     let rightMiddlePosition = new Vector2((vertices.bottomRight.x + vertices.topRight.x) / 2.0,
                         (vertices.bottomRight.y + vertices.topRight.y) / 2.0);
 
-                    this._primitiveRender.drawRectangle(new Rectangle(topMiddlePosition.x - minorRectangleHalfBulk,
+                    this._primitiveBatch.storeRectangle(new Rectangle(topMiddlePosition.x - minorRectangleHalfBulk,
                         topMiddlePosition.y - minorRectangleHalfBulk,
                         rectangleBulk, minorRectangleBulk), scaleColor, rotation);
-                    this._primitiveRender.drawRectangle(new Rectangle(leftMiddlePosition.x - minorRectangleHalfBulk,
+                    this._primitiveBatch.storeRectangle(new Rectangle(leftMiddlePosition.x - minorRectangleHalfBulk,
                         leftMiddlePosition.y - minorRectangleHalfBulk,
                         rectangleBulk, minorRectangleBulk), scaleColor, rotation);
-                    this._primitiveRender.drawRectangle(new Rectangle(bottomMiddlePosition.x - minorRectangleHalfBulk,
+                    this._primitiveBatch.storeRectangle(new Rectangle(bottomMiddlePosition.x - minorRectangleHalfBulk,
                         bottomMiddlePosition.y - minorRectangleHalfBulk,
                         rectangleBulk, minorRectangleBulk), scaleColor, rotation);
-                    this._primitiveRender.drawRectangle(new Rectangle(rightMiddlePosition.x - minorRectangleHalfBulk,
+                    this._primitiveBatch.storeRectangle(new Rectangle(rightMiddlePosition.x - minorRectangleHalfBulk,
                         rightMiddlePosition.y - minorRectangleHalfBulk,
                         rectangleBulk, minorRectangleBulk), scaleColor, rotation);
 
@@ -823,17 +826,18 @@ class EditorGameScene extends GameScene {
 
                 // draw transform artifacts (move)
                 // y
-                //this._primitiveRender.drawRectangle(new Rectangle(topMiddlePosition.x - translateLineHalfBulk, topMiddlePosition.y - translateLineLength, translateLineBulk, translateLineLength), Color.Nephritis);
-                //this._primitiveRender.drawRectangle(new Rectangle(position.x - translateLineHalfBulk, position.y - translateLineLength, translateLineBulk, translateLineLength), Color.Nephritis);
+                //this._primitiveRender.storeRectangle(new Rectangle(topMiddlePosition.x - translateLineHalfBulk, topMiddlePosition.y - translateLineLength, translateLineBulk, translateLineLength), Color.Nephritis);
+                //this._primitiveRender.storeRectangle(new Rectangle(position.x - translateLineHalfBulk, position.y - translateLineLength, translateLineBulk, translateLineLength), Color.Nephritis);
                 //this._primitiveRender.drawTriangle(new Vector2(position.x - translateHandlerHalfBulk, position.y - translateLineLength), new Vector2(position.x + translateHandlerHalfBulk, position.y - translateLineLength), new Vector2(position.x, position.y - translateLineLength - translateHandlerBulk), Color.Nephritis);
                 // x
-                //this._primitiveRender.drawRectangle(new Rectangle(position.x, position.y - translateLineHalfBulk, translateLineLength, translateLineBulk), Color.Scarlet);
+                //this._primitiveRender.storeRectangle(new Rectangle(position.x, position.y - translateLineHalfBulk, translateLineLength, translateLineBulk), Color.Scarlet);
                 //this._primitiveRender.drawTriangle(new Vector2(position.x + translateLineLength, position.y - translateHandlerHalfBulk), new Vector2(position.x + translateLineLength, position.y + translateHandlerHalfBulk), new Vector2(position.x + translateLineLength + translateHandlerBulk, position.y), Color.Scarlet);
 
                 // draw origin artifact:
-                this._primitiveRender.drawCircle(position, originBulk, 16, Color.SunFlower);
+                // !!! this._primitiveBatch.drawCircle(position, originBulk, 16, Color.SunFlower);
+                this._primitiveBatch.storeRectangle(Rectangle.fromBulk(position, 10), Color.SunFlower);
 
-                //this._primitiveRender.drawLine(position, vertices.topLeft, 1, Color.Red);
+                //this._primitiveRender.storeLine(position, vertices.topLeft, 1, Color.Red);
 
             }
         }).bind(this));
@@ -900,11 +904,11 @@ class EditorGameScene extends GameScene {
             // cool, is this a selection (left button)?
             if (this._mouseState.button === 0 && this._subjectsMethod == null) {
                 let rectangle = Rectangle.fromVectors(this._mouseState.startPosition, this._mouseState.lastPosition);
-                this._primitiveRender.drawRectangle(rectangle, this._colors.selection);
+                this._primitiveBatch.storeRectangle(rectangle, this._colors.selection);
             }
 
             //this._primitiveRender.drawCircle(this._mouseState.startPosition, 8, 4, Color.Green);
-            //this._primitiveRender.drawLine(this._mouseState.startPosition, this._mouseState.lastPosition, 1, Color.Green);
+            //this._primitiveRender.storeLine(this._mouseState.startPosition, this._mouseState.lastPosition, 1, Color.Green);
         }
     }
 

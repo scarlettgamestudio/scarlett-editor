@@ -48,7 +48,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
      * @param scene
      */
     svc.setActiveGameScene = function (scene) {
-        if (!isGameScene(scene)) {
+        if (!Utils.isGameScene(scene)) {
             return;
         }
 
@@ -78,7 +78,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
      * save the active game scene
      */
     svc.saveActiveScene = function () {
-        if (!isGameScene(svc._activeGameScene)) {
+        if (!Utils.isGameScene(svc._activeGameScene)) {
             return;
         }
 

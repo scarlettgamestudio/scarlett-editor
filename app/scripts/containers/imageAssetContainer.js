@@ -11,7 +11,7 @@ function ImageAssetContainer(params) {
 	this.imageSrc = params.path;
 }
 
-inheritsFrom(ImageAssetContainer, AssetContainer);
+SC.inheritsFrom(ImageAssetContainer, AssetContainer);
 
 ImageAssetContainer.prototype.getType = function() {
 	return "ImageAssetContainer";

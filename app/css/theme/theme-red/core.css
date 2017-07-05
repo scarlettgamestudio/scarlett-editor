@@ -29,27 +29,27 @@ body {
 
 .sc-theme-red .navbar {
   color: #fff;
-  background: #e84e40;
+  background: #2a2b2c;
   border: none;
   border-radius: 0; }
   .sc-theme-red .navbar .sc-action-btn {
-    background: #ef8177; }
+    background: #4a4d4f; }
     .sc-theme-red .navbar .sc-action-btn.selected, .sc-theme-red .navbar .sc-action-btn:hover {
-      background: #f4aba4; }
+      background: #626769; }
     .sc-theme-red .navbar .sc-action-btn.disabled {
       opacity: 0.6;
       cursor: not-allowed !important; }
       .sc-theme-red .navbar .sc-action-btn.disabled.selected, .sc-theme-red .navbar .sc-action-btn.disabled:hover {
-        background: #ef8177; }
+        background: #4a4d4f; }
   .sc-theme-red .navbar a {
     color: #fff; }
     .sc-theme-red .navbar a:hover {
       text-decoration: none; }
   .sc-theme-red .navbar .nav .open {
-    background: #e53929; }
+    background: #202122; }
   .sc-theme-red .navbar .navbar-dropdown:hover,
   .sc-theme-red .navbar .profile-dropdown:hover {
-    background: #e53929; }
+    background: #202122; }
   .sc-theme-red .navbar .dropdown-menu a {
     color: #707070; }
   .sc-theme-red .navbar .dropdown-menu li.disabled a {

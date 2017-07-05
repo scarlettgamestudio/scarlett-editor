@@ -10,13 +10,16 @@ const pjson = require('./package.json');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow;
-let web;
+let mainWindow, web;
+
+// ignore gpu blacklist, we really want WebGL enabled and general hardware acceleration :)
+app.commandLine.appendSwitch('ignore-gpu-blacklist');
+app.commandLine.appendSwitch('--enable-viewport-meta', 'true');
 
 // Quit when all windows are closed.
-app.on('window-all-closed', function () {
+app.on('window-all-closed', () => {
 	// On OS X it is common for applications and their menu bar
-	// to stay active until the user quits explicitly with Cmd + Q
+	// to stay active until the user quits explicitly with Cmd + Q (go figure)
 	if (process.platform != 'darwin') {
 		app.quit();
 	}
@@ -24,7 +27,7 @@ app.on('window-all-closed', function () {
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
-app.on('ready', function () {
+app.on('ready', () => {
 	// Create the browser window.
 	mainWindow = new BrowserWindow({
 		width: 1280,
@@ -41,7 +44,7 @@ app.on('ready', function () {
 	//mainWindow.setFullScreen(true);
 
 	// emmited when the window is shown:
-	mainWindow.on('show', function() {
+	mainWindow.on('show', () => {
 		// TODO: this doesn't work on all operative systems (validate in future versions)
 
 	});
@@ -59,7 +62,7 @@ app.on('ready', function () {
 	web = mainWindow.webContents;
 
 	// Emitted when the window is closed.
-	mainWindow.on('closed', function () {
+	mainWindow.on('closed', () => {
 		// Dereference the window object, usually you would store windows
 		// in an array if your app supports multi windows, this is the time
 		// when you should delete the corresponding element.
@@ -67,13 +70,12 @@ app.on('ready', function () {
 	});
 
 	// Emitted when the window gets focus
-	mainWindow.on('focus', function() {
+	mainWindow.on('focus', () => {
 		//emitter.emit("systemWindowEvent", "focus");
 	});
 
 	// Emitter when the window is closing
-	mainWindow.on('close', function() {
+	mainWindow.on('close', () => {
 		// page was closed, do the required clean-up here
 	})
 });
-

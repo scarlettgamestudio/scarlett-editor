@@ -470,7 +470,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             EventManager.subscribe(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, $scope.onGameObjectSelectionChanged, this);
             EventManager.subscribe(AngularHelper.constants.EVENTS.ASSET_SELECTION, $scope.onAssetSelected, this);
             EventManager.subscribe(AngularHelper.constants.EVENTS.OBJECTS_SELECTION, $scope.onObjectsSelected, this);
-            EventManager.subscribe(SC.EVENTS.CONTENT_ASSET_LOADED, $scope.onAssetLoaded, this);
+            EventManager.subscribe(CONSTANTS.EVENTS.CONTENT_ASSET_LOADED, $scope.onAssetLoaded, this);
 
         })();
 
@@ -478,7 +478,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             EventManager.removeSubscription(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, $scope.onGameObjectSelectionChanged);
             EventManager.removeSubscription(AngularHelper.constants.EVENTS.ASSET_SELECTION, $scope.onAssetSelected);
             EventManager.removeSubscription(AngularHelper.constants.EVENTS.OBJECTS_SELECTION, $scope.onObjectsSelected);
-            EventManager.removeSubscription(SC.EVENTS.CONTENT_ASSET_LOADED, $scope.onAssetLoaded);
+            EventManager.removeSubscription(CONSTANTS.EVENTS.CONTENT_ASSET_LOADED, $scope.onAssetLoaded);
 
         }).bind(this));
     }]
