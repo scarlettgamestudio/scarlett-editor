@@ -67,7 +67,7 @@ app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlet
         ];
 
         $scope.onTreeSelectionChanged = function (selected) {
-            if (selected.length == 0) {
+            if (selected.length === 0) {
                 $scope.setActiveFolderNode(null);
             }
         };
@@ -103,7 +103,7 @@ app.controller('ContentBrowserTreeCtrl', ['$scope', 'logSvc', 'config', 'scarlet
                 split[split.length - 1] = event.currentTarget.value;
                 let newPath = split.join(Path.TRAILING_SLASH);
 
-                if (newName == node.name) {
+                if (newName === node.name) {
                     // no changes required..
                     return;
                 }
