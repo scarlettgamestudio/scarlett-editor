@@ -3,8 +3,7 @@
 <head>
     <!-- meta data -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"/>
 
     <!-- global settings -->
     <title>{{ 'PRODUCT_TITLE' | translate }} {{ 'GAME_STUDIO' | translate }}</title>
@@ -30,6 +29,9 @@
     <!-- colour picker related -->
     <link rel="stylesheet" type="text/css" href="css/libs/colorpicker.css"/>
 
+    <!-- javascript main module -->
+    <script type="text/javascript" src="core/main.js"></script>
+
     <!-- javascript 3rd party modules -->
     <script type="text/javascript" src="../node_modules/angular/angular.min.js"></script>
     <script type="text/javascript" src="../node_modules/angular-route/angular-route.min.js"></script>
@@ -42,7 +44,8 @@
     <script type="text/javascript" src="../node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js"></script>
     <script type="text/javascript" src="lib/ui-context-menu.js"></script>
     <script type="text/javascript" src="lib/soapClient.js"></script>
-    <script type="text/javascript" src="lib/scarlett-framework.js"></script>
+    <script>global.SC = require('./lib/scarlett-framework.js');</script>
+    <script type="text/javascript" src="lib/scarlettGlobals.js"></script>
     <script type="text/javascript" src="lib/corazon-treeview.js"></script>
     <script type="text/javascript" src="lib/perfectScrollbar.js"></script>
     <script type="text/javascript" src="lib/undo.js"></script>
