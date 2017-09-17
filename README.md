@@ -5,34 +5,46 @@ Scarlett 2D Game Editor repository
 
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
-
 ### What is this repository for? ###
 
 This repository contains the Scarlett Editor Module and associated libraries. **At the moment this software is in Development Stage and not ready for production use.**
 
-### Which Operative System is compatible? ###
+### Which Operative Systems are compatible? ###
 
 The Scarlett Editor can run in all common Operative Systems including Windows, MacOS and Linux.
 
-### How do I get set up for runtime? ###
+### Runtime Setup ###
 
-* Install NodeJS (6.x is recommended)
-* Open a terminal in the project root folder and execute "npm install" for dependency resolution
-* In the same folder, execute "npm start" to initialize the software.
+* Install NodeJS (8.x is recommended)
+* Open a terminal in the project root folder and execute `$ npm install` for dependency resolution
+* [Link Scarlett Framework](###link-scarlett-framework) 
+* In the same folder, execute `$ npm start` to run the software
 
-### How do I get set up for development? ###
+### Development Setup ###
 
-* Install NodeJS (6.x is recommended)
-* Install GruntJS by running "npm install -g grunt-cli" in your computer terminal
-* Install Ruby
-* Install Ruby Sass by running "gem install sass" in your computer terminal
-* Open a terminal in the project root folder and execute "npm install" for dependency resolution
-* In the same folder, execute "npm start" to initialize the software.
+* Install NodeJS (8.x is recommended)
+* Install GruntJS globally by running `$ npm install -g grunt-cli` in your terminal
+* Install [Ruby](https://www.ruby-lang.org/en/)
+* Install Ruby Sass by running `$ gem install sass` in your terminal
+* Open a terminal in the project root folder and execute `$ npm install` for dependency resolution
+* [Link Scarlett Framework](###link-scarlett-framework)
+* In the same folder, execute `$ npm start` to run the software
+
+### Link Scarlett Framework ###
+
+Scarlett Editor depends on the Scarlett Framework. In order to make the editor aware of its location, you need to use [symlinks](https://docs.npmjs.com/cli/link):
+1. `$ cd ~/projects/scarlett-framework` go into the framework directory
+2. `$ npm link` create a global link of the framework package
+3. `$ cd ~/projects/scarlett-editor` go into the editor directory
+4. `$ npm link @scarlett-game-studio/scarlett-framework` link install the framework
+
+`scarlett-editor/node_modules` should now have the framework within. Rebuilding the framework with:
+
+`$ npm run build:editor` or `$ npm run build:all` and refreshing/restarting the editor should be enough to update the framework version within the editor.
 
 ### Extra Development Setup ###
 
-* To activate automatic project build on code change (including styling modifications) simply run "grunt" on the root folder. 
+* To activate automatic project build on code change (including styling modifications) simply run `$ grunt` in the root folder 
 
 ### Recommended Code Editors ###
 
