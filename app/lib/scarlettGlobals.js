@@ -1,3 +1,5 @@
+global.SC = require('@scarlett-game-studio/scarlett-framework');
+
 // common
 global.AttributeDictionary = SC.AttributeDictionary;
 global.CallbackResponse = SC.CallbackResponse;
