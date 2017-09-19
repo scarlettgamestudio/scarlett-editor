@@ -1,5 +1,4 @@
-# Scarlett Editor
-Scarlett 2D Game Editor repository
+![alt tag](https://scarlett.cothesia.com/attachments/images/scarlett_logo.png)
 
 ![alt tag](https://scarlett.cothesia.com/attachments/images/scarlett_screen1.png)
 
