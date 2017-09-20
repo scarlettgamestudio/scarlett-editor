@@ -15,31 +15,32 @@ The Scarlett Editor can run in all common Operative Systems including Windows, M
 ### Runtime Setup ###
 
 * Install NodeJS (8.x is recommended)
-* Open a terminal in the project root folder and execute `$ npm install` for dependency resolution
-* [Link Scarlett Framework](#link-scarlett-framework) 
-* In the same folder, execute `$ npm start` to run the software
+* Install Yarn
+* Open a terminal in the project root folder and execute `$ yarn` for dependency resolution
+* [Link Scarlett Framework](###link-scarlett-framework) 
+* In the same folder, execute `$ yarn start` to run the software
 
 ### Development Setup ###
 
 * Install NodeJS (8.x is recommended)
-* Install GruntJS globally by running `$ npm install -g grunt-cli` in your terminal
+* Install GruntJS globally by running `$ yarn global add grunt-cli` in your terminal
 * Install [Ruby](https://www.ruby-lang.org/en/)
 * Install Ruby Sass by running `$ gem install sass` in your terminal
-* Open a terminal in the project root folder and execute `$ npm install` for dependency resolution
-* [Link Scarlett Framework](#link-scarlett-framework)
-* In the same folder, execute `$ npm start` to run the software
+* Open a terminal in the project root folder and execute `$ yarn` for dependency resolution
+* [Link Scarlett Framework](###link-scarlett-framework)
+* In the same folder, execute `$ yarn start` to run the software
 
 ### Link Scarlett Framework ###
 
-Scarlett Editor depends on the Scarlett Framework. In order to make the editor aware of its location, you need to use [symlinks](https://docs.npmjs.com/cli/link):
+Scarlett Editor depends on the Scarlett Framework. In order to make the editor aware of its location, you need to use [symlinks](https://yarnpkg.com/lang/en/docs/cli/link/):
 1. `$ cd ~/projects/scarlett-framework` go into the framework directory
-2. `$ npm link` create a global link of the framework package
+2. `$ yarn link` create a global link of the framework package
 3. `$ cd ~/projects/scarlett-editor` go into the editor directory
-4. `$ npm link @scarlett-game-studio/scarlett-framework` link install the framework
+4. `$ yarn link @scarlett-game-studio/scarlett-framework` link install the framework
 
 `scarlett-editor/node_modules` should now have the framework within. Rebuilding the framework with:
 
-`$ npm run build:editor` or `$ npm run build:all` and refreshing/restarting the editor should be enough to update the framework version within the editor.
+`$ yarn run build:editor` or `$ yarn run dev` and refreshing/restarting the editor should be enough to update the framework version within the editor.
 
 ### Extra Development Setup ###
 
