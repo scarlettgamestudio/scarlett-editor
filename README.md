@@ -16,7 +16,7 @@ The Scarlett Editor can run in all common Operative Systems including Windows, M
 
 * Install NodeJS (8.x is recommended)
 * Open a terminal in the project root folder and execute `$ npm install` for dependency resolution
-* [Link Scarlett Framework](###link-scarlett-framework) 
+* [Link Scarlett Framework](#link-scarlett-framework) 
 * In the same folder, execute `$ npm start` to run the software
 
 ### Development Setup ###
@@ -26,7 +26,7 @@ The Scarlett Editor can run in all common Operative Systems including Windows, M
 * Install [Ruby](https://www.ruby-lang.org/en/)
 * Install Ruby Sass by running `$ gem install sass` in your terminal
 * Open a terminal in the project root folder and execute `$ npm install` for dependency resolution
-* [Link Scarlett Framework](###link-scarlett-framework)
+* [Link Scarlett Framework](#link-scarlett-framework)
 * In the same folder, execute `$ npm start` to run the software
 
 ### Link Scarlett Framework ###
