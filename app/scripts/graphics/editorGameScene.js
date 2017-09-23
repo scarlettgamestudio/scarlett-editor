@@ -360,41 +360,86 @@ class EditorGameScene extends SC.GameScene {
 
     _handleKeyboardInput(delta) {
         let keyboardState = Keyboard.getState();
-        let sceneOperations = 0;
+        let sceneViewOperations = 0; // count of operation that change the camera view over the selected scene
 
         // is the canvas focused?
         if (AngularHelper.isActiveCanvasFocused()) {
-            if (keyboardState.isKeyDown(Keys.W)) {
-                this._camera.y -= Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
-                sceneOperations++;
-            } else if (keyboardState.isKeyDown(Keys.S)) {
-                this._camera.y += Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
-                sceneOperations++;
-            }
-
-            if (keyboardState.isKeyDown(Keys.A)) {
-                this._camera.x -= Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
-                sceneOperations++;
-            } else if (keyboardState.isKeyDown(Keys.D)) {
-                this._camera.x += Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
-                sceneOperations++;
-            }
-
-            if (keyboardState.isKeyDown(Keys.D0) && !this._lastKeyboardState.isKeyDown(Keys.D0)) {
-                this._camera.zoom = 1;
-                sceneOperations++;
-            }
-
-            if (keyboardState.isKeyDown(Keys.Delete) && !this._lastKeyboardState.isKeyDown(Keys.Delete)) {
-                AngularHelper.sceneSvc.executeRemoveSelectedGameObjects();
-            }
+            sceneViewOperations += this._handleMovementKeyboardInput(delta, keyboardState);
+            this._handleGameObjectActionKeyboardInput(delta, keyboardState);
         }
 
-        if (sceneOperations > 0) {
+        if (sceneViewOperations > 0) {
             EventManager.emit(AngularHelper.constants.EVENTS.VIEW_CHANGED);
         }
 
         this._lastKeyboardState = Keyboard.getState();
+    }
+
+    _handleGameObjectActionKeyboardInput(delta, keyboardState) {
+
+        let translateGameObjects = (vector2) => {
+            let commands = [];
+            this._selectedObjects.forEach((subject) => {
+                let gameObject = subject.gameObject;
+                let originalPosition = gameObject.transform.getPosition();
+                let newPosition = Vector2.add(originalPosition, vector2);
+
+                commands.push(new EditPropertyCommand(gameObject.transform, "_position",
+                    originalPosition, newPosition));
+
+                // actually change the gameObject position:
+                gameObject.transform.translate(vector2.x, vector2.y);
+            });
+        };
+
+        // move game objects?
+        if (keyboardState.isKeyDown(Keys.DownArrow) && !this._lastKeyboardState.isKeyDown(Keys.DownArrow)) {
+            translateGameObjects(new Vector2(0, 1));
+
+        } else if (keyboardState.isKeyDown(Keys.UpArrow) && !this._lastKeyboardState.isKeyDown(Keys.UpArrow)) {
+            translateGameObjects(new Vector2(0, -1));
+
+        } else if (keyboardState.isKeyDown(Keys.LeftArrow) && !this._lastKeyboardState.isKeyDown(Keys.LeftArrow)) {
+            translateGameObjects(new Vector2(-1, 0));
+
+        } else if (keyboardState.isKeyDown(Keys.RightArrow) && !this._lastKeyboardState.isKeyDown(Keys.RightArrow)) {
+            translateGameObjects(new Vector2(1, 0));
+
+        }
+
+        // delete game object?
+        if (keyboardState.isKeyDown(Keys.Delete) && !this._lastKeyboardState.isKeyDown(Keys.Delete)) {
+            AngularHelper.sceneSvc.executeRemoveSelectedGameObjects();
+        }
+    }
+
+    _handleMovementKeyboardInput(delta, keyboardState) {
+        let operations = 0;
+
+        if (keyboardState.isKeyDown(Keys.W)) {
+            this._camera.y -= Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
+            operations++;
+
+        } else if (keyboardState.isKeyDown(Keys.S)) {
+            this._camera.y += Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
+            operations++;
+        }
+
+        if (keyboardState.isKeyDown(Keys.A)) {
+            this._camera.x -= Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
+            operations++;
+
+        } else if (keyboardState.isKeyDown(Keys.D)) {
+            this._camera.x += Math.floor(EditorGameScene.CONSTANTS.KEYBOARD_MOVE_INTENSITY * this._camera.zoom * delta);
+            operations++;
+        }
+
+        if (keyboardState.isKeyDown(Keys.D0) && !this._lastKeyboardState.isKeyDown(Keys.D0)) {
+            this._camera.zoom = 1;
+            operations++;
+        }
+
+        return operations;
     }
 
     _gameObjectsSelectionChanged(selected, origin) {

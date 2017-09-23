@@ -54,7 +54,7 @@
         this.commands = [];
         this.stackPosition = -1;
         this.savePosition = -1;
-        this.maxHistory = this._maxHistory || 64;
+        this.maxHistory = this._maxHistory || 80;
     };
 
     extend(Undo.Stack.prototype, {
