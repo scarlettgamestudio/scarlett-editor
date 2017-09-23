@@ -97,13 +97,13 @@ app.controller('MainCtrl', ['$scope', 'logSvc', 'soapSvc', 'config', 'userSvc', 
                 // undo
                 if (e.ctrlKey && e.keyCode == 90) {
                     AngularHelper.commandHistory.undo();
-                    $rootScope.$broadcast(AngularHelper.constants.EVENTS.COMMAND_HISTORY_CHANGED);
+                    EventManager.emit(AngularHelper.constants.EVENTS.COMMAND_HISTORY_CHANGED)
                 }
 
                 // redo
                 if (e.ctrlKey && e.keyCode == 89) {
                     AngularHelper.commandHistory.redo();
-                    $rootScope.$broadcast(AngularHelper.constants.EVENTS.COMMAND_HISTORY_CHANGED);
+                    EventManager.emit(AngularHelper.constants.EVENTS.COMMAND_HISTORY_CHANGED)
                 }
             };
 

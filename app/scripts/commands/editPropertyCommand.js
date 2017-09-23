@@ -12,10 +12,11 @@ EditPropertyCommand = Undo.Command.extend({
                 Object.keys(container[property]).forEach(function (innerProperty) {
                     recursive(container[property], innerProperty, value);
                 });
+
             } else {
-                if (property.indexOf("_") == 0) {
+                if (property.indexOf("_") === 0) {
                     // this seems like a private property, look for existing setters
-                    var guessSetter = "set" + capitalize(property.substring(1, property.length));
+                    let guessSetter = "set" + capitalize(property.substring(1, property.length));
                     if (isFunction(container[guessSetter])) {
                         // cool, it has a setter, let's use it
                         container[guessSetter](typeof value === "object" ? value[property] : value);

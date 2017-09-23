@@ -132,14 +132,14 @@
             this.changed();
         },
         dirty: function () {
-            return this.stackPosition != this.savePosition;
+            return this.stackPosition !== this.savePosition;
         },
         _clearRedo: function () {
             // TODO there's probably a more efficient way for this
             this.commands = this.commands.slice(0, this.stackPosition + 1);
         },
         changed: function () {
-            // do nothing, override
+            EventManager.emit(AngularHelper.constants.EVENTS.COMMAND_HISTORY_CHANGED);
         }
     });
 
@@ -147,7 +147,7 @@
         this.name = name;
     };
 
-    var up = new Error("cannot extend");
+    let up = new Error("cannot extend");
 
     extend(Undo.Command.prototype, {
         execute: function () {
@@ -162,7 +162,7 @@
     });
 
     Undo.Command.extend = function (protoProps) {
-        var child = inherits(this, protoProps);
+        let child = inherits(this, protoProps);
         child.extend = Undo.Command.extend;
         return child;
     };

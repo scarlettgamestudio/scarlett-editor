@@ -136,17 +136,18 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
          * Game Object added to scene event bind
          */
         $scope.$on(constants.EVENTS.GAME_OBJECT_ADDED, (function (e, gameObject, parent) {
-            var nodeParent = null;
-            var node = generateNode(gameObject.name, gameObject.getType(), gameObject);
+            let nodeParent = null;
+            let node = generateNode(gameObject.name, gameObject.getType(), gameObject);
 
             if (parent != null) {
                 nodeParent = $scope.getNodeByGameObjectUID(parent.getUID());
             }
 
             if (nodeParent) {
-                nodeParent.nodes.push(node);
+                nodeParent.nodes.insert(gameObject.getIndex(), node);
+
             } else {
-                $scope.model.tree.push(node);
+                $scope.model.tree.insert(gameObject.getIndex(), node);
             }
 
         }).bind(this));
@@ -230,16 +231,16 @@ app.controller('SceneHierarchyCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
                         index = targetNodeParent ?
                             targetNodeParent.nodes.indexOfObject(targetNode) : $scope.model.tree.indexOfObject(targetNode);
 
-                        if (inlineLocation == CZC.DROP_LOCATION.INLINE_BOTTOM) {
+                        if (inlineLocation === CZC.DROP_LOCATION.INLINE_BOTTOM) {
                             index++;
                         }
 
                         if (targetNodeParent) {
-                            targetNodeParent.nodes.insert(index, removedNodes[i]);
+                            targetNodeParent.nodes.splice(index, 0, removedNodes[i]);
                             targetNodeParent.gameObject.addChild(removedNodes[i].gameObject, index);
                             removedNodes[i].parent = targetNodeParent;
                         } else {
-                            $scope.model.tree.insert(index, removedNodes[i]);
+                            $scope.model.tree.splice(index, 0, removedNodes[i]);
                             GameManager.activeScene.addGameObject(removedNodes[i].gameObject, index);
                             removedNodes[i].parent = null;
                         }

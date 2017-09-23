@@ -2,10 +2,6 @@ app.controller('NavbarCtrl',
     ['$scope', 'logSvc', 'soapSvc', 'config', 'layoutSvc', 'sceneSvc', 'constants',
         function ($scope, logSvc, soapSvc, config, layoutSvc, sceneSvc, constants) {
 
-            $scope.$on(AngularHelper.constants.EVENTS.COMMAND_HISTORY_CHANGED, function() {
-                $scope.safeDigest();
-            });
-
             $scope.editGameScene = function() {
                 EventManager.emit(AngularHelper.constants.EVENTS.OBJECTS_SELECTION, [sceneSvc.getActiveGameScene()]);
             };
@@ -62,7 +58,7 @@ app.controller('NavbarCtrl',
             };
 
             $scope.isToolActive = function (id) {
-                return EditorGameScene.activeTransformTool == id;
+                return EditorGameScene.activeTransformTool === id;
             };
 
             $scope.setActiveTool = function (id) {
@@ -75,6 +71,20 @@ app.controller('NavbarCtrl',
                     AngularHelper.rootScope.$broadcast(AngularHelper.constants.EVENTS.GAME_OBJECT_UPDATED);
                 }
             };
+
+            $scope.onCommandHistoryChanged = function() {
+                $scope.safeDigest();
+            };
+
+            (function init() {
+                EventManager.subscribe(AngularHelper.constants.EVENTS.COMMAND_HISTORY_CHANGED, $scope.onCommandHistoryChanged);
+
+            })();
+
+            $scope.$on("$destroy", (function () {
+                EventManager.removeSubscription(AngularHelper.constants.EVENTS.COMMAND_HISTORY_CHANGED, $scope.onCommandHistoryChanged);
+
+            }).bind(this));
         }]
 );
 

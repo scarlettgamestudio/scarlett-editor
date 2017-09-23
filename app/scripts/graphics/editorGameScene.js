@@ -384,6 +384,10 @@ class EditorGameScene extends SC.GameScene {
                 this._camera.zoom = 1;
                 sceneOperations++;
             }
+
+            if (keyboardState.isKeyDown(Keys.Delete) && !this._lastKeyboardState.isKeyDown(Keys.Delete)) {
+                AngularHelper.sceneSvc.executeRemoveSelectedGameObjects();
+            }
         }
 
         if (sceneOperations > 0) {
