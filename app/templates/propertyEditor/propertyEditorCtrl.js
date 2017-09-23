@@ -170,7 +170,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
 
         function containerTypeExists(containerType, containerHolder) {
             containerHolder.forEach(function (container) {
-                if (container.type == containerType) {
+                if (container.type === containerType) {
                     return true;
                 }
             });
@@ -206,7 +206,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
 
         function getContainerByType(containerHolder, type) {
             for (let i = 0; i < containerHolder.length; i++) {
-                if (containerHolder[i].type == type) {
+                if (containerHolder[i].type === type) {
                     return containerHolder[i];
                 }
             }
@@ -248,7 +248,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                     let bContainer = getContainerByType(targets[i].propertyContainers, aContainer.type);
                     // after all those validations it would be a shame if the following condition is false, but better
                     // be safe than sorry:
-                    if (bContainer && bContainer.properties.length == aContainer.properties.length) {
+                    if (bContainer && bContainer.properties.length === aContainer.properties.length) {
                         // now that we have the comparison container, let's go through the properties themselves
                         for (let j = 0; j < bContainer.properties.length; j++) {
                             // a difference for this particular property was already found?
@@ -260,8 +260,9 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                                 if (isFunction(va.equals) && isFunction(vb.equals)) {
                                     // both values have the 'equals' function defined, let's use it!
                                     aContainer.properties[j].hasDifferentAssignments = !va.equals(vb);
+
                                 } else {
-                                    aContainer.properties[j].hasDifferentAssignments = va != vb;
+                                    aContainer.properties[j].hasDifferentAssignments = va !== vb;
                                 }
                             }
 
@@ -276,6 +277,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                                 }
                             });
                         }
+
                     } else {
                         logSvc.warn(_LOG_CONTEXT + "failed to get unified containers, mismatched properties?")
                     }
@@ -414,7 +416,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 }
             }
 
-            if (property.differentProperties.length == 0) {
+            if (property.differentProperties.length === 0) {
                 property.hasDifferentAssignments = false;
             }
         };
@@ -441,7 +443,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 $scope.model.multipleTargets = true;
                 $scope.model.propertyContainers = getUnifiedPropertyContainers($scope.model.targets);
 
-            } else if ($scope.model.targets.length == 1) {
+            } else if ($scope.model.targets.length === 1) {
                 $scope.model.propertyContainers = $scope.model.targets[0].propertyContainers;
             }
 
