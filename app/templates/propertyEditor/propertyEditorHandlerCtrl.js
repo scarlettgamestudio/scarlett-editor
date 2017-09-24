@@ -32,6 +32,7 @@ app.controller('PropertyEditorHandlerCtrl', ['$scope', 'logSvc', 'config', 'cons
             // first we update the actual value so the other unedited properties are also set during the synchronization
             if (subPropertyName) {
                 $scope.model.value[subPropertyName] = $scope.model.bind[subPropertyName];
+
             } else {
                 $scope.model.value = $scope.model.bind;
             }
@@ -51,10 +52,11 @@ app.controller('PropertyEditorHandlerCtrl', ['$scope', 'logSvc', 'config', 'cons
 
                 // now we need manually copy all the properties to the binder while checking for multiple definitions
                 if (typeof $scope.model.value === "object") {
-                    var propertyNames = Object.getOwnPropertyNames($scope.model.value);
+                    let propertyNames = Object.getOwnPropertyNames($scope.model.value);
                     propertyNames.forEach(function (propertyName) {
                         $scope.model.bind[propertyName] = $scope.hasMultipleDefinitions(propertyName) ? null : $scope.model.value[propertyName];
                     });
+
                 } else {
                     $scope.model.bind = null;
                 }
@@ -68,7 +70,9 @@ app.controller('PropertyEditorHandlerCtrl', ['$scope', 'logSvc', 'config', 'cons
         };
 
         (function init() {
-            $scope.syncFromOrigin();
+            if (!$scope.property.extended) {
+                $scope.syncFromOrigin();
+            }
         })();
     }
 ]);

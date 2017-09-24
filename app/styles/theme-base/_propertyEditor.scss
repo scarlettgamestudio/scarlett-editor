@@ -78,15 +78,35 @@
       }
     }
 
+    .subContainerMargin {
+      margin-left: 11px;
+    }
+
+    .peSubHeader {
+      cursor: pointer;
+      padding: 2px 0;
+
+      i {
+        margin-right: 4px;
+        width: 4px;
+      }
+
+      .peHeaderText {
+        span {
+          color: map-get($default-colors, medium-grey);
+        }
+      }
+    }
+
     .peHeader {
       font-size: 0.96em;
-      padding: 6px 10px;
+      padding: 2px 6px;
       margin-bottom: 2px;
       cursor: pointer;
 
       i {
-        margin-right: 4px;
-        width: 12px;
+        //margin-right: 4px;
+        width: 10px;
       }
 
       .peHeaderText {
@@ -96,16 +116,16 @@
         }
       }
     }
+
     .peEditorContainer {
       padding-bottom: 8px;
 
       .peEditor {
         font-size: 0.86em;
-        padding: 1px 10px;
+        padding: 1px 16px;
         -webkit-box-sizing: border-box;
         -moz-box-sizing: border-box;
         box-sizing: border-box;
-        margin-bottom: 1px;
 
         .peEditorDisplayName {
           float: left;
@@ -113,6 +133,8 @@
           overflow: hidden;
           text-overflow: ellipsis;
           margin-top: 2px;
+          padding-left: 11px;
+          white-space: nowrap;
         }
 
         .peImagePreview {
@@ -136,6 +158,7 @@
         .peEditorValues {
           float: left;
           width: 75%;
+          margin-bottom: 2px;
         }
 
         input {

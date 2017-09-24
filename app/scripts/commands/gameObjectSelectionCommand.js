@@ -2,20 +2,19 @@
  *
  */
 GameObjectSelectionCommand = Undo.Command.extend({
-    constructor: function (sceneSvc, oldValue, newValue) {
+    constructor: function (oldValue, newValue) {
         this.oldValue = oldValue;
         this.newValue = newValue;
-        this.sceneSvc = sceneSvc;
     },
     execute: function () {
-        this.sceneSvc._selectedObjects = this.newValue;
+        AngularHelper.sceneSvc.setSelectedObjects(this.newValue, true, true);
     },
     undo: function () {
-        this.sceneSvc._selectedObjects = this.oldValue;
-        EventManager.emit(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, this.sceneSvc._selectedObjects);
+        AngularHelper.sceneSvc.setSelectedObjects(this.oldValue, true, true);
+        EventManager.emit(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, AngularHelper.sceneSvc._selectedObjects);
     },
     redo: function () {
-        this.sceneSvc._selectedObjects = this.newValue;
-        EventManager.emit(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, this.sceneSvc._selectedObjects);
+        AngularHelper.sceneSvc.setSelectedObjects(this.newValue, true, true);
+        EventManager.emit(AngularHelper.constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, AngularHelper.sceneSvc._selectedObjects);
     }
 });
