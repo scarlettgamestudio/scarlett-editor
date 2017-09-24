@@ -151,6 +151,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                             type: type,
                             systemType: typeof object[entry],
                             target: object[entry],
+                            available: availability,
                             open: true,
                         };
 
@@ -168,13 +169,18 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
 
         function createPropertyContainerFromObject(object) {
             let type = getType(object);
-            return {
+            let container = {
                 target: object,
                 displayName: splitCamelCase(capitalize(type)),
                 type: type,
                 open: true,
-                properties: getObjectProperties(object, null, "")
-            }
+                available: null,
+                parent: null
+            };
+
+            container.properties = getObjectProperties(object, container, "");
+
+            return container;
         }
 
         function getPropertyContainers(object) {
@@ -183,7 +189,16 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
 
             let ownContainerProperties = getObjectOwnContainerProperties(object);
             ownContainerProperties.forEach(function (property) {
-                propertyContainers.push(createPropertyContainerFromObject(object[property]));
+                let targetType = getType(object);
+                let customRule = AttributeDictionary.getRule(targetType, property) || {};
+                let container = createPropertyContainerFromObject(object[property]);
+                container.parent = object;
+
+                if (customRule.hasOwnProperty("available") && isFunction(customRule.available)) {
+                    container.available = customRule.available;
+                }
+
+                propertyContainers.push(container);
             });
 
             return propertyContainers;
