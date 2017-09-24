@@ -3,6 +3,8 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
 
         const _LOG_CONTEXT = "propertyEditor ";
         const _PATH_SEPARATOR = "/";
+
+        // TODO: add support for at least the most common variables (vector3, vector4, ..)
         const _AVAILABLE_EDITORS = ["boolean", "color", "filepath", "image", "number", "string", "vector2"];
 
         function resetModel() {
