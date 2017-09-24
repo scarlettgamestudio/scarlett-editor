@@ -1,7 +1,9 @@
 app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
     function ($scope, logSvc, constants) {
 
-        let _LOG_CONTEXT = "propertyEditor ";
+        const _LOG_CONTEXT = "propertyEditor ";
+        const _PATH_SEPARATOR = "/";
+        const _AVAILABLE_EDITORS = ["boolean", "color", "filepath", "image", "number", "string", "vector2"];
 
         function resetModel() {
             $scope.model = {
@@ -50,43 +52,53 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
          * @param object
          * @returns {Array}
          */
-        function getObjectProperties(object) {
+        function getObjectProperties(object, parent, path) {
             let properties = [];
 
-            if (isObjectAssigned(object)) {
-                let targetType = getType(object);
-                let propertyNames = Object.getOwnPropertyNames(object);
-                propertyNames.forEach(function (entry) {
-                    if (entry.length > 0) {
-                        let customRule = AttributeDictionary.getRule(targetType, entry) || {};
+            if (!isObjectAssigned(object)) {
+                return properties;
+            }
 
-                        if (!isObjectAssigned(object[entry])) {
-                            return;
-                        }
+            let targetType = getType(object);
+            let propertyNames = Object.getOwnPropertyNames(object);
+            propertyNames.forEach(function (entry) {
+                if (entry.length > 0) {
+                    let customRule = AttributeDictionary.getRule(targetType, entry) || {};
 
-                        // is this property supposed to be visible?
-                        if ((customRule.hasOwnProperty("visible") && customRule.visible === false) ||
-                            (customRule.hasOwnProperty("ownContainer") && customRule.ownContainer === true)) {
-                            // no ? ok.. leave!
-                            return;
-                        }
+                    if (!isObjectAssigned(object[entry])) {
+                        return;
+                    }
 
-                        let capitalName = capitalize(entry);
-                        let customEditor = customRule["editor"];
-                        let valid = true;
+                    // is this property supposed to be visible?
+                    if ((customRule.hasOwnProperty("visible") && customRule.visible === false) ||
+                        (customRule.hasOwnProperty("ownContainer") && customRule.ownContainer === true)) {
+                        // no ? ok.. leave!
+                        return;
+                    }
 
-                        let availability = null;
-                        if (customRule.hasOwnProperty("available") && isFunction(customRule.available)) {
-                            availability = customRule.available;
-                        }
+                    let capitalName = capitalize(entry);
+                    let customEditor = customRule["editor"];
+                    let valid = true;
+                    let type = getType(object[entry]);
+                    let propertyModel = null;
+                    let myPath = path + _PATH_SEPARATOR + entry;
 
-                        let propertyModel = {
+                    let availability = null;
+                    if (customRule.hasOwnProperty("available") && isFunction(customRule.available)) {
+                        availability = customRule.available;
+                    }
+
+                    if (_AVAILABLE_EDITORS.indexOf(type.toLowerCase()) >= 0) {
+                        propertyModel = {
                             name: entry,
+                            path: myPath,
+                            extended: false,
                             displayName: customRule.displayName || splitCamelCase(capitalName),
                             readOnly: customRule.readOnly || false,
-                            type: getType(object[entry]),
+                            type: type,
                             systemType: typeof object[entry],
                             bindOnce: false,
+                            parent: parent,
                             editor: customEditor,
                             setter: customRule.setter,
                             getter: customRule.getter,
@@ -103,14 +115,16 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                         if (valid && entry.substring(0, 1) === "_") {
                             if (entry.length < 2) {
                                 valid = false;
+
                             } else if (!propertyModel.setter || !propertyModel.getter) {
-                                // the setter/getter are not specified and this is a private letiable
+                                // the setter/getter are not specified and this is a private variable
                                 // so we either find them manually or invalidate the property:
                                 capitalName = capitalize(entry.slice(1));
 
                                 // does it have getter/setter?
                                 if (!object["set" + capitalName] || !object['get' + capitalName]) {
                                     valid = false;
+
                                 } else {
                                     if (typeof customRule.displayName === "undefined") {
                                         propertyModel.displayName = splitCamelCase(capitalName);
@@ -126,12 +140,28 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                             }
                         }
 
-                        if (valid) {
-                            properties.push(propertyModel);
-                        }
+                    } else if(entry.substring(0, 1) !== "_") {
+                        // if the property
+                        propertyModel = {
+                            name: entry,
+                            extended: true,
+                            path: myPath,
+                            parent: parent,
+                            displayName: customRule.displayName || splitCamelCase(capitalName),
+                            type: type,
+                            systemType: typeof object[entry],
+                            target: object[entry],
+                            open: true
+                        };
+
+                        propertyModel.properties = getObjectProperties(object[entry], propertyModel, myPath)
                     }
-                });
-            }
+
+                    if (propertyModel !== null && valid) {
+                        properties.push(propertyModel);
+                    }
+                }
+            });
 
             return properties;
         }
@@ -143,7 +173,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 displayName: splitCamelCase(capitalize(type)),
                 type: type,
                 open: true,
-                properties: getObjectProperties(object)
+                properties: getObjectProperties(object, null, "")
             }
         }
 
@@ -210,6 +240,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                     return containerHolder[i];
                 }
             }
+
             return null;
         }
 
@@ -287,19 +318,19 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             return unifiedContainers
         }
 
-        $scope.onGameObjectSelectionChanged = function(selected) {
+        $scope.onGameObjectSelectionChanged = function (selected) {
             $scope.setTargets(selected, true);
         };
 
-        $scope.onAssetSelected = function(selected) {
+        $scope.onAssetSelected = function (selected) {
             $scope.setTargets([selected], true);
         };
 
-        $scope.onObjectsSelected = function(selected) {
+        $scope.onObjectsSelected = function (selected) {
             $scope.setTargets(selected, true);
         };
 
-        $scope.onAssetLoaded = function(path) {
+        $scope.onAssetLoaded = function (path) {
             $scope.safeDigest();
         };
 
@@ -347,10 +378,24 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             $scope.model.targets.forEach(function (target) {
                 let targetContainer = getContainerByType(target.propertyContainers, container.type);
                 if (targetContainer) {
+                    let target = targetContainer.target;
+                    if (property.parent !== null && property.parent.extended) {
+                        let pathItems = property.path.split(_PATH_SEPARATOR);
+
+                        // we want to remove the first and last element:
+                        pathItems.shift();
+                        pathItems.pop();
+
+                        pathItems.forEach((path) => {
+                            target = target[path];
+                        });
+                    }
+
                     if (!subPropertyName) {
-                        commands.push(new EditPropertyCommand(targetContainer.target, property.name, targetContainer.target[property.name], value));
+                        commands.push(new EditPropertyCommand(target, property.name, target[property.name], value));
+
                     } else {
-                        commands.push(new EditPropertyCommand(targetContainer.target[property.name], subPropertyName, targetContainer.target[property.name][subPropertyName], value));
+                        commands.push(new EditPropertyCommand(target[property.name], subPropertyName, target[property.name][subPropertyName], value));
                     }
                 }
             });
@@ -359,6 +404,20 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             AngularHelper.commandHistory.store(commands);
 
             function syncToContainerAction(targetContainer) {
+                let target = targetContainer.target;
+                if (property.parent !== null && property.parent.extended) {
+                    let pathItems = property.path.split(_PATH_SEPARATOR);
+
+                    // we want to remove the first and last element:
+                    pathItems.shift();
+                    pathItems.pop();
+
+                    pathItems.forEach((path) => {
+                        target = target[path];
+                    });
+                }
+
+
                 let type = property.type.toLowerCase();
                 let targetValue = value;
 
@@ -366,7 +425,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 if ($scope.model.multipleTargets && subPropertyName && property.differentProperties.length > 0) {
                     // yes, so basically we need to update the subProperty values of each respective target
                     // and then assign the original value with that only modification
-                    targetValue = targetContainer.target[property.name];
+                    targetValue = target[property.name];
                     targetValue[subPropertyName] = value[subPropertyName];
                 }
 
@@ -383,15 +442,15 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                         });
 
                         //property.setter.apply(targetContainer.target, args);
-                        targetContainer.target[property.name].set.apply(targetContainer.target[property.name], args);
+                        target[property.name].set.apply(target[property.name], args);
 
                     } else {
                         // this doesn't have any rules so we are supposing it's a single value setter:
-                        property.setter.call(targetContainer.target, targetValue);
+                        property.setter.call(target, targetValue);
                     }
 
                 } else {
-                    targetContainer.target[property.name] = value;
+                    target[property.name] = value;
                 }
             }
 
@@ -461,8 +520,12 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
         };
 
         $scope.getEditorUrl = function (type) {
-            // TODO: validate if the editor exists and cache the result
-            return "templates/propertyEditor/editors/" + type.toLowerCase() + ".html";
+            type = type.toLowerCase();
+
+            if (_AVAILABLE_EDITORS.indexOf(type) >= 0) {
+                // ok.. the editor should be available :)
+                return "templates/propertyEditor/editors/" + type + ".html";
+            }
         };
 
         (function init() {

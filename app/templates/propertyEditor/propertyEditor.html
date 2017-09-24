@@ -1,6 +1,35 @@
 <perfect-scrollbar class="scroll-wrapper">
+
+    <script type="text/ng-template" id="extendedNodeTemplate.html">
+
+        <!-- header, first element of each target, contains the type of the target -->
+        <div class="peSubHeader" ng-click="toggleVisibility(property)">
+            <i class="fa fa-sliders" aria-hidden="true" ng-if="$index === 0"></i>
+            <i class="fa" ng-class="{'fa-caret-down' : property.open, 'fa-caret-right' : !property.open}"
+               aria-hidden="true" ng-if="$index > 0"></i>
+            <span class="peHeaderText">{{property.displayName}}</span>
+        </div>
+
+        <div ng-show="property.open">
+            <div class="peSubEditor" ng-repeat="property in property.properties" ng-controller="PropertyEditorHandlerCtrl">
+
+                <div style="margin-left: 11px" ng-if="!property.extended">
+                    <div ng-show="property.available == null || property.available.apply(container.target)"
+                         ng-include="getEditorUrl(property.editor || property.type)"></div>
+                </div>
+
+                <div class="subContainerMargin" ng-if="property.extended" ng-include="'extendedNodeTemplate.html'">
+
+                </div>
+
+            </div>
+        </div>
+
+    </script>
+
     <div id="scenePropertyEditor" class="peContainer noselect fill-parent" ng-controller="PropertyEditorCtrl">
-        <div ng-show="model.propertyContainers.length > 0" class="pePanel" ng-repeat="container in model.propertyContainers">
+        <div ng-show="model.propertyContainers.length > 0" class="pePanel"
+             ng-repeat="container in model.propertyContainers">
 
             <!-- header, first element of each target, contains the type of the target -->
             <div class="peHeader" ng-click="toggleVisibility(container)">
@@ -17,7 +46,16 @@
             <div class="peEditorContainer" ng-show="container.open">
                 <div class="peEditor" ng-repeat="property in container.properties"
                      ng-controller="PropertyEditorHandlerCtrl">
-                    <div ng-show="property.available == null || property.available.apply(container.target)" ng-include="getEditorUrl(property.editor || property.type)"></div>
+
+                    <div ng-if="!property.extended">
+                        <div ng-show="property.available == null || property.available.apply(container.target)"
+                             ng-include="getEditorUrl(property.editor || property.type)"></div>
+                    </div>
+
+                    <div ng-if="property.extended" ng-include="'extendedNodeTemplate.html'">
+
+                    </div>
+
                 </div>
             </div>
 

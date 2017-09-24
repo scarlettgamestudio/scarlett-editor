@@ -676,14 +676,23 @@ button.btn {
       border-radius: 4px;
       border: 1px solid #252627;
       background: repeating-linear-gradient(45deg, #313334, #313334 4px, #2c2e2f 4px, #2c2e2f 8px); }
+  .peContainer .pePanel .subContainerMargin {
+    margin-left: 11px; }
+  .peContainer .pePanel .peSubHeader {
+    cursor: pointer;
+    padding: 2px 0; }
+    .peContainer .pePanel .peSubHeader i {
+      margin-right: 4px;
+      width: 4px; }
+    .peContainer .pePanel .peSubHeader .peHeaderText span {
+      color: #666; }
   .peContainer .pePanel .peHeader {
     font-size: 0.96em;
-    padding: 6px 10px;
+    padding: 2px 6px;
     margin-bottom: 2px;
     cursor: pointer; }
     .peContainer .pePanel .peHeader i {
-      margin-right: 4px;
-      width: 12px; }
+      width: 10px; }
     .peContainer .pePanel .peHeader .peHeaderText span {
       color: #666;
       font-size: 0.85em; }
@@ -691,17 +700,18 @@ button.btn {
     padding-bottom: 8px; }
     .peContainer .pePanel .peEditorContainer .peEditor {
       font-size: 0.86em;
-      padding: 1px 10px;
+      padding: 1px 16px;
       -webkit-box-sizing: border-box;
       -moz-box-sizing: border-box;
-      box-sizing: border-box;
-      margin-bottom: 1px; }
+      box-sizing: border-box; }
       .peContainer .pePanel .peEditorContainer .peEditor .peEditorDisplayName {
         float: left;
         width: 25%;
         overflow: hidden;
         text-overflow: ellipsis;
-        margin-top: 2px; }
+        margin-top: 2px;
+        padding-left: 11px;
+        white-space: nowrap; }
       .peContainer .pePanel .peEditorContainer .peEditor .peImagePreview {
         width: 100%;
         height: 240px;
@@ -718,7 +728,8 @@ button.btn {
           transform: translate(-50%, -50%); }
       .peContainer .pePanel .peEditorContainer .peEditor .peEditorValues {
         float: left;
-        width: 75%; }
+        width: 75%;
+        margin-bottom: 2px; }
       .peContainer .pePanel .peEditorContainer .peEditor input {
         padding: 0px 2px;
         font-size: 0.96em; }
