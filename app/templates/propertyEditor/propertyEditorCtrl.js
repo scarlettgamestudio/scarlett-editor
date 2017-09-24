@@ -151,7 +151,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                             type: type,
                             systemType: typeof object[entry],
                             target: object[entry],
-                            open: true
+                            open: true,
                         };
 
                         propertyModel.properties = getObjectProperties(object[entry], propertyModel, myPath)
@@ -282,9 +282,45 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                     if (bContainer && bContainer.properties.length === aContainer.properties.length) {
                         // now that we have the comparison container, let's go through the properties themselves
                         for (let j = 0; j < bContainer.properties.length; j++) {
-                            // a difference for this particular property was already found?
-                            // when true, it means there is no need to validate because one difference is enough
-                            if (!aContainer.properties[j].hasDifferentAssignments) {
+
+                            if (aContainer.properties[j].extended) {
+                                let recursiveProbe = (ao, bo) => {
+                                    for (let h = 0; h < bo.properties.length; h++) {
+                                        if (ao.properties[h].extended) {
+                                            // call itself:
+                                            recursiveProbe(ao.properties[h], bo.properties[h]);
+
+                                        } else {
+                                            let va = $scope.getPropertyValue(ao, ao.properties[h]);
+                                            let vb = $scope.getPropertyValue(bo, bo.properties[h]);
+
+                                            if (isFunction(va.equals) && isFunction(vb.equals)) {
+                                                // both values have the 'equals' function defined, let's use it!
+                                                ao.properties[h].hasDifferentAssignments = !va.equals(vb);
+
+                                            } else {
+                                                ao.properties[h].hasDifferentAssignments = va !== vb;
+                                            }
+                                        }
+
+                                        // now let's find the properties that have different values
+                                        let propertyDifferences = getDifferentObjectProperties(ao.target, bo.target, ao.properties[h].name);
+
+                                        // since more than two objects can be selected, we can't just push the differences to the property
+                                        // 'differentProperties' array, we need to check if it wasn't already added.
+                                        propertyDifferences.forEach(function (propertyName) {
+                                            if (ao.properties[h].differentProperties.indexOf(propertyName) < 0) {
+                                                ao.properties[h].differentProperties.push(propertyName);
+                                            }
+                                        });
+                                    }
+                                };
+
+                                recursiveProbe(aContainer.properties[j], bContainer.properties[j]);
+
+                            } else if (!aContainer.properties[j].hasDifferentAssignments) {
+                                // a difference for this particular property wasn't yet found.
+                                // when true, it means there is no need to validate because one difference is enough
                                 let va = $scope.getPropertyValue(aContainer, aContainer.properties[j]);
                                 let vb = $scope.getPropertyValue(bContainer, bContainer.properties[j]);
 
@@ -295,18 +331,18 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                                 } else {
                                     aContainer.properties[j].hasDifferentAssignments = va !== vb;
                                 }
+
+                                // now let's find the properties that have different values
+                                let propertyDifferences = getDifferentObjectProperties(aContainer.target, bContainer.target, aContainer.properties[j].name);
+
+                                // since more than two objects can be selected, we can't just push the differences to the property
+                                // 'differentProperties' array, we need to check if it wasn't already added.
+                                propertyDifferences.forEach(function (propertyName) {
+                                    if (aContainer.properties[j].differentProperties.indexOf(propertyName) < 0) {
+                                        aContainer.properties[j].differentProperties.push(propertyName);
+                                    }
+                                });
                             }
-
-                            // now let's find the properties that have different values
-                            let propertyDifferences = getDifferentObjectProperties(aContainer.target, bContainer.target, aContainer.properties[j].name);
-
-                            // since more than two objects can be selected, we can't just push the differences to the property
-                            // 'differentProperties' array, we need to check if it wasn't already added.
-                            propertyDifferences.forEach(function (propertyName) {
-                                if (aContainer.properties[j].differentProperties.indexOf(propertyName) < 0) {
-                                    aContainer.properties[j].differentProperties.push(propertyName);
-                                }
-                            });
                         }
 
                     } else {
@@ -362,6 +398,22 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             return false;
         };
 
+        $scope.getInnerTarget = function(property, target) {
+            if (property.parent !== null && property.parent.extended) {
+                let pathItems = property.path.split(_PATH_SEPARATOR);
+
+                // we want to remove the first and last element:
+                pathItems.shift();
+                pathItems.pop();
+
+                pathItems.forEach((path) => {
+                    target = target[path];
+                });
+            }
+
+            return target;
+        };
+
         /**
          * Synchronizes a value to the original object container
          * @param container
@@ -378,18 +430,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             $scope.model.targets.forEach(function (target) {
                 let targetContainer = getContainerByType(target.propertyContainers, container.type);
                 if (targetContainer) {
-                    let target = targetContainer.target;
-                    if (property.parent !== null && property.parent.extended) {
-                        let pathItems = property.path.split(_PATH_SEPARATOR);
-
-                        // we want to remove the first and last element:
-                        pathItems.shift();
-                        pathItems.pop();
-
-                        pathItems.forEach((path) => {
-                            target = target[path];
-                        });
-                    }
+                    let target = $scope.getInnerTarget(property, targetContainer.target);
 
                     if (!subPropertyName) {
                         commands.push(new EditPropertyCommand(target, property.name, target[property.name], value));
@@ -404,20 +445,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             AngularHelper.commandHistory.store(commands);
 
             function syncToContainerAction(targetContainer) {
-                let target = targetContainer.target;
-                if (property.parent !== null && property.parent.extended) {
-                    let pathItems = property.path.split(_PATH_SEPARATOR);
-
-                    // we want to remove the first and last element:
-                    pathItems.shift();
-                    pathItems.pop();
-
-                    pathItems.forEach((path) => {
-                        target = target[path];
-                    });
-                }
-
-
+                let target = $scope.getInnerTarget(property, targetContainer.target);
                 let type = property.type.toLowerCase();
                 let targetValue = value;
 
