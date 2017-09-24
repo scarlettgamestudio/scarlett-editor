@@ -1,7 +1,11 @@
 app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
     function ($scope, logSvc, constants) {
 
-        let _LOG_CONTEXT = "propertyEditor ";
+        const _LOG_CONTEXT = "propertyEditor ";
+        const _PATH_SEPARATOR = "/";
+
+        // TODO: add support for at least the most common variables (vector3, vector4, ..)
+        const _AVAILABLE_EDITORS = ["boolean", "color", "filepath", "image", "number", "string", "vector2"];
 
         function resetModel() {
             $scope.model = {
@@ -50,43 +54,53 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
          * @param object
          * @returns {Array}
          */
-        function getObjectProperties(object) {
+        function getObjectProperties(object, parent, path) {
             let properties = [];
 
-            if (isObjectAssigned(object)) {
-                let targetType = getType(object);
-                let propertyNames = Object.getOwnPropertyNames(object);
-                propertyNames.forEach(function (entry) {
-                    if (entry.length > 0) {
-                        let customRule = AttributeDictionary.getRule(targetType, entry) || {};
+            if (!isObjectAssigned(object)) {
+                return properties;
+            }
 
-                        if (!isObjectAssigned(object[entry])) {
-                            return;
-                        }
+            let targetType = getType(object);
+            let propertyNames = Object.getOwnPropertyNames(object);
+            propertyNames.forEach(function (entry) {
+                if (entry.length > 0) {
+                    let customRule = AttributeDictionary.getRule(targetType, entry) || {};
 
-                        // is this property supposed to be visible?
-                        if ((customRule.hasOwnProperty("visible") && customRule.visible === false) ||
-                            (customRule.hasOwnProperty("ownContainer") && customRule.ownContainer === true)) {
-                            // no ? ok.. leave!
-                            return;
-                        }
+                    if (!isObjectAssigned(object[entry])) {
+                        return;
+                    }
 
-                        let capitalName = capitalize(entry);
-                        let customEditor = customRule["editor"];
-                        let valid = true;
+                    // is this property supposed to be visible?
+                    if ((customRule.hasOwnProperty("visible") && customRule.visible === false) ||
+                        (customRule.hasOwnProperty("ownContainer") && customRule.ownContainer === true)) {
+                        // no ? ok.. leave!
+                        return;
+                    }
 
-                        let availability = null;
-                        if (customRule.hasOwnProperty("available") && isFunction(customRule.available)) {
-                            availability = customRule.available;
-                        }
+                    let capitalName = capitalize(entry);
+                    let customEditor = customRule["editor"];
+                    let valid = true;
+                    let type = getType(object[entry]);
+                    let propertyModel = null;
+                    let myPath = path + _PATH_SEPARATOR + entry;
 
-                        let propertyModel = {
+                    let availability = null;
+                    if (customRule.hasOwnProperty("available") && isFunction(customRule.available)) {
+                        availability = customRule.available;
+                    }
+
+                    if (_AVAILABLE_EDITORS.indexOf(type.toLowerCase()) >= 0) {
+                        propertyModel = {
                             name: entry,
+                            path: myPath,
+                            extended: false,
                             displayName: customRule.displayName || splitCamelCase(capitalName),
                             readOnly: customRule.readOnly || false,
-                            type: getType(object[entry]),
+                            type: type,
                             systemType: typeof object[entry],
                             bindOnce: false,
+                            parent: parent,
                             editor: customEditor,
                             setter: customRule.setter,
                             getter: customRule.getter,
@@ -103,14 +117,16 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                         if (valid && entry.substring(0, 1) === "_") {
                             if (entry.length < 2) {
                                 valid = false;
+
                             } else if (!propertyModel.setter || !propertyModel.getter) {
-                                // the setter/getter are not specified and this is a private letiable
+                                // the setter/getter are not specified and this is a private variable
                                 // so we either find them manually or invalidate the property:
                                 capitalName = capitalize(entry.slice(1));
 
                                 // does it have getter/setter?
                                 if (!object["set" + capitalName] || !object['get' + capitalName]) {
                                     valid = false;
+
                                 } else {
                                     if (typeof customRule.displayName === "undefined") {
                                         propertyModel.displayName = splitCamelCase(capitalName);
@@ -126,25 +142,47 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                             }
                         }
 
-                        if (valid) {
-                            properties.push(propertyModel);
-                        }
+                    } else if(entry.substring(0, 1) !== "_") {
+                        // if the property
+                        propertyModel = {
+                            name: entry,
+                            extended: true,
+                            path: myPath,
+                            parent: parent,
+                            displayName: customRule.displayName || splitCamelCase(capitalName),
+                            type: type,
+                            systemType: typeof object[entry],
+                            target: object[entry],
+                            available: availability,
+                            open: true,
+                        };
+
+                        propertyModel.properties = getObjectProperties(object[entry], propertyModel, myPath)
                     }
-                });
-            }
+
+                    if (propertyModel !== null && valid) {
+                        properties.push(propertyModel);
+                    }
+                }
+            });
 
             return properties;
         }
 
         function createPropertyContainerFromObject(object) {
             let type = getType(object);
-            return {
+            let container = {
                 target: object,
                 displayName: splitCamelCase(capitalize(type)),
                 type: type,
                 open: true,
-                properties: getObjectProperties(object)
-            }
+                available: null,
+                parent: null
+            };
+
+            container.properties = getObjectProperties(object, container, "");
+
+            return container;
         }
 
         function getPropertyContainers(object) {
@@ -153,7 +191,16 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
 
             let ownContainerProperties = getObjectOwnContainerProperties(object);
             ownContainerProperties.forEach(function (property) {
-                propertyContainers.push(createPropertyContainerFromObject(object[property]));
+                let targetType = getType(object);
+                let customRule = AttributeDictionary.getRule(targetType, property) || {};
+                let container = createPropertyContainerFromObject(object[property]);
+                container.parent = object;
+
+                if (customRule.hasOwnProperty("available") && isFunction(customRule.available)) {
+                    container.available = customRule.available;
+                }
+
+                propertyContainers.push(container);
             });
 
             return propertyContainers;
@@ -170,7 +217,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
 
         function containerTypeExists(containerType, containerHolder) {
             containerHolder.forEach(function (container) {
-                if (container.type == containerType) {
+                if (container.type === containerType) {
                     return true;
                 }
             });
@@ -206,10 +253,11 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
 
         function getContainerByType(containerHolder, type) {
             for (let i = 0; i < containerHolder.length; i++) {
-                if (containerHolder[i].type == type) {
+                if (containerHolder[i].type === type) {
                     return containerHolder[i];
                 }
             }
+
             return null;
         }
 
@@ -248,34 +296,72 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                     let bContainer = getContainerByType(targets[i].propertyContainers, aContainer.type);
                     // after all those validations it would be a shame if the following condition is false, but better
                     // be safe than sorry:
-                    if (bContainer && bContainer.properties.length == aContainer.properties.length) {
+                    if (bContainer && bContainer.properties.length === aContainer.properties.length) {
                         // now that we have the comparison container, let's go through the properties themselves
                         for (let j = 0; j < bContainer.properties.length; j++) {
-                            // a difference for this particular property was already found?
-                            // when true, it means there is no need to validate because one difference is enough
-                            if (!aContainer.properties[j].hasDifferentAssignments) {
+
+                            if (aContainer.properties[j].extended) {
+                                let recursiveProbe = (ao, bo) => {
+                                    for (let h = 0; h < bo.properties.length; h++) {
+                                        if (ao.properties[h].extended) {
+                                            // call itself:
+                                            recursiveProbe(ao.properties[h], bo.properties[h]);
+
+                                        } else {
+                                            let va = $scope.getPropertyValue(ao, ao.properties[h]);
+                                            let vb = $scope.getPropertyValue(bo, bo.properties[h]);
+
+                                            if (isFunction(va.equals) && isFunction(vb.equals)) {
+                                                // both values have the 'equals' function defined, let's use it!
+                                                ao.properties[h].hasDifferentAssignments = !va.equals(vb);
+
+                                            } else {
+                                                ao.properties[h].hasDifferentAssignments = va !== vb;
+                                            }
+                                        }
+
+                                        // now let's find the properties that have different values
+                                        let propertyDifferences = getDifferentObjectProperties(ao.target, bo.target, ao.properties[h].name);
+
+                                        // since more than two objects can be selected, we can't just push the differences to the property
+                                        // 'differentProperties' array, we need to check if it wasn't already added.
+                                        propertyDifferences.forEach(function (propertyName) {
+                                            if (ao.properties[h].differentProperties.indexOf(propertyName) < 0) {
+                                                ao.properties[h].differentProperties.push(propertyName);
+                                            }
+                                        });
+                                    }
+                                };
+
+                                recursiveProbe(aContainer.properties[j], bContainer.properties[j]);
+
+                            } else if (!aContainer.properties[j].hasDifferentAssignments) {
+                                // a difference for this particular property wasn't yet found.
+                                // when true, it means there is no need to validate because one difference is enough
                                 let va = $scope.getPropertyValue(aContainer, aContainer.properties[j]);
                                 let vb = $scope.getPropertyValue(bContainer, bContainer.properties[j]);
 
                                 if (isFunction(va.equals) && isFunction(vb.equals)) {
                                     // both values have the 'equals' function defined, let's use it!
                                     aContainer.properties[j].hasDifferentAssignments = !va.equals(vb);
+
                                 } else {
-                                    aContainer.properties[j].hasDifferentAssignments = va != vb;
+                                    aContainer.properties[j].hasDifferentAssignments = va !== vb;
                                 }
+
+                                // now let's find the properties that have different values
+                                let propertyDifferences = getDifferentObjectProperties(aContainer.target, bContainer.target, aContainer.properties[j].name);
+
+                                // since more than two objects can be selected, we can't just push the differences to the property
+                                // 'differentProperties' array, we need to check if it wasn't already added.
+                                propertyDifferences.forEach(function (propertyName) {
+                                    if (aContainer.properties[j].differentProperties.indexOf(propertyName) < 0) {
+                                        aContainer.properties[j].differentProperties.push(propertyName);
+                                    }
+                                });
                             }
-
-                            // now let's find the properties that have different values
-                            let propertyDifferences = getDifferentObjectProperties(aContainer.target, bContainer.target, aContainer.properties[j].name);
-
-                            // since more than two objects can be selected, we can't just push the differences to the property
-                            // 'differentProperties' array, we need to check if it wasn't already added.
-                            propertyDifferences.forEach(function (propertyName) {
-                                if (aContainer.properties[j].differentProperties.indexOf(propertyName) < 0) {
-                                    aContainer.properties[j].differentProperties.push(propertyName);
-                                }
-                            });
                         }
+
                     } else {
                         logSvc.warn(_LOG_CONTEXT + "failed to get unified containers, mismatched properties?")
                     }
@@ -285,19 +371,19 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             return unifiedContainers
         }
 
-        $scope.onGameObjectSelectionChanged = function(selected) {
+        $scope.onGameObjectSelectionChanged = function (selected) {
             $scope.setTargets(selected, true);
         };
 
-        $scope.onAssetSelected = function(selected) {
+        $scope.onAssetSelected = function (selected) {
             $scope.setTargets([selected], true);
         };
 
-        $scope.onObjectsSelected = function(selected) {
+        $scope.onObjectsSelected = function (selected) {
             $scope.setTargets(selected, true);
         };
 
-        $scope.onAssetLoaded = function(path) {
+        $scope.onAssetLoaded = function (path) {
             $scope.safeDigest();
         };
 
@@ -329,6 +415,22 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             return false;
         };
 
+        $scope.getInnerTarget = function(property, target) {
+            if (property.parent !== null && property.parent.extended) {
+                let pathItems = property.path.split(_PATH_SEPARATOR);
+
+                // we want to remove the first and last element:
+                pathItems.shift();
+                pathItems.pop();
+
+                pathItems.forEach((path) => {
+                    target = target[path];
+                });
+            }
+
+            return target;
+        };
+
         /**
          * Synchronizes a value to the original object container
          * @param container
@@ -345,10 +447,13 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             $scope.model.targets.forEach(function (target) {
                 let targetContainer = getContainerByType(target.propertyContainers, container.type);
                 if (targetContainer) {
+                    let target = $scope.getInnerTarget(property, targetContainer.target);
+
                     if (!subPropertyName) {
-                        commands.push(new EditPropertyCommand(targetContainer.target, property.name, targetContainer.target[property.name], value));
+                        commands.push(new EditPropertyCommand(target, property.name, target[property.name], value));
+
                     } else {
-                        commands.push(new EditPropertyCommand(targetContainer.target[property.name], subPropertyName, targetContainer.target[property.name][subPropertyName], value));
+                        commands.push(new EditPropertyCommand(target[property.name], subPropertyName, target[property.name][subPropertyName], value));
                     }
                 }
             });
@@ -357,6 +462,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
             AngularHelper.commandHistory.store(commands);
 
             function syncToContainerAction(targetContainer) {
+                let target = $scope.getInnerTarget(property, targetContainer.target);
                 let type = property.type.toLowerCase();
                 let targetValue = value;
 
@@ -364,7 +470,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 if ($scope.model.multipleTargets && subPropertyName && property.differentProperties.length > 0) {
                     // yes, so basically we need to update the subProperty values of each respective target
                     // and then assign the original value with that only modification
-                    targetValue = targetContainer.target[property.name];
+                    targetValue = target[property.name];
                     targetValue[subPropertyName] = value[subPropertyName];
                 }
 
@@ -381,15 +487,15 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                         });
 
                         //property.setter.apply(targetContainer.target, args);
-                        targetContainer.target[property.name].set.apply(targetContainer.target[property.name], args);
+                        target[property.name].set.apply(target[property.name], args);
 
                     } else {
                         // this doesn't have any rules so we are supposing it's a single value setter:
-                        property.setter.call(targetContainer.target, targetValue);
+                        property.setter.call(target, targetValue);
                     }
 
                 } else {
-                    targetContainer.target[property.name] = value;
+                    target[property.name] = value;
                 }
             }
 
@@ -414,7 +520,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 }
             }
 
-            if (property.differentProperties.length == 0) {
+            if (property.differentProperties.length === 0) {
                 property.hasDifferentAssignments = false;
             }
         };
@@ -441,7 +547,7 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 $scope.model.multipleTargets = true;
                 $scope.model.propertyContainers = getUnifiedPropertyContainers($scope.model.targets);
 
-            } else if ($scope.model.targets.length == 1) {
+            } else if ($scope.model.targets.length === 1) {
                 $scope.model.propertyContainers = $scope.model.targets[0].propertyContainers;
             }
 
@@ -459,8 +565,12 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
         };
 
         $scope.getEditorUrl = function (type) {
-            // TODO: validate if the editor exists and cache the result
-            return "templates/propertyEditor/editors/" + type.toLowerCase() + ".html";
+            type = type.toLowerCase();
+
+            if (_AVAILABLE_EDITORS.indexOf(type) >= 0) {
+                // ok.. the editor should be available :)
+                return "templates/propertyEditor/editors/" + type + ".html";
+            }
         };
 
         (function init() {

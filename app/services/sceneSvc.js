@@ -118,7 +118,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
      * @param path
      */
     svc.loadSceneFromFile = function (path) {
-        var defer = $q.defer();
+        let defer = $q.defer();
 
         NativeInterface.readFile(path, function (result) {
             if (result === false) {
@@ -127,7 +127,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
             } else {
                 try {
                     // TODO: make this an editor game scene
-                    var gameScene = EditorGameScene.restore(JSON.parse(result));
+                    let gameScene = EditorGameScene.restore(JSON.parse(result));
 
                     svc._activeGameScenePath = path;
 
@@ -154,28 +154,64 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
     };
 
     /**
+     * Add the given object to a given parent or scene root
+     * @param gameObject
+     * @param parent
+     * @param index
+     */
+    svc.addGameObject = function(gameObject, parent, index) {
+        if (isObjectAssigned(parent)) {
+            parent.addChild(gameObject, index);
+
+        } else {
+            // since there is no parent, we add it directly to the scene container:
+            svc._activeGameScene.addGameObject(gameObject, index);
+        }
+
+        $rootScope.$broadcast(constants.EVENTS.GAME_OBJECT_ADDED, gameObject, parent);
+    };
+
+    /**
      * Add the given object to the selected scene
      * @param gameObject
+     * @param index
      */
-    svc.addGameObjectToScene = function (gameObject) {
+    svc.addGameObjectToScene = function (gameObject, index) {
         if (svc._activeGameScene === null) {
             // cannot add without a active scene..
             return;
         }
 
-        var parent = null;
+        let parent = null;
 
         // is there any object selected? if so, we will add it as a child (if it's only one)
         if (svc._selectedObjects.length === 1) {
             parent = svc._selectedObjects[0];
-            parent.addChild(gameObject);
+            parent.addChild(gameObject, index);
+
         } else {
             // since there is no parent, we add it directly to the scene container:
-            svc._activeGameScene.addGameObject(gameObject);
+            svc._activeGameScene.addGameObject(gameObject, index);
         }
 
         // finally, broadcast this so other components know the game object was added to the scene:
         $rootScope.$broadcast(constants.EVENTS.GAME_OBJECT_ADDED, gameObject, parent);
+    };
+
+    /**
+     * executes the remove game object command for the selected game objects
+     */
+    svc.executeRemoveSelectedGameObjects = function() {
+        AngularHelper.commandHistory.execute(
+            new GameObjectRemoveCommand(svc._selectedObjects.slice()));
+    };
+
+    /**
+     * removes all selected game objects from scene
+     */
+    svc.removeSelectedGameObjects = function() {
+        svc.removeGameObjectsFromScene(svc._selectedObjects);
+        svc.clearSelectedObjects();
     };
 
     /**
@@ -184,8 +220,8 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
      */
     svc.removeGameObjectsFromScene = function (gameObjects) {
         function recursive(array, toDelete) {
-            for (var i = array.length - 1; i >= 0; i--) {
-                var idx = toDelete.indexOfObject(array[i]);
+            for (let i = array.length - 1; i >= 0; i--) {
+                let idx = toDelete.indexOfObject(array[i]);
 
                 if (idx >= 0) {
                     // announce the removal:
@@ -198,12 +234,13 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
                     toDelete.splice(idx, 1);
 
                     // any more to look for?
-                    if (toDelete.length == 0) {
+                    if (toDelete.length === 0) {
                         return true;
                     }
+
                 } else {
                     // let's check on the child nodes though:
-                    var end = recursive(array[i].getChildren(), toDelete);
+                    let end = recursive(array[i].getChildren(), toDelete);
 
                     if (end) {
                         return end;
@@ -212,7 +249,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
             }
         }
 
-        recursive(svc._activeGameScene.getGameObjects(), gameObjects);
+        recursive(svc._activeGameScene.getGameObjects(), gameObjects.slice());
     };
 
     /**
@@ -226,11 +263,11 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
      * gets an array of the selected game objects uid values
      */
     svc.getSelectedObjectsUIDs = function () {
-        if (!svc._selectedObjects || svc._selectedObjects.length == 0) {
+        if (!svc._selectedObjects || svc._selectedObjects.length === 0) {
             return [];
         }
 
-        var arr = [];
+        let arr = [];
         svc._selectedObjects.forEach(function (obj) {
             arr.push(obj.getUID());
         });
@@ -245,7 +282,9 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
     svc.setSelectedObjects = function (objects, disableBroadcast, disableCommandStore) {
         // store the command ?
         if (!disableCommandStore) {
-            AngularHelper.commandHistory.execute(new GameObjectSelectionCommand(this, svc._selectedObjects.slice(), objects.slice()));
+            AngularHelper.commandHistory.execute(
+                new GameObjectSelectionCommand(svc._selectedObjects.slice(), objects.slice()));
+
         } else {
             // update the selected objects object:
             svc._selectedObjects = objects;
@@ -270,6 +309,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
      */
     svc.clearSelectedObjects = function () {
         svc._selectedObjects = [];
+        EventManager.emit(constants.EVENTS.GAME_OBJECT_SELECTION_CHANGED, []);
     };
 
     return svc;
