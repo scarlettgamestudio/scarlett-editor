@@ -8,6 +8,8 @@
 
 # README #
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/scarlettgamestudio/scarlett-editor.svg)](https://greenkeeper.io/)
+
 ### What is this repository for? ###
 
 This repository contains the Scarlett Editor Module and associated libraries. **At the moment this software is in Development Stage and not ready for production use.**
