@@ -2,6 +2,10 @@
 
 ![alt tag](https://scarlett.cothesia.com/attachments/images/scarlett_screen1.png)
 
+[![node-version][node-version-badge]][node]
+[![Dependencies][dependencyci-badge]][dependencyci]
+[![styled with prettier][prettier-badge]][prettier]
+
 # README #
 
 ### What is this repository for? ###
@@ -69,3 +73,13 @@ To allow Ecma6 syntax make sure to change the Javascript Version in the settings
 
 * Repo owner or admin
 * Other community or team contact
+
+
+[npm-version-badge]: https://img.shields.io/npm/v/scarlett-framework.svg
+[node]: https://nodejs.org
+[node-version-badge]: https://img.shields.io/badge/node-%3E%3D%206.0-orange.svg
+[license-badge]: https://img.shields.io/npm/l/scarlett-framework.svg
+[dependencyci-badge]: https://dependencyci.com/github/scarlettgamestudio/scarlett-editor/badge
+[dependencyci]: https://dependencyci.com/github/scarlettgamestudio/scarlett-editor
+[prettier-badge]: https://img.shields.io/badge/styled_with-prettier-ff69b4.svg
+[prettier]: https://github.com/prettier/prettier
