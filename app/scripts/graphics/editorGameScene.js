@@ -128,13 +128,13 @@ class EditorGameScene extends SC.GameScene {
      * @param data
      * @returns {EditorGameScene}
      */
-    static restore(data) {
+    static async restore(data) {
         return new EditorGameScene({
             game: GameManager.activeGame,
             backgroundColor: Color.restore(data.backgroundColor),
             camera: Camera2D.restore(data.camera),
-            gameObjects: Objectify.restoreArray(data.gameObjects),
-        });
+            gameObjects: await Objectify.restoreArray(data.gameObjects)
+        }); 
     }
 
     //#endregion

@@ -18,7 +18,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
 
     }).bind(this));
 
-    scope.$on(constants.EVENTS.GAME_INITIALIZE, (function (e, project) {
+    scope.$on(constants.EVENTS.GAME_INITIALIZE, ((e, project) => {
         if (project.editor && project.editor.lastScene) {
             svc.loadSceneFromFile(scarlettSvc.getActiveProjectPath() + project.editor.lastScene);
         }
@@ -64,7 +64,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
 
         // update the project editor last scene:
         if (svc._activeGameScenePath) {
-            scarlettSvc.getActiveProject().editor.lastScene = Path.makeRelative(scarlettSvc.activeProjectPath, svc._activeGameScenePath);
+            //scarlettSvc.getActiveProject().editor.lastScene = Path.makeRelative(scarlettSvc.activeProjectPath, svc._activeGameScenePath);
         }
 
         // clear undo/redo history:
@@ -103,7 +103,7 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
                         svc._activeGameScenePath = path;
 
                         // .. and update the editor values as well:
-                        scarlettSvc.getActiveProject().editor.lastScene = Path.makeRelative(scarlettSvc.activeProjectPath, svc._activeGameScenePath);
+                        //scarlettSvc.getActiveProject().editor.lastScene = Path.makeRelative(scarlettSvc.activeProjectPath, svc._activeGameScenePath);
 
                         // write the scene data:
                         NativeInterface.writeFile(path, JSON.stringify(sceneData));
@@ -126,15 +126,11 @@ app.factory("sceneSvc", function ($rootScope, constants, gameSvc, scarlettSvc, $
                 defer.reject(error);
             } else {
                 try {
-                    // TODO: make this an editor game scene
-                    let gameScene = EditorGameScene.restore(JSON.parse(result));
-
-                    svc._activeGameScenePath = path;
-
-                    svc.setActiveGameScene(gameScene);
-
-                    defer.resolve(gameScene);
-
+                    EditorGameScene.restore(JSON.parse(result)).then((gameScene) => {
+                        svc._activeGameScenePath = path;
+                        svc.setActiveGameScene(gameScene);
+                        defer.resolve(gameScene);
+                    });
                 } catch (error) {
                     // the project failed while parsing..
                     defer.reject(error);

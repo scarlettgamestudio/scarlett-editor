@@ -171,11 +171,11 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             $scope.setActiveFolderNode(folder);
         };
 
-        $scope.onFileDblClick = function (file) {
+        $scope.onFileDblClick = (file) => {
             handleOpenFile(file);
         };
 
-        $scope.onFileClick = function (file) {
+        $scope.onFileClick = (file) => {
             if (assetSvc.isAsset(file.attributes.path)) {
                 handleOpenFile(file);
                 return;
@@ -360,12 +360,12 @@ app.controller('ContentBrowserCtrl', ['$scope', 'logSvc', 'config', 'scarlettSvc
             return a.name.localeCompare(b.name);
         }
 
-        function handleOpenFile(file) {
+        async function handleOpenFile(file) {
             let ext = Path.getFileExtension(file.attributes.path).toLowerCase();
 
             switch (ext) {
                 case ".ss":
-                    sceneSvc.loadSceneFromFile(file.attributes.path);
+                    await sceneSvc.loadSceneFromFile(file.attributes.path);
                     break;
 
                 // asset files:
