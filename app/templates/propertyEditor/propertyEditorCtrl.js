@@ -465,6 +465,12 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 let target = $scope.getInnerTarget(property, targetContainer.target);
                 let type = property.type.toLowerCase();
                 let targetValue = value;
+                let specificRetry = false;
+                
+                // TODO: add a specific property to the model?
+                if (target instanceof SC.Text && property.name === "_fontPathAsync"){
+                    specificRetry = true;
+                }
 
                 // is this a multiple target selection and the sub properties aren't all equal?
                 if ($scope.model.multipleTargets && subPropertyName && property.differentProperties.length > 0) {
@@ -474,29 +480,48 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                     targetValue[subPropertyName] = value[subPropertyName];
                 }
 
-                if (property.setter) {
-                    let rule = SetterDictionary.getRule(type);
-                    // this setter has a definition (rule) applied?
-                    if (rule) {
-                        // yes, it means the setter will be made using the user defined order
-                        let args = [];
-                        rule.forEach(function (entry) {
-                            if (isObjectAssigned(targetValue[entry])) {
-                                args.push(targetValue[entry]);
-                            }
-                        });
-
-                        //property.setter.apply(targetContainer.target, args);
-                        target[property.name].set.apply(target[property.name], args);
-
-                    } else {
-                        // this doesn't have any rules so we are supposing it's a single value setter:
-                        property.setter.call(target, targetValue);
-                    }
-
-                } else {
+                // if there is no specific setter function, set it manually
+                if (!isFunction(property.setter)) {
                     target[property.name] = value;
+                    return;
                 }
+
+                // otherwise, try to obtain setter rule
+                let rule = SetterDictionary.getRule(type);
+                // this setter has a definition (rule) applied?
+                if (rule) {
+                    // yes, it means the setter will be made using the user defined order
+                    let args = [];
+                    rule.forEach(function (entry) {
+                        if (isObjectAssigned(targetValue[entry])) {
+                            args.push(targetValue[entry]);
+                        }
+                    });
+
+                    //property.setter.apply(targetContainer.target, args);
+                    target[property.name].set.apply(target[property.name], args);
+                    return;
+
+                }
+                // one could think this if statement isn't needed, 
+                // and the setter call could be placed after the other one, but
+                // it would get called while waiting for the promise, 
+                // which defeats the generation/retry purpose
+                if (!specificRetry){
+                    // this doesn't have any rules so we are supposing it's a single value setter:
+                    property.setter.call(target, targetValue);
+                    return;
+                } 
+
+                // a specific case to generate BMFont spec and texture when needed
+                // TODO: think of an alternative?
+                property.setter.call(target, targetValue).then((result) => {
+                    if (!result){
+                        console.log("generation needed");
+                        console.log("call font async setter again");
+                        // property.setter.call(target, targetValue);
+                    }
+                });
             }
 
             if ($scope.model.multipleTargets) {
