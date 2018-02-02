@@ -1,3 +1,5 @@
+const BMFontGenerator = require("bmFontGenerator");
+
 app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
     function ($scope, logSvc, constants) {
 
@@ -517,9 +519,13 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 // TODO: think of an alternative?
                 property.setter.call(target, targetValue).then((result) => {
                     if (!result){
-                        console.log("generation needed");
-                        console.log("call font async setter again");
-                        // property.setter.call(target, targetValue);
+                        // try to generate them (only works in node)
+                        BMFontGenerator.generate(targetValue, (callback) => {
+                            if (callback) {
+                                property.setter.call(target, targetValue);
+                            }
+                        });
+                        
                     }
                 });
             }

@@ -44,7 +44,6 @@ app.factory("gameSvc", function ($rootScope, constants, logSvc, $compile) {
      */
     svc.createGameObject = function (name) {
         name = name || "Game Object";
-
         return new GameObject({name: name});
     };
 
