@@ -1,5 +1,3 @@
-const BMFontGenerator = require("bmFontGenerator");
-
 app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
     function ($scope, logSvc, constants) {
 
@@ -467,12 +465,6 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                 let target = $scope.getInnerTarget(property, targetContainer.target);
                 let type = property.type.toLowerCase();
                 let targetValue = value;
-                let specificRetry = false;
-                
-                // TODO: add a specific property to the model?
-                if (target instanceof SC.Text && property.name === "_fontPathAsync"){
-                    specificRetry = true;
-                }
 
                 // is this a multiple target selection and the sub properties aren't all equal?
                 if ($scope.model.multipleTargets && subPropertyName && property.differentProperties.length > 0) {
@@ -505,29 +497,8 @@ app.controller('PropertyEditorCtrl', ['$scope', 'logSvc', 'constants',
                     return;
 
                 }
-                // one could think this if statement isn't needed, 
-                // and the setter call could be placed after the other one, but
-                // it would get called while waiting for the promise, 
-                // which defeats the generation/retry purpose
-                if (!specificRetry){
-                    // this doesn't have any rules so we are supposing it's a single value setter:
-                    property.setter.call(target, targetValue);
-                    return;
-                } 
-
-                // a specific case to generate BMFont spec and texture when needed
-                // TODO: think of an alternative?
-                property.setter.call(target, targetValue).then((result) => {
-                    if (!result){
-                        // try to generate them (only works in node)
-                        BMFontGenerator.generate(targetValue, (callback) => {
-                            if (callback) {
-                                property.setter.call(target, targetValue);
-                            }
-                        });
-                        
-                    }
-                });
+                
+                property.setter.call(target, targetValue);
             }
 
             if ($scope.model.multipleTargets) {
