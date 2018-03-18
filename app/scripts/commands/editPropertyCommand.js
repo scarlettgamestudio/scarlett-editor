@@ -7,7 +7,7 @@ EditPropertyCommand = Undo.Command.extend({
         this.oldValue = JSON.parse(JSON.stringify(oldValue));
         this.newValue = JSON.parse(JSON.stringify(newValue));
         this.property = property;
-        this.recursiveApply = function recursive(container, property, value) {
+        this.recursiveApply = (container, property, value) => {
             if (typeof container[property] === "object") {
                 Object.keys(container[property]).forEach(function (innerProperty) {
                     recursive(container[property], innerProperty, value);
